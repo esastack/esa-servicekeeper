@@ -22,8 +22,7 @@ Step one: Add maven dependency
 
 Step two: Add customize configuration by annotation
 ```java
-@Configuration
-@Import({ServiceKeeperConfigurator.class})
+@SpringBootApplication
 public class AppMain {
 
     @Bean
@@ -32,9 +31,7 @@ public class AppMain {
     }
 
     public static void main(String[] args) {
-        final AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-        ctx.register(AppMain.class);
-        ctx.refresh();
+        ConfigurableApplicationContext ctx = SpringApplication.run(AppMain.class);
 
         final HelloService service = ctx.getBean(HelloService.class);
         int errorCount = 0;
