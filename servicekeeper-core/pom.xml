@@ -28,7 +28,7 @@
     <name>ServiceKeeper :: Core</name>
 
     <properties>
-        <caffeine.version>3.0.1</caffeine.version>
+        <caffeine.version>2.9.1</caffeine.version>
     </properties>
 
     <dependencies>
@@ -78,7 +78,7 @@
                                     </shadedPattern>
                                 </relocation>
                             </relocations>
-                            <minimizeJar>true</minimizeJar>
+                            <minimizeJar>false</minimizeJar>
                             <createSourcesJar>true</createSourcesJar>
                             <shadeSourcesContent>true</shadeSourcesContent>
                         </configuration>
