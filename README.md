@@ -1,4 +1,10 @@
 # ServiceKeeper
+
+![Build](https://github.com/esastack/esa-servicekeeper/workflows/Build/badge.svg?branch=main)
+[![codecov](https://codecov.io/gh/esastack/esa-servicekeeper/branch/main/graph/badge.svg?token=CCQBCBQJP6)](https://codecov.io/gh/esastack/esa-servicekeeper)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.esastack/servicekeeper-parent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.esastack/servicekeeper-parent/)
+[![GitHub license](https://img.shields.io/github/license/esastack/esa-servicekeeper)](https://github.com/esastack/esa-servicekeeper/blob/main/LICENSE)
+
 ServiceKeeper is a lightweight service governance framework that provides many awesome features such as rate limit, concurrent limit, circuit breaker,
 retry and fallback... You can get start and customize the configuration easily with `annotation`.
 
