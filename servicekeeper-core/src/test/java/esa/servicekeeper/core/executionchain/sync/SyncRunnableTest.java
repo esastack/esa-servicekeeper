@@ -45,7 +45,7 @@ class SyncRunnableTest {
     void testRunnableTriggerConcurrentLimit() throws InterruptedException {
         final Runnable runnable = () -> {
             try {
-                TimeUnit.MILLISECONDS.sleep(3L);
+                TimeUnit.MILLISECONDS.sleep(500L);
             } catch (InterruptedException e) {
                 // Do nothing
             }
