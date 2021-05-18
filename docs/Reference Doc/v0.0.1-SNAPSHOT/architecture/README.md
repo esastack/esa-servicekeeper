@@ -19,7 +19,7 @@ sort: 1
 - `@EnableServiceKeeper` 一个空注解，仅用于标识该方法可被`ServiceKeeper`代理
 
 *只要原始方法拥有以上注解中的任何一个*，该方法就可以被`ServiceKeeper`拦截到，后续就可以通过配置文件等实时配置需要的功能。需要说明地是：
-1. 除了`ServiceKeeper`内置的上述注解外，对于`Spring Boot`和`Restlight`应用而言，默认还会代理对外提供服务的`Controller`方法（即带`@RequestMapping`、`@GetMapping`、`@PostMapping`、`@PutMapping`、`@PatchMapping`、`@DeleteMapping`注解的方法），由于前述注解在两种应用中包名不同因此提供了不同的接入适配模块，详情参见[快速接入](http://cloud.oppoer.me/docsCenter/product0ec6948e58f6ed89844d08a23/docsDetail?fileId=ee47b2a1cdd24661aae4c76882f17701)
+1. 除了`ServiceKeeper`内置的上述注解外，对于`Spring Boot`和`Restlight`应用而言，默认还会代理对外提供服务的`Controller`方法（即带`@RequestMapping`、`@GetMapping`、`@PostMapping`、`@PutMapping`、`@PatchMapping`、`@DeleteMapping`注解的方法），由于前述注解在两种应用中包名不同因此提供了不同的接入适配模块，详情参见[快速接入](../quick_start.md)
 2. 默认情况下，`ServiceKeeper`提供的AOP的优先级最低，如果需要更改该优先级，可以参考下文自定义AOP顺序
 
 #### Filter扩展(适用于Dubbo Extension、ESA RPC)
