@@ -1,5 +1,5 @@
 ---
-sort: 100
+sort: 1
 ---
 
 # Spring应用接入指南
@@ -27,7 +27,7 @@ sort: 100
 ```
 
 ```note
-默认支持返回值为CompletableFuture类型的异步方法治理，使用时无需额外配置。
+默认支持返回值为`CompletableFuture`类型的异步方法治理，使用时无需额外配置。
 ```
 
 #### Step 2: 初始化服务治理核心Bean
@@ -58,5 +58,5 @@ public class ServiceKeeperConfiguration {
 ```
 
 ```note
-注意事项：WebAutoSupportAop为`Service Keeper`扩展的拦截所有带@RequestMapping、@GetMapping、@PostMapping、@PutMapping、@PatchMapping、@DeleteMapping注解方法的拦截器，如果您不想使用该功能，可以选择不注入该类。
+注意事项：`WebAutoSupportAop`为`Service Keeper`扩展的拦截所有带`@RequestMapping`、`@GetMapping`、`@PostMapping`、`@PutMapping`、`@PatchMapping`、`@DeleteMapping`注解方法的拦截器，如果您不想使用该功能，可以选择不注入该类。
 ```

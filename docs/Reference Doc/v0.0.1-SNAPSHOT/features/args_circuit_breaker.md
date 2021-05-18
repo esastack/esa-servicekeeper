@@ -1,5 +1,5 @@
 ---
-sort: 1000
+sort: 10
 ---
 
 # 参数级熔断
@@ -11,7 +11,7 @@ sort: 1000
 
 - 参数级的熔断阈值支持通过本地配置文件动态配置，实时生效。
 
-- 对于参数熔断的方法调用，如果其所在方法正确配置了降级方法则执行降级方法，否则直接抛出CircuitBreakerNotPermittedException。
+- 对于参数熔断的方法调用，如果其所在方法正确配置了降级方法则执行降级方法，否则直接抛出`CircuitBreakerNotPermittedException`。
 
 ### 使用示例
 ```java
@@ -23,7 +23,7 @@ public Employee list(@ArgsCircuitBreaker(failureRateThresholdMap = "{LiMing: 20.
 
 如上配置表示，限制name值为LiMing的方法熔断阈值为20.0%，name值为WangWu的方法熔断阈值为30.0%；此外，还可以动态新增、更新参数值及对应的熔断阈值。
 ```note
-1. @EnableServiceKeeper用于标识该方法可以被ServiceKeeper拦截，如果方法上已存在任一方法级服务治理注解（@RateLimiter、@ConcurrentLimiter、@CircuitBreaker、@Retry）则可省略该注解。
+1. `@EnableServiceKeeper`用于标识该方法可以被`ServiceKeeper`拦截，如果方法上已存在任一方法级服务治理注解（`@RateLimiter`、`@ConcurrentLimiter`、`@CircuitBreaker`、`@Retry`）则可省略该注解。
 2. 如果配置文件中存在同名参数的并发数限制，则配置文件中的配置优先级更高。
 ```
 

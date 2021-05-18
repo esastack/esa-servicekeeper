@@ -1,5 +1,5 @@
 ---
-sort: 400
+sort: 4
 ---
 
 # 方法降级
@@ -23,7 +23,7 @@ public String list() {
 - 降级方法必须声明为public，并且为非final，否则cglib无法正常代理；
 - 必须将CustomizeFallback注入Spring容器或提供无参构造方法（或者降级方法为类的静态方法）；
 - 降级方法和原方法的参数列表及返回值必须相同或者没有参数（允许新增一个导致降级的异常参数，详见下方示例）；
-- fallbackClass和fallbackMethod可以省略其中之一，但不能同时省略(**仅适用于@Fallback**)；当fallbackClass省略时，默认为原始方法所在类；当fallbackMethod省略时，默认降级方法名与原始方法名称相同；
+- fallbackClass和fallbackMethod可以省略其中之一，但不能同时省略(**仅适用于`@Fallback`**)；当fallbackClass省略时，默认为原始方法所在类；当fallbackMethod省略时，默认降级方法名与原始方法名称相同；
 
 在使用使用时，允许根据需要在降级方法参数列表中声明导致降级的异常(**该异常必须为ServiceKeeper框架自身抛出的异常**)，如下：
 ```java
@@ -101,11 +101,8 @@ public String list() {
 
 如上，当list()方法降级时会抛出IllegalArgumentException异常。**注意：必须将指定的降级异常注入Spring容器或提供无参构造方法。**
 
-### 管控平台配置（推荐）
-通过管控平台进行服务治理参数配置，详见[管控平台](http://cloud.oppoer.me/docsCenter/product0ec6948e58f6ed89844d08a23/docsDetail?fileId=374b48e49a0644f185be35f80db09055)。
-
-### 配置文件配置（Deprecated）
-@Fallback注解中的所有参数均支持通过配置文件进行配置，但**暂不支持实时生效**，也就是说如果你需要通过此种方式进行方法的降级配置，必须在程序启动前在配置文件中完成相应的配置。示例如下：
+### 配置文件配置
+`@Fallback`注解中的所有参数均支持通过配置文件进行配置，但**暂不支持实时生效**，也就是说如果你需要通过此种方式进行方法的降级配置，必须在程序启动前在配置文件中完成相应的配置。示例如下：
 ```properties
 #降级方法所在类名
 esa.servicekeeper.TestController.list.fallbackClass=\

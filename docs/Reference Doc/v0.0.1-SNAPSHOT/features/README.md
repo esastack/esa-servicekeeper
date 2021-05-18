@@ -2,5 +2,5 @@
 sort: 2000
 ---
 
-# V0.0.1-SNAPSHOT
+# Features
 {% include list.liquid all=true %}

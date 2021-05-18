@@ -1,5 +1,5 @@
 ---
-sort: 300
+sort: 3
 ---
 
 # 方法熔断
@@ -102,7 +102,8 @@ public class CustomizePredicateStrategy implements PredicateStrategy {
 3. 如果配置文件中存在方法熔断的同名配置则配置文件中的参数优先级更高。
 ```
 
-#### 5. 更多@CircuitBreaker注解的属性说明：
+#### 5. 更多`@CircuitBreaker`注解的属性说明：
+
 | 属性名称         |      类型    |             描述          |       默认值    |      备注      |     是否支持动态配置                                            
 | --------------- |   :--------  | :----------------------- | -------------- |  ---------- | ------
 |  ringBufferSizeInClosedState     |  int                       |  熔断器关闭状态下ring buffer大小  |       100                |        |   否
@@ -114,7 +115,7 @@ public class CustomizePredicateStrategy implements PredicateStrategy {
 |  maxSpendTimeMs              |  int   |   方法最大耗时       |       -1           |    使用根据平均耗时熔断时的必需配置            |    **是**   |
 
 ### 配置文件配置
-如前文所述，如果需要熔断的方法可以被`Service Keeper`拦截到，可以不使用@CircuitBreaker进行配置，通过在配置文件中配置相应也可完成对原始方法的熔断配置。
+如前文所述，如果需要熔断的方法可以被`Service Keeper`拦截到，可以不使用`@CircuitBreaker`进行配置，通过在配置文件中配置相应也可完成对原始方法的熔断配置。
 示例如下：
 ```properties
 #方法熔断的失败率阈值百分比，默认为50.0f

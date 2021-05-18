@@ -1,16 +1,16 @@
 ---
-sort: 600
+sort: 6
 ---
 
 # 方法重试
 
 ### 概述
-在某些场景下，用户希望在执行某个方法失败后可以自动重试1次或多次，当然这也涉及到方法内部的实现是否可以在多次重试后成功。`Service Keeper`提供了方法级的重试，使用时只需在方法上添加@Retryable，通过配置maxAttempts、includeExceptions、excludeExceptions等属性来控制最大执行次数(默认3次，包括第1次)、可重试异常，不可重试异常，同时提供了Backoff补偿策略，控制重试的时间间隔，**使用Thread.sleep(ms)来实现时间间隔(默认delay=0即重试前不sleep)。**
+在某些场景下，用户希望在执行某个方法失败后可以自动重试1次或多次，当然这也涉及到方法内部的实现是否可以在多次重试后成功。`Service Keeper`提供了方法级的重试，使用时只需在方法上添加`@Retryable`，通过配置maxAttempts、includeExceptions、excludeExceptions等属性来控制最大执行次数(默认3次，包括第1次)、可重试异常，不可重试异常，同时提供了Backoff补偿策略，控制重试的时间间隔，**使用Thread.sleep(ms)来实现时间间隔(默认delay=0即重试前不sleep)。**
 重试时，可能出现一些异常情况：
 - 持续异常，执行次数耗尽
 - 抛出不需重试的异常，此时`ServiceKeeper`将抛出`ServiceRetryException`异常
 
-上述两种情况下，用户可以通过配置@Fallback进行重试失败后的降级操作，详情见[方法降级](method_fallback.md)
+上述两种情况下，用户可以通过配置`@Fallback`进行重试失败后的降级操作，详情见[方法降级](method_fallback.md)
 
 **重要说明**
 - `Service Keeper`不支持异步方法重试

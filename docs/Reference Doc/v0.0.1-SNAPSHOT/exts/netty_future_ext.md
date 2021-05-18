@@ -1,5 +1,5 @@
 ---
-sort: 200
+sort: 2
 ---
 
 # Netty Future异步支持
@@ -20,7 +20,7 @@ public NettyFutureHandler nettyFutureHandler() {
 ```
 
 ```note
-由于Restlight默认支持io.netty.util.concurrent.Future，因此servicekeeper-restlight-adapter模块中默认注入了NettyFutureHandler
+由于`Restlight`默认支持`io.netty.util.concurrent.Future`，因此`servicekeeper-restlight-adapter`模块中默认注入了`NettyFutureHandler`。
 ```
 
 对于非Spring容器，可在初始化时传入该Handler的实例，如：

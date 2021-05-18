@@ -1,9 +1,9 @@
 ---
-sort: 400
+sort: 4
 ---
 
 # JAX-RS接入适配
-对于JAX-RS应用，如果需要默认拦截带有@Path注解的接口，可以直接引入依赖：
+对于JAX-RS应用，如果需要默认拦截带有`@Path`注解的接口，可以直接引入依赖：
 ```xml
 <dependency>
       <groupId>io.esastack</groupId>

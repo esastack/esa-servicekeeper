@@ -1,5 +1,5 @@
 ---
-sort: 700
+sort: 7
 ---
 
 # 异步方法治理
@@ -18,7 +18,7 @@ sort: 700
 ```
 
 #### 类型二： Restlight
-默认支持返回值为CompletableFuture和ListenableFuture类型的异步方法治理，使用时无需额外配置。
+默认支持返回值为`CompletableFuture`和`ListenableFuture`类型的异步方法治理，使用时无需额外配置。
 ```note
 Restlight应用指通过 `servicekeeper-restlight-adapter`方式接入的应用
 ```
