@@ -19,7 +19,7 @@ import esa.servicekeeper.core.common.ResourceId;
 import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.config.RateLimitConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
-import esa.servicekeeper.core.exception.RateLimitOverFlowException;
+import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.moats.LifeCycleSupport;
 import esa.servicekeeper.core.moats.MoatEvent;
@@ -148,8 +148,8 @@ class RateLimitMoatTest {
 
     @Test
     void testDefaultRejectionHandle() {
-        then(limitMoat.defaultFallbackToException(null)).isInstanceOf(RateLimitOverFlowException.class);
-        assertThrows(RateLimitOverFlowException.class, () -> limitMoat.fallback(null));
+        then(limitMoat.defaultFallbackToException(null)).isInstanceOf(RateLimitOverflowException.class);
+        assertThrows(RateLimitOverflowException.class, () -> limitMoat.fallback(null));
     }
 
     @Test

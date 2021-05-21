@@ -42,15 +42,15 @@ public class ConfigsHandlerImpl implements ConfigsHandler {
     protected final InternalsUpdater updater;
 
     public ConfigsHandlerImpl(ConfigCache cache, InternalsUpdater updater) {
-        Checks.checkNotNull(cache, "ConfigCache must not be null");
-        Checks.checkNotNull(updater, "InternalsUpdater must not be null");
+        Checks.checkNotNull(cache, "cache");
+        Checks.checkNotNull(updater, "updater");
         this.cache = cache;
         this.updater = updater;
     }
 
     @Override
     public void update(Map<ResourceId, ExternalConfig> configs) {
-        final Map<ResourceId, ExternalConfig> oldConfigs = new HashMap<>(cache.getConfigs());
+        final Map<ResourceId, ExternalConfig> oldConfigs = new HashMap<>(cache.configs());
         final Map<ResourceId, ExternalConfig> newConfigs = new HashMap<>(configs);
 
         if (logger.isDebugEnabled()) {
@@ -75,7 +75,6 @@ public class ConfigsHandlerImpl implements ConfigsHandler {
         updateGroupConfig(oldGroupConfigs, newConfigs);
 
         // update value of "*" config
-        // Fix, see more info from http://gitlab.os.adc.com/oppo-open-source/esa-stack/esa-servicekeeper/issues/3
         updateMatchAllConfig(oldConfigs, newConfigs);
 
         // handle moat config

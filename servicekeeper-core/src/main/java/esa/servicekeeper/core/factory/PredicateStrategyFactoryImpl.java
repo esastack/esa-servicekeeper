@@ -43,7 +43,7 @@ public class PredicateStrategyFactoryImpl implements PredicateStrategyFactory {
     @Override
     public PredicateStrategy get(PredicateStrategyConfig config) {
         final Class<? extends PredicateStrategy> clazz = config.getPredicate();
-        Checks.checkNotNull(clazz, "PredicateStrategy must not be null");
+        Checks.checkNotNull(clazz, "clazz");
         return getOrCreate(config);
     }
 

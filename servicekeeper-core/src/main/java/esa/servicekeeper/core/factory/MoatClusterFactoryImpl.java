@@ -55,7 +55,11 @@ import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstr
 import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapConcurrent;
 import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapRate;
 import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapRetry;
-import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.*;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.CIRCUITBREAKER_CONFIG;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.CONCURRENTLIMIT_CONFIG;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.FALLBACK_CONFIG;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.RATELIMIT_CONFIG;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.RETRY_CONFIG;
 import static esa.servicekeeper.core.moats.MoatType.CIRCUIT_BREAKER;
 import static esa.servicekeeper.core.moats.MoatType.CONCURRENT_LIMIT;
 import static esa.servicekeeper.core.moats.MoatType.RATE_LIMIT;
@@ -74,9 +78,9 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
 
     public MoatClusterFactoryImpl(LimitableMoatFactoryContext ctx, InternalMoatCluster cluster,
                                   ImmutableConfigs configs) {
-        Checks.checkNotNull(ctx, "MoatFactoryContext must not be null");
-        Checks.checkNotNull(cluster, "InternalMoatCluster must not be null");
-        Checks.checkNotNull(configs, "ImmutableConfigs must not be null");
+        Checks.checkNotNull(ctx, "ctx");
+        Checks.checkNotNull(cluster, "cluster");
+        Checks.checkNotNull(configs, "configs");
         this.factories = MoatFactory.factories(ctx);
         this.cluster = cluster;
         this.context = ctx;
@@ -225,7 +229,6 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
         }
 
         // Just save the fallbackConfig for further using.
-        // See fix issue: http://gitlab.os.adc.com/oppo-open-source/esa-stack/esa-servicekeeper/issues/2
         if (fallbackConfig != null) {
             fallbackConfigs.putIfAbsent(resourceId, fallbackConfig);
         }

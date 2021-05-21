@@ -29,7 +29,7 @@ public class FallbackToValue implements FallbackHandler<String> {
     private final String value;
 
     public FallbackToValue(String value) {
-        Checks.checkNotNull(value, "FallbackToValue must not be null");
+        Checks.checkNotNull(value, "value");
         this.value = value;
     }
 

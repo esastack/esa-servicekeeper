@@ -57,8 +57,8 @@ public class AtomicRateLimiter implements RateLimiter {
     private final RateLimitConfig immutableConfig;
 
     public AtomicRateLimiter(String name, RateLimitConfig rateLimitConfig, RateLimitConfig immutableConfig) {
-        Checks.checkNotNull(rateLimitConfig, "RateLimitConfig must not be null");
-        Checks.checkNotEmptyArg(name, "RateLimiter's name must not be null");
+        Checks.checkNotNull(rateLimitConfig, "rateLimitConfig");
+        Checks.checkNotEmptyArg(name, "Rname");
 
         this.name = name;
         waitingThreads = new AtomicInteger(0);
@@ -69,7 +69,7 @@ public class AtomicRateLimiter implements RateLimiter {
     }
 
     public AtomicRateLimiter(RateLimitConfig rateLimitConfig, RateLimitConfig immutableConfig) {
-        Checks.checkNotNull(rateLimitConfig, "RateLimitConfig must not be null");
+        Checks.checkNotNull(rateLimitConfig, "rateLimitConfig");
 
         this.name = null;
         waitingThreads = new AtomicInteger(0);

@@ -34,7 +34,7 @@ public class GroupConfigSourceImpl implements GroupConfigSource {
     private final ImmutableConfigs immutableConfigs;
 
     public GroupConfigSourceImpl(GroupConfigSource groupConfigSource, ImmutableConfigs immutableConfigs) {
-        Checks.checkNotNull(immutableConfigs, "ImmutableConfigs must not be null");
+        Checks.checkNotNull(immutableConfigs, "immutableConfigs");
         this.groupConfigSource = groupConfigSource;
         this.immutableConfigs = immutableConfigs;
     }

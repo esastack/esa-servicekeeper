@@ -55,7 +55,6 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
         try {
             return cachedHandlers.computeIfAbsent(config, this::doCreate);
         } catch (FallbackFailsException ex) {
-            // Fix http://gitlab.os.adc.com/oppo-open-source/esa-stack/esa-servicekeeper/issues
             logger.error("Failed to create fallback handler", ex);
             return null;
         }

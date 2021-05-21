@@ -46,8 +46,8 @@ public class CircuitBreakerStateMachine implements CircuitBreaker {
     public CircuitBreakerStateMachine(String name, CircuitBreakerConfig circuitBreakerConfig,
                                       CircuitBreakerConfig immutableConfig,
                                       List<CircuitBreakerSateTransitionProcessor> processors) {
-        Checks.checkNotEmptyArg(name, "CircuitBreaker's name must be not empty");
-        Checks.checkNotNull(circuitBreakerConfig, "CircuitBreakerConfig must be not null");
+        Checks.checkNotEmptyArg(name, "name");
+        Checks.checkNotNull(circuitBreakerConfig, "circuitBreakerConfig");
 
         this.name = name;
         this.circuitBreakerConfig = circuitBreakerConfig;

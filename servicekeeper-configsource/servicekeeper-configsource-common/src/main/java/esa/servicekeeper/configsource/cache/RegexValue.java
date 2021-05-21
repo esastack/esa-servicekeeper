@@ -16,6 +16,7 @@
 package esa.servicekeeper.configsource.cache;
 
 import esa.commons.Checks;
+import esa.commons.annotation.Beta;
 
 import java.util.Set;
 import java.util.StringJoiner;
@@ -24,6 +25,7 @@ import java.util.regex.Pattern;
 
 import static java.util.Collections.unmodifiableSet;
 
+@Beta
 public final class RegexValue<C, K> {
 
     private final Pattern pattern;
@@ -31,23 +33,23 @@ public final class RegexValue<C, K> {
     private final CopyOnWriteArraySet<K> items;
 
     RegexValue(Pattern pattern, C config, CopyOnWriteArraySet<K> items) {
-        Checks.checkNotNull(pattern, "RegexValue's pattern must not be null");
-        Checks.checkNotNull(config, "RegexValue's config must not be null");
-        Checks.checkNotNull(items, "RegexValue's items must not be null");
+        Checks.checkNotNull(pattern, "pattern");
+        Checks.checkNotNull(config, "config");
+        Checks.checkNotNull(items, "items");
         this.pattern = pattern;
         this.config = config;
         this.items = items;
     }
 
-    public C getConfig() {
+    public C config() {
         return config;
     }
 
-    public Set<K> getItems() {
+    public Set<K> items() {
         return unmodifiableSet(items);
     }
 
-    Pattern getPattern() {
+    Pattern pattern() {
         return pattern;
     }
 

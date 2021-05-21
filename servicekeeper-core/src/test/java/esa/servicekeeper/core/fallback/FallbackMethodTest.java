@@ -17,7 +17,7 @@ package esa.servicekeeper.core.fallback;
 
 import esa.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
 import esa.servicekeeper.core.exception.ConcurrentOverFlowException;
-import esa.servicekeeper.core.exception.RateLimitOverFlowException;
+import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import esa.servicekeeper.core.exception.ServiceKeeperException;
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.exception.ServiceRetryException;
@@ -48,7 +48,7 @@ class FallbackMethodTest {
         then(method0.canApplyTo(CauseType.RETRY)).isFalse();
 
         final FallbackMethod method1 = new FallbackMethod(Foo.class.getDeclaredMethod("method1",
-                RateLimitOverFlowException.class));
+                RateLimitOverflowException.class));
         then(method1.canApplyTo(CauseType.CIRCUIT_BREAKER)).isFalse();
         then(method1.canApplyTo(CauseType.RATE_LIMIT)).isTrue();
         then(method1.canApplyTo(CauseType.CONCURRENT_LIMIT)).isFalse();
@@ -101,7 +101,7 @@ class FallbackMethodTest {
 
         }
 
-        private void method1(RateLimitOverFlowException ex) {
+        private void method1(RateLimitOverflowException ex) {
 
         }
 

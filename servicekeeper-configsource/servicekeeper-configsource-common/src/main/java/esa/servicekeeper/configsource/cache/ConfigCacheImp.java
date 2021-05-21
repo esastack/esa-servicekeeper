@@ -37,7 +37,7 @@ public class ConfigCacheImp implements ConfigCache {
     private final Map<ArgConfigKey, Integer> maxSizeLimits = new ConcurrentHashMap<>(1);
 
     @Override
-    public ExternalConfig getConfig(ResourceId resourceId) {
+    public ExternalConfig configOf(ResourceId resourceId) {
         final ExternalConfig config = configs.get(resourceId);
         if (config != null) {
             if (logger.isDebugEnabled()) {
@@ -71,7 +71,7 @@ public class ConfigCacheImp implements ConfigCache {
     }
 
     @Override
-    public Integer getMaxSizeLimit(ArgConfigKey key) {
+    public Integer maxSizeLimitOf(ArgConfigKey key) {
         final Integer maxSizeLimit = maxSizeLimits.get(key);
         if (logger.isDebugEnabled()) {
             logger.debug("Obtained {}'s maxSizeLimit: {}", key, maxSizeLimit);
@@ -97,7 +97,7 @@ public class ConfigCacheImp implements ConfigCache {
     }
 
     @Override
-    public Map<ResourceId, ExternalConfig> getConfigs() {
+    public Map<ResourceId, ExternalConfig> configs() {
         return unmodifiableMap(this.configs);
     }
 
@@ -110,7 +110,7 @@ public class ConfigCacheImp implements ConfigCache {
     }
 
     @Override
-    public Map<ArgConfigKey, Integer> getMaxSizeLimits() {
+    public Map<ArgConfigKey, Integer> maxSizeLimits() {
         return unmodifiableMap(this.maxSizeLimits);
     }
 

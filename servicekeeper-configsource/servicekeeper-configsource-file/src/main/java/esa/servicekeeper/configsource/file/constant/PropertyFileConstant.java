@@ -43,7 +43,7 @@ public final class PropertyFileConstant {
      *
      * @return config name
      */
-    public static String getConfigName() {
+    public static String configName() {
         if (CONFIG_NAME != null) {
             return CONFIG_NAME;
         }
@@ -62,7 +62,7 @@ public final class PropertyFileConstant {
      *
      * @param configName name
      */
-    public static synchronized void setConfigName(String configName) {
+    public static synchronized void configName(String configName) {
         CONFIG_NAME = configName;
     }
 
@@ -71,7 +71,7 @@ public final class PropertyFileConstant {
      *
      * @return configuration's directory.
      */
-    public static String getConfigDir() {
+    public static String configDir() {
         if (CONFIG_DIR != null) {
             return CONFIG_DIR;
         }
@@ -89,7 +89,7 @@ public final class PropertyFileConstant {
      *
      * @param configDir configDir
      */
-    public static synchronized void setConfigDir(String configDir) {
+    public static synchronized void configDir(String configDir) {
         CONFIG_DIR = configDir;
     }
 
@@ -107,24 +107,24 @@ public final class PropertyFileConstant {
     }
 
     private static String detectDir() {
-        String defaultConfigDir = getDefaultDir();
+        String defaultConfigDir = defaultDir();
 
         // Whether service-keeper.properties has existed in default config directory
-        if (new File(defaultConfigDir, getConfigName()).exists()) {
+        if (new File(defaultConfigDir, configName()).exists()) {
             return defaultConfigDir;
         }
 
         // Try to get config from src/main/resources
         String resourcesDir = System.getProperty("user.dir") + File.separator + "src" +
                 File.separator + "main" + File.separator + "resources";
-        if (new File(resourcesDir, getConfigName()).exists()) {
+        if (new File(resourcesDir, configName()).exists()) {
             return resourcesDir;
         }
 
         return defaultConfigDir;
     }
 
-    private static String getDefaultDir() {
+    private static String defaultDir() {
         // Default to ./conf
         String configDir = DEFAULT_SERVICE_KEEPER_CONFIG_DIR;
 

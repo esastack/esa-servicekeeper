@@ -59,10 +59,10 @@ public class InternalsUpdaterImpl implements InternalsUpdater {
     public InternalsUpdaterImpl(InternalMoatCluster cluster, GroupConfigSource groupConfig,
                                 MoatClusterFactory factory, GlobalConfig globalConfig,
                                 List<MoatLimitConfigListener> limitListeners) {
-        Checks.checkNotNull(cluster, "InternalMoatCluster must not be null");
-        Checks.checkNotNull(groupConfig, "GroupConfigSource must not be null");
-        Checks.checkNotNull(factory, "MoatClusterFactory must not be null");
-        Checks.checkNotNull(globalConfig, "GlobalConfig must not be null");
+        Checks.checkNotNull(cluster, "cluster");
+        Checks.checkNotNull(groupConfig, "groupConfig");
+        Checks.checkNotNull(factory, "factory");
+        Checks.checkNotNull(globalConfig, "globalConfig");
         this.globalConfig = globalConfig;
         this.cluster = cluster;
         this.groupConfig = groupConfig;

@@ -18,7 +18,7 @@ package esa.servicekeeper.adapter.springboot;
 import esa.servicekeeper.adapter.spring.aop.DefaultServiceKeeperAop;
 import esa.servicekeeper.adapter.spring.aop.WebAutoSupportAop;
 import esa.servicekeeper.core.annotation.RateLimiter;
-import esa.servicekeeper.core.exception.RateLimitOverFlowException;
+import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -58,22 +58,22 @@ class DefaultServiceKeeperAopTest {
 
         final HelloService service = ctx.getBean(HelloService.class);
         then(service.testRequest()).isEqualTo("Request");
-        assertThrows(RateLimitOverFlowException.class, service::testRequest);
+        assertThrows(RateLimitOverflowException.class, service::testRequest);
 
         then(service.testGet()).isEqualTo("Get");
-        assertThrows(RateLimitOverFlowException.class, service::testGet);
+        assertThrows(RateLimitOverflowException.class, service::testGet);
 
         then(service.testPost()).isEqualTo("Post");
-        assertThrows(RateLimitOverFlowException.class, service::testPost);
+        assertThrows(RateLimitOverflowException.class, service::testPost);
 
         then(service.testPut()).isEqualTo("Put");
-        assertThrows(RateLimitOverFlowException.class, service::testPut);
+        assertThrows(RateLimitOverflowException.class, service::testPut);
 
         then(service.testDelete()).isEqualTo("Delete");
-        assertThrows(RateLimitOverFlowException.class, service::testDelete);
+        assertThrows(RateLimitOverflowException.class, service::testDelete);
 
         then(service.testPatch()).isEqualTo("Patch");
-        assertThrows(RateLimitOverFlowException.class, service::testPatch);
+        assertThrows(RateLimitOverflowException.class, service::testPatch);
     }
 
     public static class HelloService {

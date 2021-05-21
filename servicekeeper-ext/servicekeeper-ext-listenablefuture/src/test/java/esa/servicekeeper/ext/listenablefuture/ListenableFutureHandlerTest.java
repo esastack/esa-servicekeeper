@@ -24,7 +24,7 @@ import esa.servicekeeper.core.config.ConcurrentLimitConfig;
 import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.config.RateLimitConfig;
 import esa.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
-import esa.servicekeeper.core.exception.RateLimitOverFlowException;
+import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import esa.servicekeeper.core.executionchain.AsyncContext;
 import esa.servicekeeper.core.executionchain.AsyncExecutionChain;
 import esa.servicekeeper.core.executionchain.AsyncExecutionChainImpl;
@@ -110,7 +110,7 @@ class ListenableFutureHandlerTest {
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new ListenableFutureHandler());
-            } catch (RateLimitOverFlowException ex) {
+            } catch (RateLimitOverflowException ex) {
                 rateLimitOverFlowCount.incrementAndGet();
             } catch (Throwable throwable) {
                 fail();

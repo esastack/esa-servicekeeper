@@ -32,7 +32,7 @@ public interface ConfigCache {
      * @param resourceId resourceId
      * @return config
      */
-    ExternalConfig getConfig(ResourceId resourceId);
+    ExternalConfig configOf(ResourceId resourceId);
 
     /**
      * Update {@link ExternalConfig} of {@link ResourceId}.
@@ -48,7 +48,7 @@ public interface ConfigCache {
      * @param key key
      * @return max size limit
      */
-    Integer getMaxSizeLimit(ArgConfigKey key);
+    Integer maxSizeLimitOf(ArgConfigKey key);
 
     /**
      * Updates maxSizeLimit of {@link ArgConfigKey}.
@@ -70,7 +70,7 @@ public interface ConfigCache {
      *
      * @return configs
      */
-    Map<ResourceId, ExternalConfig> getConfigs();
+    Map<ResourceId, ExternalConfig> configs();
 
     /**
      * Updates maxSizeLimits.
@@ -84,5 +84,5 @@ public interface ConfigCache {
      *
      * @return maxSizeLimits
      */
-    Map<ArgConfigKey, Integer> getMaxSizeLimits();
+    Map<ArgConfigKey, Integer> maxSizeLimits();
 }

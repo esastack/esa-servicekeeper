@@ -21,7 +21,7 @@ import esa.servicekeeper.core.common.ResourceId;
 import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.config.RateLimitConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
-import esa.servicekeeper.core.exception.RateLimitOverFlowException;
+import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.listener.FondConfigListener;
@@ -58,7 +58,7 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
                          RateLimitConfig immutableConfig,
                          List<MoatEventProcessor> processors) {
         super(processors, config);
-        Checks.checkNotNull(limitConfig, "The RateLimitConfig must not be null");
+        Checks.checkNotNull(limitConfig, "limitConfig");
         this.lifeCycleType = immutableConfig == null ? TEMPORARY : PERMANENT;
         this.limiter = REGISTRY.getOrCreate(config.getResourceId().getName(), limitConfig,
                 immutableConfig, processors);
@@ -99,7 +99,7 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
 
     @Override
     public ServiceKeeperNotPermittedException defaultFallbackToException(Context ctx) {
-        return new RateLimitOverFlowException(StringUtils.concat("The limitForPeriod of rateLimiter ",
+        return new RateLimitOverflowException(StringUtils.concat("The limitForPeriod of rateLimiter ",
                 limiter.name(), ": " + limiter.config().getLimitForPeriod()), ctx, new RateLimitMetrics() {
                     @Override
                     public int numberOfWaitingThreads() {

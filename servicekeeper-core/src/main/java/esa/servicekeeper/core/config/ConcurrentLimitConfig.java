@@ -39,7 +39,7 @@ public class ConcurrentLimitConfig implements Serializable {
     }
 
     public static Builder from(ConcurrentLimitConfig config) {
-        Checks.checkNotNull(config, "The ConcurrentLimitConfig to copy from must not be null");
+        Checks.checkNotNull(config, "config");
         return new Builder().threshold(config.getThreshold());
     }
 

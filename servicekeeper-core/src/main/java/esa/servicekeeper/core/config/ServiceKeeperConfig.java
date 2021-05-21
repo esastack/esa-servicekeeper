@@ -34,7 +34,7 @@ public class ServiceKeeperConfig implements Serializable {
     }
 
     public static Builder copyFrom(ServiceKeeperConfig config) {
-        Checks.checkNotNull(config, "The ServiceKeeperConfig to copy from must not be null");
+        Checks.checkNotNull(config, "config");
         return new Builder().fallbackConfig(config.getFallbackConfig())
                 .circuitBreakerConfig(config.getCircuitBreakerConfig())
                 .rateLimiterConfig(config.getRateLimitConfig())

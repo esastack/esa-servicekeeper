@@ -121,7 +121,7 @@ public enum ExternalConfigName {
     IGNORE_EXCEPTIONS("ignoreExceptions") {
         @Override
         public void applyConfigValue(ExternalConfig config, String value) {
-            config.setIgnoreExceptions(ClassCastUtils.cast(ClassConvertUtils.getClasses(value)));
+            config.setIgnoreExceptions(ClassCastUtils.cast(ClassConvertUtils.toClasses(value)));
         }
     },
 
@@ -166,7 +166,7 @@ public enum ExternalConfigName {
     PREDICATE_STRATEGY("predicateStrategy") {
         @Override
         public void applyConfigValue(ExternalConfig config, String value) {
-            config.setPredicateStrategy(ClassCastUtils.cast(ClassConvertUtils.getClasses(value)[0]));
+            config.setPredicateStrategy(ClassCastUtils.cast(ClassConvertUtils.toClasses(value)[0]));
         }
     },
 
@@ -186,7 +186,7 @@ public enum ExternalConfigName {
     FALLBACK_CLASS("fallbackClass") {
         @Override
         public void applyConfigValue(ExternalConfig config, String value) {
-            config.setFallbackClass(ClassConvertUtils.getClasses(value)[0]);
+            config.setFallbackClass(ClassConvertUtils.toClasses(value)[0]);
         }
     },
 
@@ -206,7 +206,7 @@ public enum ExternalConfigName {
     FALLBACK_EXCEPTION_CLASS("fallbackExceptionClass") {
         @Override
         public void applyConfigValue(ExternalConfig config, String value) {
-            config.setFallbackExceptionClass(ClassCastUtils.cast(ClassConvertUtils.getClasses(value)[0]));
+            config.setFallbackExceptionClass(ClassCastUtils.cast(ClassConvertUtils.toClasses(value)[0]));
         }
     },
 
@@ -216,7 +216,7 @@ public enum ExternalConfigName {
     RETRY_INCLUDE_EXCEPTIONS("includeExceptions") {
         @Override
         public void applyConfigValue(ExternalConfig config, String value) {
-            config.setIncludeExceptions(ClassCastUtils.cast(ClassConvertUtils.getClasses(value)));
+            config.setIncludeExceptions(ClassCastUtils.cast(ClassConvertUtils.toClasses(value)));
         }
     },
 
@@ -226,7 +226,7 @@ public enum ExternalConfigName {
     RETRY_EXCLUDE_EXCEPTIONS("excludeExceptions") {
         @Override
         public void applyConfigValue(ExternalConfig config, String value) {
-            config.setExcludeExceptions(ClassCastUtils.cast(ClassConvertUtils.getClasses(value)));
+            config.setExcludeExceptions(ClassCastUtils.cast(ClassConvertUtils.toClasses(value)));
         }
     },
 

@@ -26,7 +26,7 @@ public class LimitableKey {
     private final MoatType type;
 
     public LimitableKey(ResourceId id, MoatType type) {
-        Checks.checkNotNull(id, "ResourceId must not be null!");
+        Checks.checkNotNull(id, "id");
         this.id = id;
         this.type = type;
     }

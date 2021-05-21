@@ -29,7 +29,7 @@ public class MoatLimitConfigSourceImpl implements MoatLimitConfigSource {
     private final ImmutableConfigs immutableConfigs;
 
     public MoatLimitConfigSourceImpl(MoatLimitConfigSource limitConfigSource, ImmutableConfigs immutableConfigs) {
-        Checks.checkNotNull(immutableConfigs, "ImmutableConfigs must not be null");
+        Checks.checkNotNull(immutableConfigs, "immutableConfigs");
         this.immutableConfigs = immutableConfigs;
         this.limitConfigSource = limitConfigSource;
     }

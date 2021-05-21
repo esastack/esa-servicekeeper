@@ -22,7 +22,7 @@ import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.config.RateLimitConfig;
 import esa.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
 import esa.servicekeeper.core.exception.ConcurrentOverFlowException;
-import esa.servicekeeper.core.exception.RateLimitOverFlowException;
+import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import esa.servicekeeper.core.executionchain.Executable;
 import esa.servicekeeper.core.executionchain.SyncContext;
 import esa.servicekeeper.core.executionchain.SyncExecutionChain;
@@ -97,7 +97,7 @@ class SyncExecutableTest {
         for (int i = 0; i < limitForPeriod * 2; i++) {
             try {
                 chain.execute(new SyncContext(name), null, executable);
-            } catch (RateLimitOverFlowException ex) {
+            } catch (RateLimitOverflowException ex) {
                 rateLimitOverFlowCount.incrementAndGet();
             } catch (Throwable throwable) {
                 fail();

@@ -73,7 +73,7 @@ public class CircuitBreakerMoat extends AbstractMoat<CircuitBreakerConfig>
                               List<MoatEventProcessor> mProcessors,
                               List<CircuitBreakerSateTransitionProcessor> processors) {
         super(mProcessors, config);
-        Checks.checkNotNull(predicate, "The PredicateStrategy must not be null");
+        Checks.checkNotNull(predicate, "predicate");
         this.lifeCycleType = immutableConfig == null ? TEMPORARY : PERMANENT;
         this.breaker = new AtomicReference<>(REGISTRY.getOrCreate(config.getResourceId().getName(),
                 breakerConfig, immutableConfig, processors));

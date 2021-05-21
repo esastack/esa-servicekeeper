@@ -70,7 +70,7 @@ public class CircuitBreakerConfig implements Serializable {
     }
 
     public static Builder from(CircuitBreakerConfig config) {
-        Checks.checkNotNull(config, "The CircuitBreakerConfig to copy from must not be null");
+        Checks.checkNotNull(config, "config");
         return new Builder()
                 .failureRateThreshold(config.getFailureRateThreshold())
                 .ringBufferSizeInHalfOpenState(config.getRingBufferSizeInHalfOpenState())

@@ -37,18 +37,18 @@ public abstract class BaseConfigSource implements CompositeConfigSource {
     private final ConfigCache configCache;
 
     public BaseConfigSource(ConfigCache configCache) {
-        Checks.checkNotNull(configCache, "ConfigCache must not be null");
+        Checks.checkNotNull(configCache, "configCache");
         this.configCache = configCache;
     }
 
     @Override
     public ExternalConfig config(ResourceId id) {
-        return configCache.getConfig(id);
+        return configCache.configOf(id);
     }
 
     @Override
     public Map<ResourceId, ExternalConfig> all() {
-        return unmodifiableMap(configCache.getConfigs());
+        return unmodifiableMap(configCache.configs());
     }
 
     @Override
@@ -75,7 +75,7 @@ public abstract class BaseConfigSource implements CompositeConfigSource {
 
     @Override
     public Integer maxSizeLimit(ArgConfigKey key) {
-        return configCache.getMaxSizeLimit(key);
+        return configCache.maxSizeLimitOf(key);
     }
 
     @Override

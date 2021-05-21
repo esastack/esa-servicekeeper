@@ -88,7 +88,7 @@ class RegexConfigsHandlerTest {
     @Test
     void testAddRegex() {
         for (int i = 0; i < 10; i++) {
-            then(cache.getConfig(ResourceId.from("testAddRegex" + i))).isNull();
+            then(cache.configOf(ResourceId.from("testAddRegex" + i))).isNull();
         }
 
         final ResourceId regexId = ResourceId.from("testAddRegex.*", true);
@@ -99,14 +99,14 @@ class RegexConfigsHandlerTest {
         handler.update(singletonMap(regexId, config));
 
         for (int i = 0; i < 10; i++) {
-            then(cache.getConfig(ResourceId.from("testAddRegex" + i))).isEqualTo(config);
+            then(cache.configOf(ResourceId.from("testAddRegex" + i))).isEqualTo(config);
         }
     }
 
     @Test
     void testRemoveRegex() {
         for (int i = 0; i < 10; i++) {
-            then(cache.getConfig(ResourceId.from("testRemoveRegex" + i))).isNull();
+            then(cache.configOf(ResourceId.from("testRemoveRegex" + i))).isNull();
         }
 
         final ResourceId regexId = ResourceId.from("testRemoveRegex.*", true);
@@ -117,7 +117,7 @@ class RegexConfigsHandlerTest {
         handler.update(singletonMap(regexId, config));
 
         for (int i = 0; i < 10; i++) {
-            then(cache.getConfig(ResourceId.from("testRemoveRegex" + i))).isEqualTo(config);
+            then(cache.configOf(ResourceId.from("testRemoveRegex" + i))).isEqualTo(config);
             factory.getOrCreate(ResourceId.from("testRemoveRegex" + i), () -> null, () -> null, () -> config);
         }
         then(cluster.getAll().size()).isEqualTo(10);
@@ -129,7 +129,7 @@ class RegexConfigsHandlerTest {
     @Test
     void testUpdateRegex() {
         for (int i = 0; i < 10; i++) {
-            then(cache.getConfig(ResourceId.from("testUpdateRegex" + i))).isNull();
+            then(cache.configOf(ResourceId.from("testUpdateRegex" + i))).isNull();
         }
 
         final ResourceId regexId = ResourceId.from("testUpdateRegex.*", true);
@@ -140,7 +140,7 @@ class RegexConfigsHandlerTest {
         handler.update(singletonMap(regexId, config));
 
         for (int i = 0; i < 10; i++) {
-            then(cache.getConfig(ResourceId.from("testUpdateRegex" + i))).isEqualTo(config);
+            then(cache.configOf(ResourceId.from("testUpdateRegex" + i))).isEqualTo(config);
             factory.getOrCreate(ResourceId.from("testUpdateRegex" + i), () -> null, () -> null, () -> config);
         }
         then(cluster.getAll().size()).isEqualTo(10);

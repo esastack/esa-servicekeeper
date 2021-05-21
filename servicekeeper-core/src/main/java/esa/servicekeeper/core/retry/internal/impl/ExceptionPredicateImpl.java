@@ -34,7 +34,7 @@ public class ExceptionPredicateImpl extends ExceptionPredicate {
         if (exceptions != null) {
             this.exceptions.putAll(exceptions);
         }
-        Checks.checkNotNull(defaultValue, "Default Value must not be null");
+        Checks.checkNotNull(defaultValue, "defaultValue");
         this.defaultValue = defaultValue;
     }
 

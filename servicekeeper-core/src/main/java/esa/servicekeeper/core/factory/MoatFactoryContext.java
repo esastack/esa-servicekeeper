@@ -33,10 +33,10 @@ class MoatFactoryContext {
                        List<MoatClusterListener> listeners,
                        PredicateStrategyFactory strategy,
                        SateTransitionProcessorFactory cProcessors) {
-        Checks.checkNotNull(fallbackHandler, "FallbackHandlerFactory must not be null");
-        Checks.checkNotNull(processors, "EventProcessorFactory list must not be null");
-        Checks.checkNotNull(strategy, "PredicateStrategyFactory must not be null");
-        Checks.checkNotNull(cProcessors, "SateTransitionProcessorFactory must not be null");
+        Checks.checkNotNull(fallbackHandler, "fallbackHandler");
+        Checks.checkNotNull(processors, "processors");
+        Checks.checkNotNull(strategy, "strategy");
+        Checks.checkNotNull(cProcessors, "cProcessors");
         this.fallbackHandler = fallbackHandler;
         this.processors = processors;
         this.listeners = listeners;

@@ -17,7 +17,7 @@ package esa.servicekeeper.core.fallback;
 
 import esa.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
 import esa.servicekeeper.core.exception.ConcurrentOverFlowException;
-import esa.servicekeeper.core.exception.RateLimitOverFlowException;
+import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import esa.servicekeeper.core.exception.ServiceKeeperException;
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.exception.ServiceRetryException;
@@ -42,7 +42,7 @@ class FallbackToFunctionTest {
         methods0.add(new FallbackMethod(Foo.class.getDeclaredMethod("method0",
                 CircuitBreakerNotPermittedException.class)));
         methods0.add(new FallbackMethod(Foo.class.getDeclaredMethod("method1",
-                RateLimitOverFlowException.class)));
+                RateLimitOverflowException.class)));
         methods0.add(new FallbackMethod(Foo.class.getDeclaredMethod("method2",
                 ConcurrentOverFlowException.class)));
         methods0.add(new FallbackMethod(Foo.class.getDeclaredMethod("method3",
@@ -59,7 +59,7 @@ class FallbackToFunctionTest {
         when(context0.getThroughFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, null, null));
         then(fallback0.handle(context0)).isEqualTo("method0");
 
-        when(context0.getThroughFailsCause()).thenReturn(new RateLimitOverFlowException(null, null, null));
+        when(context0.getThroughFailsCause()).thenReturn(new RateLimitOverflowException(null, null, null));
         then(fallback0.handle(context0)).isEqualTo("method1");
 
         when(context0.getThroughFailsCause()).thenReturn(new ConcurrentOverFlowException(null, null, null));
@@ -96,7 +96,7 @@ class FallbackToFunctionTest {
         when(context1.getThroughFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, null, null));
         then(fallback1.handle(context1)).isEqualTo("method0");
 
-        when(context1.getThroughFailsCause()).thenReturn(new RateLimitOverFlowException(null, null, null));
+        when(context1.getThroughFailsCause()).thenReturn(new RateLimitOverflowException(null, null, null));
         then(fallback1.handle(context1)).isEqualTo("method3");
 
         when(context1.getThroughFailsCause()).thenReturn(new ConcurrentOverFlowException(null, null, null));
@@ -116,7 +116,7 @@ class FallbackToFunctionTest {
         when(context2.getThroughFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, null, null));
         then(fallback2.handle(context2)).isEqualTo("method0");
 
-        when(context2.getThroughFailsCause()).thenReturn(new RateLimitOverFlowException(null, null, null));
+        when(context2.getThroughFailsCause()).thenReturn(new RateLimitOverflowException(null, null, null));
         then(fallback2.handle(context2)).isEqualTo("method4");
 
         when(context2.getThroughFailsCause()).thenReturn(new ConcurrentOverFlowException(null, null, null));
@@ -133,7 +133,7 @@ class FallbackToFunctionTest {
         methods0.add(new FallbackMethod(Foo1.class.getDeclaredMethod("method0",
                 CircuitBreakerNotPermittedException.class, String.class)));
         methods0.add(new FallbackMethod(Foo1.class.getDeclaredMethod("method1",
-                RateLimitOverFlowException.class, String.class)));
+                RateLimitOverflowException.class, String.class)));
         methods0.add(new FallbackMethod(Foo1.class.getDeclaredMethod("method2",
                 ConcurrentOverFlowException.class, String.class)));
         methods0.add(new FallbackMethod(Foo1.class.getDeclaredMethod("method3",
@@ -151,7 +151,7 @@ class FallbackToFunctionTest {
 
         then(fallback0.handle(context0)).isEqualTo("method0");
 
-        when(context0.getThroughFailsCause()).thenReturn(new RateLimitOverFlowException(null, null, null));
+        when(context0.getThroughFailsCause()).thenReturn(new RateLimitOverflowException(null, null, null));
         then(fallback0.handle(context0)).isEqualTo("method1");
 
         when(context0.getThroughFailsCause()).thenReturn(new ConcurrentOverFlowException(null, null, null));
@@ -179,7 +179,7 @@ class FallbackToFunctionTest {
         when(context1.getArgs()).thenReturn(new String[]{"LiMing"});
         then(fallback1.handle(context1)).isEqualTo("method0");
 
-        when(context1.getThroughFailsCause()).thenReturn(new RateLimitOverFlowException(null, null, null));
+        when(context1.getThroughFailsCause()).thenReturn(new RateLimitOverflowException(null, null, null));
         then(fallback1.handle(context1)).isEqualTo("method3");
 
         when(context1.getThroughFailsCause()).thenReturn(new ConcurrentOverFlowException(null, null, null));
@@ -200,7 +200,7 @@ class FallbackToFunctionTest {
         when(context2.getArgs()).thenReturn(new String[]{"LiMing"});
         then(fallback2.handle(context2)).isEqualTo("method0");
 
-        when(context2.getThroughFailsCause()).thenReturn(new RateLimitOverFlowException(null, null, null));
+        when(context2.getThroughFailsCause()).thenReturn(new RateLimitOverflowException(null, null, null));
         then(fallback2.handle(context2)).isEqualTo("method4");
 
         when(context2.getThroughFailsCause()).thenReturn(new ConcurrentOverFlowException(null, null, null));
@@ -227,7 +227,7 @@ class FallbackToFunctionTest {
             return "method0";
         }
 
-        private String method1(RateLimitOverFlowException ex) {
+        private String method1(RateLimitOverflowException ex) {
             return "method1";
         }
 
@@ -258,7 +258,7 @@ class FallbackToFunctionTest {
             return "method0";
         }
 
-        private String method1(RateLimitOverFlowException ex, String name) {
+        private String method1(RateLimitOverflowException ex, String name) {
             return "method1";
         }
 

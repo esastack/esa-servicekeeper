@@ -35,8 +35,8 @@ public class MoatCreationLimitImpl implements MoatCreationLimit {
 
     public MoatCreationLimitImpl(MoatStatistics statistics,
                                  MoatLimitConfigSource config) {
-        Checks.checkNotNull(statistics, "MoatStatistics must not be null");
-        Checks.checkNotNull(config, "MoatLimitConfigSource must not be null");
+        Checks.checkNotNull(statistics, "statistics");
+        Checks.checkNotNull(config, "config");
         this.statistics = statistics;
         this.config = config;
     }

@@ -28,7 +28,7 @@ public class RetryableExecutor implements Executor {
     private final RetryOperations operations;
 
     public RetryableExecutor(RetryOperations operations) {
-        Checks.checkNotNull(operations, "RetryOperations must be not null");
+        Checks.checkNotNull(operations, "operations");
         this.operations = operations;
     }
 

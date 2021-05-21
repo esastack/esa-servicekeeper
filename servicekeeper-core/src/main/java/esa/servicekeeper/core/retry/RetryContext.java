@@ -34,7 +34,7 @@ public class RetryContext {
             AtomicIntegerFieldUpdater.newUpdater(RetryContext.class, "retriedCount");
 
     RetryContext(Context context, OriginalInvocation invocation) {
-        Checks.checkNotNull(context, "Context must not be null");
+        Checks.checkNotNull(context, "context");
         this.context = context;
         this.invocation = invocation;
     }

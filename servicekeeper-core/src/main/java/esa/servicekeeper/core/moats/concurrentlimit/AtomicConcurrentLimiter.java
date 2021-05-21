@@ -29,7 +29,7 @@ public class AtomicConcurrentLimiter implements ConcurrentLimiter {
     private final ConcurrentLimitConfig immutableConfig;
 
     public AtomicConcurrentLimiter(String name, ConcurrentLimitConfig config, ConcurrentLimitConfig immutableConfig) {
-        Checks.checkNotNull(config, "ConcurrentLimitConfig must not be null");
+        Checks.checkNotNull(config, "config");
         this.name = name;
         this.threshold = config.getThreshold();
         this.callCounter = new AtomicInteger(0);

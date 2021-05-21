@@ -49,13 +49,13 @@ public class RegexConfigsHandler extends ConfigsHandlerImpl {
     }
 
     private void doRegexUpdate(final ResourceId resourceId, final ExternalConfig config) {
-        final RegexValue<ExternalConfig, ResourceId> value = cache.getRegexConfig(resourceId.getName());
+        final RegexValue<ExternalConfig, ResourceId> value = cache.regexConfigOf(resourceId.getName());
         if (value == null) {
             logger.info("Begin to update regex items: [empty], config: {}", config);
             return;
         }
 
-        logger.info("Begin to update regex items: [{}], config: {}", value.getItems(), config);
-        value.getItems().forEach((id) -> super.doUpdate(id, config));
+        logger.info("Begin to update regex items: [{}], config: {}", value.items(), config);
+        value.items().forEach((id) -> super.doUpdate(id, config));
     }
 }

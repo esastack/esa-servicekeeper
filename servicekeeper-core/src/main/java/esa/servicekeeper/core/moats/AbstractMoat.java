@@ -32,7 +32,7 @@ public abstract class AbstractMoat<T> implements Moat<T> {
     private final FallbackHandler.FallbackType fallbackType;
 
     public AbstractMoat(List<MoatEventProcessor> processors, MoatConfig config) {
-        Checks.checkNotNull(config, "MoatConfig must not be null");
+        Checks.checkNotNull(config, "config");
         this.processors = (processors == null ? null : Collections.unmodifiableList(processors));
         this.config = config;
         this.hasProcessors = (processors != null && !processors.isEmpty());

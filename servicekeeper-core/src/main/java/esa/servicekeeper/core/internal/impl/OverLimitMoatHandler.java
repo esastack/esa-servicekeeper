@@ -41,8 +41,8 @@ public class OverLimitMoatHandler implements MoatLimitConfigListener {
     private final ImmutableConfigs configs;
 
     public OverLimitMoatHandler(InternalMoatCluster cluster, ImmutableConfigs configs) {
-        Checks.checkNotNull(cluster, "InternalMoatCluster must not be null");
-        Checks.checkNotNull(configs, "ImmutableConfigs must not be null");
+        Checks.checkNotNull(cluster, "cluster");
+        Checks.checkNotNull(configs, "configs");
         this.cluster = cluster;
         this.configs = configs;
     }

@@ -30,8 +30,8 @@ public class PredicateByExceptionAndSpendTime implements PredicateStrategy, Pred
 
     public PredicateByExceptionAndSpendTime(PredicateByException predicateByException,
                                             PredicateBySpendTime predicateBySpendTime) {
-        Checks.checkNotNull(predicateByException, "PredicateByException must not be null");
-        Checks.checkNotNull(predicateBySpendTime, "PredicateBySpendTime must not be null");
+        Checks.checkNotNull(predicateByException, "predicateByException");
+        Checks.checkNotNull(predicateBySpendTime, "predicateBySpendTime");
         this.predicateByException = predicateByException;
         this.predicateBySpendTime = predicateBySpendTime;
     }

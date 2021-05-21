@@ -43,14 +43,14 @@ class PropertyFileConfigCache implements ConfigCache {
     private final ConfigCache cache;
 
     PropertyFileConfigCache(ConfigCache cache) {
-        Checks.checkNotNull(cache, "ConfigCache must not be null");
+        Checks.checkNotNull(cache, "cache");
         this.cache = cache;
         doInit();
     }
 
     @Override
-    public ExternalConfig getConfig(ResourceId resourceId) {
-        return cache.getConfig(resourceId);
+    public ExternalConfig configOf(ResourceId resourceId) {
+        return cache.configOf(resourceId);
     }
 
     @Override
@@ -59,8 +59,8 @@ class PropertyFileConfigCache implements ConfigCache {
     }
 
     @Override
-    public Integer getMaxSizeLimit(ArgConfigKey key) {
-        return cache.getMaxSizeLimit(key);
+    public Integer maxSizeLimitOf(ArgConfigKey key) {
+        return cache.maxSizeLimitOf(key);
     }
 
     @Override
@@ -74,8 +74,8 @@ class PropertyFileConfigCache implements ConfigCache {
     }
 
     @Override
-    public Map<ResourceId, ExternalConfig> getConfigs() {
-        return cache.getConfigs();
+    public Map<ResourceId, ExternalConfig> configs() {
+        return cache.configs();
     }
 
     @Override
@@ -84,24 +84,24 @@ class PropertyFileConfigCache implements ConfigCache {
     }
 
     @Override
-    public Map<ArgConfigKey, Integer> getMaxSizeLimits() {
-        return cache.getMaxSizeLimits();
+    public Map<ArgConfigKey, Integer> maxSizeLimits() {
+        return cache.maxSizeLimits();
     }
 
     private void doInit() {
         final PropertyItem item = loadProperties();
-        Map<ResourceId, ExternalConfig> configs = PropertiesUtils.getConfigs(item.properties);
+        Map<ResourceId, ExternalConfig> configs = PropertiesUtils.configs(item.properties);
         logger.info("ServiceKeeper initial configuration map from file " + item.file.getAbsolutePath() +
                 " are: " + LogUtils.concatValue(configs));
         cache.updateConfigs(configs);
-        cache.updateMaxSizeLimits(PropertiesUtils.getMaxSizeLimits(item.properties));
+        cache.updateMaxSizeLimits(PropertiesUtils.maxSizeLimits(item.properties));
     }
 
     private PropertyItem loadProperties() {
         final Properties properties = new Properties();
-        final String configDir = PropertyFileConstant.getConfigDir();
+        final String configDir = PropertyFileConstant.configDir();
         // Gets the config from file if it exists.
-        final File file = new File(configDir, PropertyFileConstant.getConfigName());
+        final File file = new File(configDir, PropertyFileConstant.configName());
         if (!file.exists()) {
             return new PropertyItem(file, properties);
         }

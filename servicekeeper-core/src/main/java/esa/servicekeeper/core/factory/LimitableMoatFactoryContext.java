@@ -32,7 +32,7 @@ public class LimitableMoatFactoryContext extends MoatFactoryContext {
                                         SateTransitionProcessorFactory cProcessors,
                                         MoatCreationLimit limit) {
         super(fallbackHandler, processors, listeners, strategy, cProcessors);
-        Checks.checkNotNull(limit, "Limitable must not be null");
+        Checks.checkNotNull(limit, "limit");
         this.limit = limit;
     }
 
