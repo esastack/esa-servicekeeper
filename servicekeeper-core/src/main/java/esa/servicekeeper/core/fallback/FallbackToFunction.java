@@ -18,7 +18,7 @@ package esa.servicekeeper.core.fallback;
 import esa.commons.StringUtils;
 import esa.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
 import esa.servicekeeper.core.exception.ConcurrentOverFlowException;
-import esa.servicekeeper.core.exception.RateLimitOverFlowException;
+import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import esa.servicekeeper.core.exception.ServiceKeeperException;
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.exception.ServiceRetryException;
@@ -46,7 +46,7 @@ import static esa.servicekeeper.core.fallback.FallbackHandler.FallbackType.FALLB
  *
  *              }
  *
- *             public String fallback(RateLimitOverFlowException ex) {
+ *             public String fallback(RateLimitOverflowException ex) {
  *
  *             }
  *
@@ -58,7 +58,7 @@ import static esa.servicekeeper.core.fallback.FallbackHandler.FallbackType.FALLB
  * </pre>
  *
  * As show above, when the rejection is caused by {@link CircuitBreakerNotPermittedException} the method first method
- * will be used to handle fallback, and when the rejection is caused by {@link RateLimitOverFlowException} the second
+ * will be used to handle fallback, and when the rejection is caused by {@link RateLimitOverflowException} the second
  * method will be used. In other scenes, the last one will be used.
  */
 public class FallbackToFunction<R> implements FallbackHandler<R> {
@@ -138,7 +138,7 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
         if (ctx.getThroughFailsCause() instanceof CircuitBreakerNotPermittedException) {
             return fallbackMethodMap.get(CauseType.CIRCUIT_BREAKER);
         }
-        if (ctx.getThroughFailsCause() instanceof RateLimitOverFlowException) {
+        if (ctx.getThroughFailsCause() instanceof RateLimitOverflowException) {
             return fallbackMethodMap.get(CauseType.RATE_LIMIT);
         }
         if (ctx.getThroughFailsCause() instanceof ConcurrentOverFlowException) {

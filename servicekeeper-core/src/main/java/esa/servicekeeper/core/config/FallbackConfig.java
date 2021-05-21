@@ -46,7 +46,7 @@ public class FallbackConfig implements Serializable {
     }
 
     public static Builder copyFrom(FallbackConfig config) {
-        Checks.checkNotNull(config, "The FallbackConfig to copy from must not be null");
+        Checks.checkNotNull(config, "config");
         return new Builder()
                 .methodName(config.getMethodName())
                 .targetClass(config.getTargetClass())

@@ -19,7 +19,7 @@ import esa.servicekeeper.core.common.OriginalInvocation;
 import esa.servicekeeper.core.config.FallbackConfig;
 import esa.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
 import esa.servicekeeper.core.exception.ConcurrentOverFlowException;
-import esa.servicekeeper.core.exception.RateLimitOverFlowException;
+import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.fallback.FallbackHandlerConfig;
@@ -161,8 +161,8 @@ class FallbackHandlerFactoryImplTest {
         when(ctx.getThroughFailsCause()).thenReturn(new ConcurrentOverFlowException(null, ctx, null));
         then(fallbackToFunction.handle(ctx)).isEqualTo("ConcurrentOverFlowException");
 
-        when(ctx.getThroughFailsCause()).thenReturn(new RateLimitOverFlowException(null, ctx, null));
-        then(fallbackToFunction.handle(ctx)).isEqualTo("RateLimitOverFlowException");
+        when(ctx.getThroughFailsCause()).thenReturn(new RateLimitOverflowException(null, ctx, null));
+        then(fallbackToFunction.handle(ctx)).isEqualTo("RateLimitOverflowException");
     }
 
     @Test
@@ -203,8 +203,8 @@ class FallbackHandlerFactoryImplTest {
         when(ctx.getThroughFailsCause()).thenReturn(new ConcurrentOverFlowException(null, ctx, null));
         then(fallbackToFunction.handle(ctx)).isEqualTo("ConcurrentOverFlowException");
 
-        when(ctx.getThroughFailsCause()).thenReturn(new RateLimitOverFlowException(null, ctx, null));
-        then(fallbackToFunction.handle(ctx)).isEqualTo("RateLimitOverFlowException");
+        when(ctx.getThroughFailsCause()).thenReturn(new RateLimitOverflowException(null, ctx, null));
+        then(fallbackToFunction.handle(ctx)).isEqualTo("RateLimitOverflowException");
     }
 
     @Test
@@ -289,8 +289,8 @@ class FallbackHandlerFactoryImplTest {
             return "CircuitBreakerNotPermittedException";
         }
 
-        private String fallbackMethod(RateLimitOverFlowException ex) {
-            return "RateLimitOverFlowException";
+        private String fallbackMethod(RateLimitOverflowException ex) {
+            return "RateLimitOverflowException";
         }
 
         private String fallbackMethod(ConcurrentOverFlowException ex) {

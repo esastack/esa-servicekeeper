@@ -70,10 +70,10 @@ public class RetryOperationsImpl implements RetryOperations, FondConfigListener<
                                FallbackHandler<?> handler,
                                BackOffPolicy backOffPolicy, RetryablePredicate predicate,
                                RetryConfig config, RetryConfig immutableConfig) {
-        Checks.checkNotNull(resourceId, "ResourceId must not be null");
-        Checks.checkNotNull(predicate, "RetryablePredicate must not be null");
-        Checks.checkNotNull(config, "RetryConfig must not be null");
-        Checks.checkNotNull(backOffPolicy, "BackOffPolicy must not be null");
+        Checks.checkNotNull(resourceId, "resourceId");
+        Checks.checkNotNull(predicate, "predicate");
+        Checks.checkNotNull(config, "config");
+        Checks.checkNotNull(backOffPolicy, "backOffPolicy");
         this.resourceId = resourceId;
         this.immutableConfig = immutableConfig;
         this.config = config;

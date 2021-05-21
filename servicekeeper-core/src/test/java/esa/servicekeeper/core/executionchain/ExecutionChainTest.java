@@ -22,7 +22,7 @@ import esa.servicekeeper.core.config.ConcurrentLimitConfig;
 import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.config.RateLimitConfig;
 import esa.servicekeeper.core.exception.ConcurrentOverFlowException;
-import esa.servicekeeper.core.exception.RateLimitOverFlowException;
+import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import esa.servicekeeper.core.metrics.CircuitBreakerMetrics;
 import esa.servicekeeper.core.moats.Moat;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
@@ -134,7 +134,7 @@ class ExecutionChainTest {
             if (requestHandle.isAllowed()) {
                 continue;
             }
-            if (requestHandle.getNotAllowedCause() instanceof RateLimitOverFlowException) {
+            if (requestHandle.getNotAllowedCause() instanceof RateLimitOverflowException) {
                 rateLimitOverFlowCount.incrementAndGet();
             } else {
                 fail();
@@ -168,7 +168,7 @@ class ExecutionChainTest {
             if (requestHandle.isAllowed()) {
                 continue;
             }
-            if (requestHandle.getNotAllowedCause() instanceof RateLimitOverFlowException) {
+            if (requestHandle.getNotAllowedCause() instanceof RateLimitOverflowException) {
                 rateLimitOverFlowCount.incrementAndGet();
             } else {
                 fail();

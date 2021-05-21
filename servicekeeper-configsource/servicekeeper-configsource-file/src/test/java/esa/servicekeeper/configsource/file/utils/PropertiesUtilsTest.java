@@ -107,13 +107,13 @@ class PropertiesUtilsTest {
     @BeforeEach
     void setUp() throws Exception {
         properties = new Properties();
-        properties.load(new FileInputStream(PropertyFileConstant.getConfigDir() +
-                File.separator + PropertyFileConstant.getConfigName()));
+        properties.load(new FileInputStream(PropertyFileConstant.configDir() +
+                File.separator + PropertyFileConstant.configName()));
     }
 
     @Test
-    void testGetConfigs() {
-        final Map<ResourceId, ExternalConfig> configs = PropertiesUtils.getConfigs(properties);
+    void testConfigs() {
+        final Map<ResourceId, ExternalConfig> configs = PropertiesUtils.configs(properties);
         then(configs.size()).isEqualTo(6);
         final ResourceId resourceId1 = ResourceId.from("com.example.service.DemoClass.demoMethod");
         then(configs.get(resourceId1).getMaxConcurrentLimit()).isEqualTo(20);
@@ -189,8 +189,8 @@ class PropertiesUtilsTest {
     }
 
     @Test
-    void testGetMaxSizeLimits() {
-        Map<ArgConfigKey, Integer> maxSizeLimits = PropertiesUtils.getMaxSizeLimits(properties);
+    void testMaxSizeLimits() {
+        Map<ArgConfigKey, Integer> maxSizeLimits = PropertiesUtils.maxSizeLimits(properties);
         then(maxSizeLimits.size()).isEqualTo(3);
         then(maxSizeLimits.get(toKey("com.example.service.DemoClass.demoMethod" +
                 ".arg0.maxConcurrentLimitValueSize")))
@@ -204,8 +204,8 @@ class PropertiesUtilsTest {
     }
 
     @Test
-    void testGetGroupConfig() {
-        final Map<ResourceId, ExternalConfig> configs = PropertiesUtils.getConfigs(properties);
+    void testGroupConfig() {
+        final Map<ResourceId, ExternalConfig> configs = PropertiesUtils.configs(properties);
         then(configs.size()).isEqualTo(6);
         final GroupResourceId groupId = GroupResourceId.from("groupA");
         ExternalGroupConfig groupConfig = (ExternalGroupConfig) configs.get(groupId);

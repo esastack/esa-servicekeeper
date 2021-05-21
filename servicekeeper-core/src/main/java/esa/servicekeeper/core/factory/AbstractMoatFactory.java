@@ -39,7 +39,7 @@ abstract class AbstractMoatFactory<CNF2, RTU> implements
     private final MoatFactoryContext context;
 
     AbstractMoatFactory(MoatFactoryContext context) {
-        Checks.checkNotNull(context, "MoatFactoryContext must not be null");
+        Checks.checkNotNull(context, "context");
         this.context = context;
     }
 

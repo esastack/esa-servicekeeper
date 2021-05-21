@@ -41,7 +41,7 @@ public final class ClassConvertUtils {
      * @param <T>    T
      * @return Class[]
      */
-    public static <T> Class[] getClasses(final String names) {
+    public static <T> Class[] toClasses(final String names) {
         String value = StringUtils.trim(names);
         if (value == null || value.isEmpty()) {
             return new Class[0];
@@ -80,8 +80,8 @@ public final class ClassConvertUtils {
      * @param <T>    generic type
      * @return class
      */
-    public static <T> Class<T> getClass(final String origin) {
-        Class[] classes = getClasses(origin);
+    public static <T> Class<T> toSingleClass(final String origin) {
+        Class[] classes = toClasses(origin);
         if (classes.length == 0) {
             logger.warn("Failed to convert origin string to class, origin: {}", origin);
             return null;

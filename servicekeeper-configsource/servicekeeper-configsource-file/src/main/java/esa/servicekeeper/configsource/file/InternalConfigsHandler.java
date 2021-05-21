@@ -36,9 +36,9 @@ class InternalConfigsHandler implements ConfigsHandler {
     private final PropertyFileConfigCache cache;
 
     InternalConfigsHandler(ConfigsHandler handler, InternalsUpdater updater, PropertyFileConfigCache cache) {
-        Checks.checkNotNull(handler, "ConfigsHandler must not be null");
-        Checks.checkNotNull(updater, "InternalsUpdater must not be null");
-        Checks.checkNotNull(cache, "PropertyFileConfigCache must not be null");
+        Checks.checkNotNull(handler, "handler");
+        Checks.checkNotNull(updater, "updater");
+        Checks.checkNotNull(cache, "cache");
         this.handler = handler;
         this.updater = updater;
         this.cache = cache;
@@ -71,7 +71,7 @@ class InternalConfigsHandler implements ConfigsHandler {
      * @param maxSizeLimits maxSizeLimits
      */
     void updateMaxSizeLimits(Map<ArgConfigKey, Integer> maxSizeLimits) {
-        final Map<ArgConfigKey, Integer> oldConfigs = new HashMap<>(cache.getMaxSizeLimits());
+        final Map<ArgConfigKey, Integer> oldConfigs = new HashMap<>(cache.maxSizeLimits());
         for (Map.Entry<ArgConfigKey, Integer> entry : maxSizeLimits.entrySet()) {
             updater.updateMaxSizeLimit(entry.getKey(), oldConfigs.get(entry.getKey()), entry.getValue());
             oldConfigs.remove(entry.getKey());

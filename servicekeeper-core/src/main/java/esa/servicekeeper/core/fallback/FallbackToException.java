@@ -29,7 +29,7 @@ public class FallbackToException implements FallbackHandler {
     private final Exception ex;
 
     public FallbackToException(Exception ex) {
-        Checks.checkNotNull(ex, "Fallback Exception must not be null");
+        Checks.checkNotNull(ex, "ex");
         this.ex = ex;
     }
 

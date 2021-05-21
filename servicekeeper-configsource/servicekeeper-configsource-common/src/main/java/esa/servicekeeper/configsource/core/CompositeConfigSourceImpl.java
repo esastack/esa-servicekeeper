@@ -47,7 +47,7 @@ public class CompositeConfigSourceImpl implements CompositeConfigSource {
     private final List<BaseConfigSource> sources;
 
     CompositeConfigSourceImpl(List<BaseConfigSource> sources) {
-        Checks.checkNotNull(sources, "ExternalConfigSources must not be null");
+        Checks.checkNotNull(sources, "sources");
         OrderedComparator.sort(sources);
         this.sources = Collections.unmodifiableList(sources);
     }

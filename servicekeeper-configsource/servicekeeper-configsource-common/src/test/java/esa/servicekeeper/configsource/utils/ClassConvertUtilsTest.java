@@ -22,52 +22,52 @@ import static org.assertj.core.api.BDDAssertions.then;
 class ClassConvertUtilsTest {
 
     @Test
-    void testGetClasses() {
+    void testToClasses() {
         String origin = "java.lang.RuntimeException";
-        then(ClassConvertUtils.getClasses(origin).length).isEqualTo(1);
-        then(ClassConvertUtils.getClasses(origin)).isEqualTo(new Class[]{RuntimeException.class});
+        then(ClassConvertUtils.toClasses(origin).length).isEqualTo(1);
+        then(ClassConvertUtils.toClasses(origin)).isEqualTo(new Class[]{RuntimeException.class});
 
         String origin1 = "java.lan.RuntimeException";
-        then(ClassConvertUtils.getClasses(origin1).length).isEqualTo(0);
+        then(ClassConvertUtils.toClasses(origin1).length).isEqualTo(0);
 
         String origin2 = "[java.lang.RuntimeException]";
-        then(ClassConvertUtils.getClasses(origin2).length).isEqualTo(1);
-        then(ClassConvertUtils.getClasses(origin2)).isEqualTo(new Class[]{RuntimeException.class});
+        then(ClassConvertUtils.toClasses(origin2).length).isEqualTo(1);
+        then(ClassConvertUtils.toClasses(origin2)).isEqualTo(new Class[]{RuntimeException.class});
 
         String origin3 = "[java.lang.RuntimeException, java.lang0.Exception, java.lang.IllegalArgumentException]";
-        then(ClassConvertUtils.getClasses(origin3).length).isEqualTo(2);
-        then(ClassConvertUtils.getClasses(origin3)).isEqualTo(new Class[]
+        then(ClassConvertUtils.toClasses(origin3).length).isEqualTo(2);
+        then(ClassConvertUtils.toClasses(origin3)).isEqualTo(new Class[]
                 {RuntimeException.class, IllegalArgumentException.class});
 
         //Original source is null
-        then(ClassConvertUtils.getClasses(null).length).isEqualTo(0);
+        then(ClassConvertUtils.toClasses(null).length).isEqualTo(0);
 
         //Original source is empty
-        then(ClassConvertUtils.getClasses("").length).isEqualTo(0);
+        then(ClassConvertUtils.toClasses("").length).isEqualTo(0);
 
         //Original source is empty
-        then(ClassConvertUtils.getClasses("[]").length).isEqualTo(0);
+        then(ClassConvertUtils.toClasses("[]").length).isEqualTo(0);
     }
 
     @Test
-    void testGetClass() {
+    void testToSingleClass() {
         String origin = "java.lang.RuntimeException";
-        then(ClassConvertUtils.getClass(origin)).isEqualTo(RuntimeException.class);
+        then(ClassConvertUtils.toSingleClass(origin)).isEqualTo(RuntimeException.class);
 
         String origin1 = "java.lan.RuntimeException";
-        then(ClassConvertUtils.getClass(origin1)).isNull();
+        then(ClassConvertUtils.toSingleClass(origin1)).isNull();
 
         String origin2 = "[java.lang.RuntimeException]";
-        then(ClassConvertUtils.getClass(origin2)).isEqualTo(RuntimeException.class);
+        then(ClassConvertUtils.toSingleClass(origin2)).isEqualTo(RuntimeException.class);
 
         String origin3 = "[java.lang.RuntimeException, java.lang0.Exception, java.lang.IllegalArgumentException]";
-        then(ClassConvertUtils.getClass(origin3)).isEqualTo(RuntimeException.class);
+        then(ClassConvertUtils.toSingleClass(origin3)).isEqualTo(RuntimeException.class);
 
         //Original source is null
-        then(ClassConvertUtils.getClass(null)).isNull();
+        then(ClassConvertUtils.toSingleClass(null)).isNull();
 
         //Original source is empty
-        then(ClassConvertUtils.getClass("")).isNull();
+        then(ClassConvertUtils.toSingleClass("")).isNull();
     }
 
 }

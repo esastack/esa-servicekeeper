@@ -15,6 +15,7 @@
  */
 package esa.servicekeeper.configsource.cache;
 
+import esa.commons.annotation.Beta;
 import esa.servicekeeper.core.common.ResourceId;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.utils.LogUtils;
@@ -26,6 +27,7 @@ import java.util.Map;
 /**
  * The {@link ConfigCache} which supports regular match for {@link ResourceId}.
  */
+@Beta
 public class RegexConfigCache extends ConfigCacheImp {
 
     private static final Logger logger = LogUtils.logger();
@@ -33,12 +35,12 @@ public class RegexConfigCache extends ConfigCacheImp {
     private final RegexConfigCenter<ExternalConfig, ResourceId> regexConfigs = new RegexConfigCenter<>();
 
     @Override
-    public ExternalConfig getConfig(ResourceId resourceId) {
-        final ExternalConfig config = super.getConfig(resourceId);
+    public ExternalConfig configOf(ResourceId resourceId) {
+        final ExternalConfig config = super.configOf(resourceId);
         if (config != null) {
             return config;
         }
-        return regexConfigs.getConfig(resourceId);
+        return regexConfigs.configOf(resourceId);
     }
 
     @Override
@@ -75,11 +77,11 @@ public class RegexConfigCache extends ConfigCacheImp {
         }
     }
 
-    public RegexValue<ExternalConfig, ResourceId> getRegexConfig(String regex) {
+    public RegexValue<ExternalConfig, ResourceId> regexConfigOf(String regex) {
         return regexConfigs.getAll().get(regex);
     }
 
-    Map<String, RegexValue<ExternalConfig, ResourceId>> getRegexConfigs() {
+    Map<String, RegexValue<ExternalConfig, ResourceId>> regexConfigs() {
         return regexConfigs.getAll();
     }
 

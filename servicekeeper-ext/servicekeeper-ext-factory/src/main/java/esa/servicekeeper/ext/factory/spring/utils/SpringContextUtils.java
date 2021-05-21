@@ -31,7 +31,7 @@ public class SpringContextUtils implements ApplicationContextAware {
 
     public static <T> T getBean(Class<T> requiredType) {
         if (context == null) {
-            throw new IllegalStateException("Illegal to get bean from context which has not been initialized!");
+            throw new IllegalStateException("ApplicationContext is null");
         }
 
         T bean = null;
@@ -44,7 +44,7 @@ public class SpringContextUtils implements ApplicationContextAware {
 
     public static <T> Collection<T> getBeans(Class<T> requiredType) {
         if (context == null) {
-            throw new IllegalStateException("Illegal to get bean from internal which has not been initialized!");
+            throw new IllegalStateException("ApplicationContext is null");
         }
 
         Collection<T> beans = null;

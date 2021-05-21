@@ -29,7 +29,7 @@ public class MoatConfig implements Serializable {
     private final FallbackHandler fallbackHandler;
 
     public MoatConfig(ResourceId resourceId, FallbackHandler fallbackHandler) {
-        Checks.checkNotNull(resourceId, "Moat's resourceId must not be null");
+        Checks.checkNotNull(resourceId, "resourceId");
         this.resourceId = resourceId;
         this.fallbackHandler = fallbackHandler;
     }

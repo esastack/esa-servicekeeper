@@ -41,15 +41,15 @@ public class OriginalInvocation {
     private Method method;
 
     public OriginalInvocation(Class<?> returnType, Class<?>[] parameterTypes) {
-        Checks.checkNotNull(returnType, "Original invocation's return type must not be null!");
-        Checks.checkNotNull(parameterTypes, "Original invocation's parameterTypes[] must not be null!");
+        Checks.checkNotNull(returnType, "returnType");
+        Checks.checkNotNull(parameterTypes, "parameterTypes");
         this.returnType = returnType;
         this.parameterTypes = parameterTypes;
     }
 
     public OriginalInvocation(Object target, Method method) {
-        Checks.checkNotNull(target, "Original invocation's target must not be null!");
-        Checks.checkNotNull(method, "Original invocation's method must not be null!");
+        Checks.checkNotNull(target, "target");
+        Checks.checkNotNull(method, "method");
         this.target = target;
         this.method = method;
         this.returnType = method.getReturnType();

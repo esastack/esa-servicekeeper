@@ -37,7 +37,7 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
     private final List<Moat<?>> moats;
 
     AbstractExecutionChain(List<Moat<?>> moats) {
-        Checks.checkNotNull(moats, "The moats must not be null");
+        Checks.checkNotNull(moats, "moats");
         this.moats = Collections.unmodifiableList(moats);
     }
 

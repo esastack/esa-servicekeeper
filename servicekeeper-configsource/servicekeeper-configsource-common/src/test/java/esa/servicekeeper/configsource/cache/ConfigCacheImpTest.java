@@ -33,15 +33,15 @@ import static org.assertj.core.api.BDDAssertions.then;
 class ConfigCacheImpTest {
 
     @Test
-    void testGetConfig() {
+    void testConfigOf() {
         final ConfigCache cache = new ConfigCacheImp();
-        then(cache.getConfig(ResourceId.from("testGetConfig"))).isNull();
+        then(cache.configOf(ResourceId.from("testConfigOf"))).isNull();
     }
 
     @Test
-    void testGetMaxSizeLimit() {
+    void testMaxSizeLimitOf() {
         final ConfigCache cache = new ConfigCacheImp();
-        then(cache.getMaxSizeLimit(new ArgConfigKey(ResourceId.from("testGetMaxSizeLimit"),
+        then(cache.maxSizeLimitOf(new ArgConfigKey(ResourceId.from("testMaxSizeLimitOf"),
                 "arg0", RATE_LIMIT))).isNull();
     }
 
@@ -51,9 +51,9 @@ class ConfigCacheImpTest {
         final ResourceId resourceId = ResourceId.from("testUpdateConfig");
         cache.updateConfig(resourceId, new ExternalConfig());
 
-        then(cache.getConfig(resourceId)).isNotNull();
+        then(cache.configOf(resourceId)).isNotNull();
         cache.updateConfig(resourceId, null);
-        then(cache.getConfig(resourceId)).isNull();
+        then(cache.configOf(resourceId)).isNull();
     }
 
     @Test
@@ -63,21 +63,21 @@ class ConfigCacheImpTest {
                 "arg0", RATE_LIMIT);
         final int maxSizeLimit = RandomUtils.randomInt(500);
         cache.updateMaxSizeLimit(key, maxSizeLimit);
-        then(cache.getMaxSizeLimit(key)).isEqualTo(maxSizeLimit);
+        then(cache.maxSizeLimitOf(key)).isEqualTo(maxSizeLimit);
 
         cache.updateMaxSizeLimit(key, null);
-        then(cache.getMaxSizeLimit(key)).isNull();
+        then(cache.maxSizeLimitOf(key)).isNull();
     }
 
     @Test
-    void testGetConfigs() {
+    void testConfigs() {
         final ConfigCache cache = new ConfigCacheImp();
-        then(cache.getConfigs()).isEmpty();
+        then(cache.configs()).isEmpty();
 
-        final ResourceId resourceId = ResourceId.from("testGetConfigs");
+        final ResourceId resourceId = ResourceId.from("testConfigs");
         cache.updateConfig(resourceId, new ExternalConfig());
 
-        final Map<ResourceId, ExternalConfig> result = cache.getConfigs();
+        final Map<ResourceId, ExternalConfig> result = cache.configs();
         then(result.size()).isEqualTo(1);
 
         cache.updateConfig(resourceId, null);
@@ -87,28 +87,28 @@ class ConfigCacheImpTest {
     @Test
     void testUpdateConfigs() {
         final ConfigCache cache = new ConfigCacheImp();
-        then(cache.getConfigs()).isEmpty();
+        then(cache.configs()).isEmpty();
 
         Map<ResourceId, ExternalConfig> configs = new HashMap<>();
         for (int i = 0; i < 10; i++) {
             configs.put(ResourceId.from("testUpdateConfigs" + i), new ExternalConfig());
         }
         cache.updateConfigs(configs);
-        then(cache.getConfigs().size()).isEqualTo(10);
+        then(cache.configs().size()).isEqualTo(10);
 
         cache.updateConfigs(null);
-        then(cache.getConfigs()).isEmpty();
+        then(cache.configs()).isEmpty();
     }
 
     @Test
-    void testGetMaxSizeLimits() {
+    void testMaxSizeLimitsOf() {
         final ConfigCache cache = new ConfigCacheImp();
-        then(cache.getMaxSizeLimits()).isEmpty();
+        then(cache.maxSizeLimits()).isEmpty();
 
-        final ArgConfigKey key = new ArgConfigKey(ResourceId.from("testGetConfigs"), "arg0", RATE_LIMIT);
+        final ArgConfigKey key = new ArgConfigKey(ResourceId.from("testConfigs"), "arg0", RATE_LIMIT);
         cache.updateMaxSizeLimit(key, RandomUtils.randomInt(200));
 
-        final Map<ArgConfigKey, Integer> result = cache.getMaxSizeLimits();
+        final Map<ArgConfigKey, Integer> result = cache.maxSizeLimits();
         then(result.size()).isEqualTo(1);
 
         cache.updateMaxSizeLimit(key, null);
@@ -118,7 +118,7 @@ class ConfigCacheImpTest {
     @Test
     void testUpdateMaxSizeLimits() {
         final ConfigCache cache = new ConfigCacheImp();
-        then(cache.getMaxSizeLimits()).isEmpty();
+        then(cache.maxSizeLimits()).isEmpty();
 
         Map<ArgConfigKey, Integer> configs = new HashMap<>();
         for (int i = 0; i < 10; i++) {
@@ -126,10 +126,10 @@ class ConfigCacheImpTest {
                     "arg" + i, CIRCUIT_BREAKER), RandomUtils.randomInt(300));
         }
         cache.updateMaxSizeLimits(configs);
-        then(cache.getMaxSizeLimits().size()).isEqualTo(10);
+        then(cache.maxSizeLimits().size()).isEqualTo(10);
 
         cache.updateMaxSizeLimits(null);
-        then(cache.getMaxSizeLimits()).isEmpty();
+        then(cache.maxSizeLimits()).isEmpty();
     }
 
     @Test

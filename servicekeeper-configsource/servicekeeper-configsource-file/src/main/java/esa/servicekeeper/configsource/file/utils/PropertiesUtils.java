@@ -34,7 +34,12 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static esa.servicekeeper.configsource.constant.Constants.*;
+import static esa.servicekeeper.configsource.constant.Constants.COLON;
+import static esa.servicekeeper.configsource.constant.Constants.COMMA;
+import static esa.servicekeeper.configsource.constant.Constants.FALSE;
+import static esa.servicekeeper.configsource.constant.Constants.GROUP_CONFIG_PREFIX;
+import static esa.servicekeeper.configsource.constant.Constants.MAP_FORMAT;
+import static esa.servicekeeper.configsource.constant.Constants.PERIOD_EN;
 import static esa.servicekeeper.configsource.file.utils.MaxSizeLimitUtils.toKey;
 import static esa.servicekeeper.configsource.utils.ResourceIdUtils.parseWithSuffix;
 import static esa.servicekeeper.core.configsource.MoatLimitConfigSource.MAX_CIRCUIT_BREAKER_VALUE_SIZE;
@@ -65,7 +70,7 @@ public final class PropertiesUtils {
      * @param properties properties
      * @return config map
      */
-    public static Map<ResourceId, ExternalConfig> getConfigs(final Properties properties) {
+    public static Map<ResourceId, ExternalConfig> configs(final Properties properties) {
         final Map<ResourceId, ExternalConfig> configMap = new ConcurrentHashMap<>(128);
         if (properties == null) {
             return configMap;
@@ -77,7 +82,7 @@ public final class PropertiesUtils {
                 continue;
             }
 
-            final String stringConfigName = getPropName(trimmedName);
+            final String stringConfigName = propName(trimmedName);
             final ExternalConfigName configName = ExternalConfigName.getByName(stringConfigName);
             if (configName == null) {
                 if (!INTERNAL_CONFIG_NAMES.contains(stringConfigName)) {
@@ -89,7 +94,7 @@ public final class PropertiesUtils {
             final String configValue = StringUtils.trim(properties.getProperty(name));
             final Map<ResourceId, String> valueMap = new HashMap<>(8);
             if (isGroupConfig(trimmedName)) {
-                valueMap.putIfAbsent(GroupResourceId.from(getGroupName(trimmedName)), configValue);
+                valueMap.putIfAbsent(GroupResourceId.from(groupName(trimmedName)), configValue);
             } else if (isMethodConfig(configValue)) {
                 valueMap.putIfAbsent(parseWithSuffix(trimmedName), configValue);
             } else {
@@ -117,7 +122,7 @@ public final class PropertiesUtils {
         return filterArgTemplate(configMap);
     }
 
-    public static Map<ArgConfigKey, Integer> getMaxSizeLimits(final Properties properties) {
+    public static Map<ArgConfigKey, Integer> maxSizeLimits(final Properties properties) {
         final Map<ArgConfigKey, Integer> maxSizeLimits = new ConcurrentHashMap<>(4);
         for (String name : properties.stringPropertyNames()) {
             final String trimmedName = StringUtils.trim(name);
@@ -125,7 +130,7 @@ public final class PropertiesUtils {
                 continue;
             }
 
-            final String stringConfigName = getPropName(trimmedName);
+            final String stringConfigName = propName(trimmedName);
             if (MAX_CIRCUIT_BREAKER_VALUE_SIZE.equals(stringConfigName)
                     || MAX_CONCURRENT_LIMIT_VALUE_SIZE.equals(stringConfigName)
                     || MAX_RATE_LIMIT_VALUE_SIZE.equals(stringConfigName)) {
@@ -230,7 +235,7 @@ public final class PropertiesUtils {
      * @param propName property name
      * @return group name
      */
-    private static String getGroupName(String propName) {
+    private static String groupName(String propName) {
         if (StringUtils.isEmpty(propName)) {
             return StringUtils.EMPTY_STRING;
         }
@@ -244,7 +249,7 @@ public final class PropertiesUtils {
      * @param fullString full string
      * @return target propName
      */
-    private static String getPropName(String fullString) {
+    private static String propName(String fullString) {
         if (StringUtils.isEmpty(fullString)) {
             return StringUtils.EMPTY_STRING;
         }

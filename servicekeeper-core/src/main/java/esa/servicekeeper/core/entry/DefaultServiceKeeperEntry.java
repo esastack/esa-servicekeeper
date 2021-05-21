@@ -48,7 +48,7 @@ public class DefaultServiceKeeperEntry extends AbstractServiceKeeperEntry {
                               MoatClusterFactory factory,
                               GlobalConfig globalConfig) {
         super(factory, globalConfig);
-        Checks.checkNotNull(immutableConfigs, "ImmutableConfigs must not be null");
+        Checks.checkNotNull(immutableConfigs, "immutableConfigs");
         this.configSource = config;
         this.immutableConfigs = immutableConfigs;
     }

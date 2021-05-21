@@ -25,8 +25,8 @@ public class CircuitBreakerSateTransitionEvent implements Event {
 
     public CircuitBreakerSateTransitionEvent(CircuitBreaker.State preState,
                                              CircuitBreaker.State currentState) {
-        Checks.checkNotNull(preState, "PreState of state transition must not be null");
-        Checks.checkNotNull(currentState, "Current State of state transition must not be null");
+        Checks.checkNotNull(preState, "preState");
+        Checks.checkNotNull(currentState, "currentState");
         this.preState = preState;
         this.currentState = currentState;
     }

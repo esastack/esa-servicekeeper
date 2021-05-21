@@ -36,7 +36,7 @@ public class BackoffConfig implements Serializable {
     }
 
     public static Builder copyFrom(BackoffConfig backoffConfig) {
-        Checks.checkNotNull(backoffConfig, "The BackoffConfig to copy from must not be null");
+        Checks.checkNotNull(backoffConfig, "backoffConfig");
         return builder().delay(backoffConfig.getDelay())
                 .maxDelay(backoffConfig.getMaxDelay())
                 .multiplier(backoffConfig.getMultiplier());

@@ -27,15 +27,15 @@ class PropertyFileUpdaterTest {
     @Test
     void testCreateFile() {
         // Case 1: target file existed before
-        final String configDir0 = PropertyFileConstant.getConfigDir();
-        final String configName0 = PropertyFileConstant.getConfigName();
+        final String configDir0 = PropertyFileConstant.configDir();
+        final String configName0 = PropertyFileConstant.configName();
 
         final File file0 = new File(configDir0, configName0);
         then(file0.exists()).isTrue();
         then(new PropertyFileUpdater().createFile(configDir0, configName0)).isTrue();
 
         // Case 2: target file doesn't exist
-        final String configDir1 = PropertyFileConstant.getConfigDir();
+        final String configDir1 = PropertyFileConstant.configDir();
         final String configName1 = "abc.properties";
         final File file1 = new File(configDir1, configName1);
         then(file1.exists()).isFalse();

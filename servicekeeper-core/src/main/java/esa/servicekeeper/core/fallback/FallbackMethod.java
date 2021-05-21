@@ -18,7 +18,7 @@ package esa.servicekeeper.core.fallback;
 import esa.commons.Checks;
 import esa.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
 import esa.servicekeeper.core.exception.ConcurrentOverFlowException;
-import esa.servicekeeper.core.exception.RateLimitOverFlowException;
+import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import esa.servicekeeper.core.exception.ServiceKeeperException;
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.exception.ServiceRetryException;
@@ -35,7 +35,7 @@ public class FallbackMethod {
     private final boolean matchFullArgs;
 
     public FallbackMethod(Method method) {
-        Checks.checkNotNull(method, "Method must not be null");
+        Checks.checkNotNull(method, "method");
         this.method = method;
         this.isStatic = Modifier.isStatic(method.getModifiers());
         method.setAccessible(true);
@@ -68,7 +68,7 @@ public class FallbackMethod {
             case CONCURRENT_LIMIT:
                 return causeType.isAssignableFrom(ConcurrentOverFlowException.class);
             case RATE_LIMIT:
-                return causeType.isAssignableFrom(RateLimitOverFlowException.class);
+                return causeType.isAssignableFrom(RateLimitOverflowException.class);
             case CIRCUIT_BREAKER:
                 return causeType.isAssignableFrom(CircuitBreakerNotPermittedException.class);
             case RETRY:

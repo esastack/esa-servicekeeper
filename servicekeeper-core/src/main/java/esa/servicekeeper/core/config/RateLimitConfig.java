@@ -45,7 +45,7 @@ public class RateLimitConfig implements Serializable {
     }
 
     public static Builder from(RateLimitConfig config) {
-        Checks.checkNotNull(config, "The RateLimitConfig to copy must not be null");
+        Checks.checkNotNull(config, "config");
         return new Builder()
                 .limitForPeriod(config.getLimitForPeriod())
                 .limitRefreshPeriod(config.getLimitRefreshPeriod());

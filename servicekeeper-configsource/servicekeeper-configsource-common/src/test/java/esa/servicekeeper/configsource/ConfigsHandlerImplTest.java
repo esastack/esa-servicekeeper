@@ -240,7 +240,7 @@ class ConfigsHandlerImplTest {
 
         handler.update(emptyMap());
         then(cluster0.getAll().size()).isEqualTo(3);
-        then(cache.getConfigs()).isEmpty();
+        then(cache.configs()).isEmpty();
     }
 
     @Test
@@ -338,7 +338,7 @@ class ConfigsHandlerImplTest {
         then(cluster0.getAll().size()).isEqualTo(3);
         then(((RetryableMoatCluster) cluster0).retryExecutor().getOperations()
                 .getConfig().getMaxAttempts()).isEqualTo(5);
-        then(cache.getConfigs().size()).isEqualTo(1);
+        then(cache.configs().size()).isEqualTo(1);
     }
 
     @Test
@@ -569,10 +569,10 @@ class ConfigsHandlerImplTest {
         configs1.put(ResourceId.from("testComposite2"), config2);
 
         handler.update(configs1);
-        then(cache.getConfigs().size()).isEqualTo(2);
-        then(cache.getConfig(ResourceId.from("testComposite0"))).isNull();
-        then(cache.getConfig(ResourceId.from("testComposite1"))).isEqualTo(config1);
-        then(cache.getConfig(ResourceId.from("testComposite2"))).isEqualTo(config2);
+        then(cache.configs().size()).isEqualTo(2);
+        then(cache.configOf(ResourceId.from("testComposite0"))).isNull();
+        then(cache.configOf(ResourceId.from("testComposite1"))).isEqualTo(config1);
+        then(cache.configOf(ResourceId.from("testComposite2"))).isEqualTo(config2);
         handler.update(emptyMap());
     }
 

@@ -15,6 +15,7 @@
  */
 package esa.servicekeeper.configsource.cache;
 
+import esa.commons.annotation.Beta;
 import esa.servicekeeper.core.utils.LogUtils;
 import org.slf4j.Logger;
 
@@ -31,6 +32,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableMap;
 
+@Beta
 public final class RegexConfigCenter<C, K> {
 
     private static final Logger logger = LogUtils.logger();
@@ -53,7 +55,7 @@ public final class RegexConfigCenter<C, K> {
         regexValues.put(regex, value);
     }
 
-    public C getConfig(K key) {
+    public C configOf(K key) {
         if (cachedNullValueIds.keySet().contains(key)) {
             return null;
         }
@@ -61,14 +63,14 @@ public final class RegexConfigCenter<C, K> {
         RegexValue<C, K> value;
         for (Map.Entry<String, RegexValue<C, K>> entry : regexValues.entrySet()) {
             value = entry.getValue();
-            if (value.getPattern().matcher(key.toString()).matches()) {
+            if (value.pattern().matcher(key.toString()).matches()) {
                 value.addItem(key);
 
                 if (logger.isDebugEnabled()) {
                     logger.debug("Obtained {}'s config from regex center, config:{}, regex:{}",
-                            key, value.getConfig(), value.getPattern().toString());
+                            key, value.config(), value.pattern().toString());
                 }
-                return value.getConfig();
+                return value.config();
             }
         }
 
@@ -78,10 +80,10 @@ public final class RegexConfigCenter<C, K> {
         }
     }
 
-    Set<K> getItems(String regex) {
+    Set<K> items(String regex) {
         for (Map.Entry<String, RegexValue<C, K>> entry : regexValues.entrySet()) {
             if (entry.getKey().equals(regex)) {
-                return entry.getValue().getItems();
+                return entry.getValue().items();
             }
         }
 
@@ -126,8 +128,8 @@ public final class RegexConfigCenter<C, K> {
                     newConfigsAfterComputing.put(entry.getKey(), new RegexValue<>(Pattern.compile(entry.getKey()),
                             entry.getValue(), new CopyOnWriteArraySet<>()));
                 } else {
-                    newConfigsAfterComputing.put(entry.getKey(), new RegexValue<>(oldValue.getPattern(),
-                            entry.getValue(), new CopyOnWriteArraySet<>(oldValue.getItems())));
+                    newConfigsAfterComputing.put(entry.getKey(), new RegexValue<>(oldValue.pattern(),
+                            entry.getValue(), new CopyOnWriteArraySet<>(oldValue.items())));
                 }
             }
         }
@@ -150,14 +152,14 @@ public final class RegexConfigCenter<C, K> {
 
             final RegexValue<C, K> newValue = regexValues.get(regex);
             logger.info("Updated {}'s regex config successfully, config: {}, items: {}",
-                    regex, newValue.getConfig(), newValue.getItems());
+                    regex, newValue.config(), newValue.items());
         } else {
-            regexValues.put(regex, new RegexValue<>(oldValue.getPattern(),
-                    newConfig, new CopyOnWriteArraySet<>(oldValue.getItems())));
+            regexValues.put(regex, new RegexValue<>(oldValue.pattern(),
+                    newConfig, new CopyOnWriteArraySet<>(oldValue.items())));
 
             final RegexValue<C, K> newValue = regexValues.get(regex);
             logger.info("Updated {}'s regex config successfully, config: {}, items: {}",
-                    regex, newValue.getConfig(), newValue.getItems());
+                    regex, newValue.config(), newValue.items());
         }
 
         cachedNullValueIds.clear();

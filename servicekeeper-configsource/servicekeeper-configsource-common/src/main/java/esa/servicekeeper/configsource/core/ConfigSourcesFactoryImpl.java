@@ -30,7 +30,7 @@ public class ConfigSourcesFactoryImpl implements ConfigSourcesFactory {
 
     public ConfigSourcesFactoryImpl() {
         this.configSource = Checks.checkNotNull(build(), "BaseConfigSources loaded by spi must not be" +
-                " null or empty");
+                " null");
     }
 
     @Override
@@ -55,10 +55,6 @@ public class ConfigSourcesFactoryImpl implements ConfigSourcesFactory {
 
     private CompositeConfigSource build() {
         final List<BaseConfigSource> sources = SpiUtils.loadAll(BaseConfigSource.class);
-        if (sources == null || sources.isEmpty()) {
-            return null;
-        }
-
         return new CompositeConfigSourceImpl(sources);
     }
 }

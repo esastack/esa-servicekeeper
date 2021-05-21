@@ -28,7 +28,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 class RegexConfigCacheTest {
 
     @Test
-    void testGetConfig() {
+    void testConfigOf() {
         final ExternalConfig config = new ExternalConfig();
         config.setLimitForPeriod(RandomUtils.randomInt(100));
         config.setMaxConcurrentLimit(RandomUtils.randomInt(200));
@@ -36,24 +36,24 @@ class RegexConfigCacheTest {
 
         ConfigCache cache = build(config, ResourceId.from("a.b.*", true));
 
-        then(cache.getConfig(ResourceId.from("d.e.f"))).isEqualTo(new ExternalConfig());
-        then(cache.getConfig(ResourceId.from("x.y.z"))).isEqualTo(new ExternalConfig());
-        then(cache.getConfig(ResourceId.from("a.b.c"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("a.b.d"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("a.b.f"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("d.e.f"))).isEqualTo(new ExternalConfig());
+        then(cache.configOf(ResourceId.from("x.y.z"))).isEqualTo(new ExternalConfig());
+        then(cache.configOf(ResourceId.from("a.b.c"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("a.b.d"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("a.b.f"))).isEqualTo(config);
 
         cache = build(config, ResourceId.from("a.b.*"));
-        then(cache.getConfig(ResourceId.from("d.e.f"))).isEqualTo(new ExternalConfig());
-        then(cache.getConfig(ResourceId.from("x.y.z"))).isEqualTo(new ExternalConfig());
-        then(cache.getConfig(ResourceId.from("a.b.c"))).isNull();
-        then(cache.getConfig(ResourceId.from("a.b.d"))).isNull();
-        then(cache.getConfig(ResourceId.from("a.b.f"))).isNull();
+        then(cache.configOf(ResourceId.from("d.e.f"))).isEqualTo(new ExternalConfig());
+        then(cache.configOf(ResourceId.from("x.y.z"))).isEqualTo(new ExternalConfig());
+        then(cache.configOf(ResourceId.from("a.b.c"))).isNull();
+        then(cache.configOf(ResourceId.from("a.b.d"))).isNull();
+        then(cache.configOf(ResourceId.from("a.b.f"))).isNull();
     }
 
     @Test
-    void testGetConfigs() {
+    void testConfigs() {
         ConfigCache cache = new RegexConfigCache();
-        then(cache.getConfigs()).isEmpty();
+        then(cache.configs()).isEmpty();
 
         final ExternalConfig config = new ExternalConfig();
         config.setLimitForPeriod(RandomUtils.randomInt(100));
@@ -62,8 +62,8 @@ class RegexConfigCacheTest {
 
         final ResourceId resourceId = ResourceId.from("a.b.*", true);
         cache = build(config, resourceId);
-        then(cache.getConfigs().size()).isEqualTo(3);
-        then(cache.getConfig(resourceId)).isEqualTo(config);
+        then(cache.configs().size()).isEqualTo(3);
+        then(cache.configOf(resourceId)).isEqualTo(config);
     }
 
     @Test
@@ -77,14 +77,14 @@ class RegexConfigCacheTest {
         config.setMaxConcurrentLimit(RandomUtils.randomInt(200));
         config.setFailureRateThreshold(RandomUtils.randomFloat(100));
 
-        then(cache.getConfig(resourceId)).isNull();
+        then(cache.configOf(resourceId)).isNull();
 
         cache.updateConfig(resourceId, config);
-        then(cache.getConfig(resourceId)).isEqualTo(config);
+        then(cache.configOf(resourceId)).isEqualTo(config);
 
-        then(cache.getConfig(ResourceId.from("a.b.c"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("a.b.d"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("a.b.f"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("a.b.c"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("a.b.d"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("a.b.f"))).isEqualTo(config);
 
         // Update
         final ExternalConfig config1 = new ExternalConfig();
@@ -93,15 +93,15 @@ class RegexConfigCacheTest {
         config1.setFailureRateThreshold(RandomUtils.randomFloat(100));
         cache.updateConfig(resourceId, config1);
 
-        then(cache.getConfig(ResourceId.from("a.b.c"))).isEqualTo(config1);
-        then(cache.getConfig(ResourceId.from("a.b.d"))).isEqualTo(config1);
-        then(cache.getConfig(ResourceId.from("a.b.f"))).isEqualTo(config1);
+        then(cache.configOf(ResourceId.from("a.b.c"))).isEqualTo(config1);
+        then(cache.configOf(ResourceId.from("a.b.d"))).isEqualTo(config1);
+        then(cache.configOf(ResourceId.from("a.b.f"))).isEqualTo(config1);
 
         // Remove
         cache.updateConfig(resourceId, null);
-        then(cache.getConfig(ResourceId.from("a.b.c"))).isNull();
-        then(cache.getConfig(ResourceId.from("a.b.d"))).isNull();
-        then(cache.getConfig(ResourceId.from("a.b.f"))).isNull();
+        then(cache.configOf(ResourceId.from("a.b.c"))).isNull();
+        then(cache.configOf(ResourceId.from("a.b.d"))).isNull();
+        then(cache.configOf(ResourceId.from("a.b.f"))).isNull();
     }
 
     @Test
@@ -119,32 +119,32 @@ class RegexConfigCacheTest {
         final Map<ResourceId, ExternalConfig> configs = new HashMap<>(2);
         configs.put(resourceId1, config);
         configs.put(resourceId2, config);
-        then(cache.getConfigs()).isEmpty();
-        then(cache.getRegexConfigs()).isEmpty();
+        then(cache.configs()).isEmpty();
+        then(cache.regexConfigs()).isEmpty();
 
         cache.updateConfigs(configs);
-        then(cache.getConfig(ResourceId.from("a.b.c"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("a.b.d"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("a.b.f"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("a.b.c"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("a.b.d"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("a.b.f"))).isEqualTo(config);
 
-        then(cache.getConfig(ResourceId.from("d.e.a"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("d.e.b"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("d.e.c"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("d.e.a"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("d.e.b"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("d.e.c"))).isEqualTo(config);
 
-        then(cache.getConfigs().size()).isEqualTo(2);
-        then(cache.getConfigs().get(resourceId1)).isEqualTo(config);
-        then(cache.getConfigs().get(resourceId2)).isEqualTo(config);
+        then(cache.configs().size()).isEqualTo(2);
+        then(cache.configs().get(resourceId1)).isEqualTo(config);
+        then(cache.configs().get(resourceId2)).isEqualTo(config);
 
-        final Map<String, RegexValue<ExternalConfig, ResourceId>> regexValues = cache.getRegexConfigs();
-        then(regexValues.get("a.b.*").getConfig()).isEqualTo(config);
-        then(regexValues.get("a.b.*").getItems().contains(ResourceId.from("a.b.c"))).isTrue();
-        then(regexValues.get("a.b.*").getItems().contains(ResourceId.from("a.b.d"))).isTrue();
-        then(regexValues.get("a.b.*").getItems().contains(ResourceId.from("a.b.f"))).isTrue();
+        final Map<String, RegexValue<ExternalConfig, ResourceId>> regexValues = cache.regexConfigs();
+        then(regexValues.get("a.b.*").config()).isEqualTo(config);
+        then(regexValues.get("a.b.*").items().contains(ResourceId.from("a.b.c"))).isTrue();
+        then(regexValues.get("a.b.*").items().contains(ResourceId.from("a.b.d"))).isTrue();
+        then(regexValues.get("a.b.*").items().contains(ResourceId.from("a.b.f"))).isTrue();
 
-        then(regexValues.get("d.e.*").getConfig()).isEqualTo(config);
-        then(regexValues.get("d.e.*").getItems().contains(ResourceId.from("d.e.a"))).isTrue();
-        then(regexValues.get("d.e.*").getItems().contains(ResourceId.from("d.e.b"))).isTrue();
-        then(regexValues.get("d.e.*").getItems().contains(ResourceId.from("d.e.c"))).isTrue();
+        then(regexValues.get("d.e.*").config()).isEqualTo(config);
+        then(regexValues.get("d.e.*").items().contains(ResourceId.from("d.e.a"))).isTrue();
+        then(regexValues.get("d.e.*").items().contains(ResourceId.from("d.e.b"))).isTrue();
+        then(regexValues.get("d.e.*").items().contains(ResourceId.from("d.e.c"))).isTrue();
 
 
         // Update
@@ -158,45 +158,45 @@ class RegexConfigCacheTest {
         configs2.put(resourceId2, config1);
         cache.updateConfigs(configs2);
 
-        then(cache.getConfig(ResourceId.from("a.b.c"))).isEqualTo(config1);
-        then(cache.getConfig(ResourceId.from("a.b.d"))).isEqualTo(config1);
-        then(cache.getConfig(ResourceId.from("a.b.f"))).isEqualTo(config1);
+        then(cache.configOf(ResourceId.from("a.b.c"))).isEqualTo(config1);
+        then(cache.configOf(ResourceId.from("a.b.d"))).isEqualTo(config1);
+        then(cache.configOf(ResourceId.from("a.b.f"))).isEqualTo(config1);
 
-        then(cache.getConfig(ResourceId.from("d.e.a"))).isEqualTo(config1);
-        then(cache.getConfig(ResourceId.from("d.e.b"))).isEqualTo(config1);
-        then(cache.getConfig(ResourceId.from("d.e.c"))).isEqualTo(config1);
+        then(cache.configOf(ResourceId.from("d.e.a"))).isEqualTo(config1);
+        then(cache.configOf(ResourceId.from("d.e.b"))).isEqualTo(config1);
+        then(cache.configOf(ResourceId.from("d.e.c"))).isEqualTo(config1);
 
-        then(cache.getConfigs().size()).isEqualTo(2);
-        then(cache.getConfigs().get(resourceId1)).isEqualTo(config1);
-        then(cache.getConfigs().get(resourceId2)).isEqualTo(config1);
+        then(cache.configs().size()).isEqualTo(2);
+        then(cache.configs().get(resourceId1)).isEqualTo(config1);
+        then(cache.configs().get(resourceId2)).isEqualTo(config1);
 
-        final Map<String, RegexValue<ExternalConfig, ResourceId>> regexValues1 = cache.getRegexConfigs();
-        then(regexValues1.get("a.b.*").getConfig()).isEqualTo(config1);
-        then(regexValues1.get("a.b.*").getItems().contains(ResourceId.from("a.b.c"))).isTrue();
-        then(regexValues1.get("a.b.*").getItems().contains(ResourceId.from("a.b.d"))).isTrue();
-        then(regexValues1.get("a.b.*").getItems().contains(ResourceId.from("a.b.f"))).isTrue();
+        final Map<String, RegexValue<ExternalConfig, ResourceId>> regexValues1 = cache.regexConfigs();
+        then(regexValues1.get("a.b.*").config()).isEqualTo(config1);
+        then(regexValues1.get("a.b.*").items().contains(ResourceId.from("a.b.c"))).isTrue();
+        then(regexValues1.get("a.b.*").items().contains(ResourceId.from("a.b.d"))).isTrue();
+        then(regexValues1.get("a.b.*").items().contains(ResourceId.from("a.b.f"))).isTrue();
 
-        then(regexValues1.get("d.e.*").getConfig()).isEqualTo(config1);
-        then(regexValues1.get("d.e.*").getItems().contains(ResourceId.from("d.e.a"))).isTrue();
-        then(regexValues1.get("d.e.*").getItems().contains(ResourceId.from("d.e.b"))).isTrue();
-        then(regexValues1.get("d.e.*").getItems().contains(ResourceId.from("d.e.c"))).isTrue();
+        then(regexValues1.get("d.e.*").config()).isEqualTo(config1);
+        then(regexValues1.get("d.e.*").items().contains(ResourceId.from("d.e.a"))).isTrue();
+        then(regexValues1.get("d.e.*").items().contains(ResourceId.from("d.e.b"))).isTrue();
+        then(regexValues1.get("d.e.*").items().contains(ResourceId.from("d.e.c"))).isTrue();
 
 
         // Remove
         cache.updateConfigs(null);
-        then(cache.getConfig(ResourceId.from("a.b.c"))).isNull();
-        then(cache.getConfig(ResourceId.from("a.b.d"))).isNull();
-        then(cache.getConfig(ResourceId.from("a.b.f"))).isNull();
+        then(cache.configOf(ResourceId.from("a.b.c"))).isNull();
+        then(cache.configOf(ResourceId.from("a.b.d"))).isNull();
+        then(cache.configOf(ResourceId.from("a.b.f"))).isNull();
 
-        then(cache.getConfig(ResourceId.from("d.e.a"))).isNull();
-        then(cache.getConfig(ResourceId.from("d.e.b"))).isNull();
-        then(cache.getConfig(ResourceId.from("d.e.c"))).isNull();
+        then(cache.configOf(ResourceId.from("d.e.a"))).isNull();
+        then(cache.configOf(ResourceId.from("d.e.b"))).isNull();
+        then(cache.configOf(ResourceId.from("d.e.c"))).isNull();
     }
 
     @Test
-    void testGetRegexConfig() {
+    void testRegexConfig() {
         RegexConfigCache cache = new RegexConfigCache();
-        then(cache.getRegexConfig("*")).isNull();
+        then(cache.regexConfigOf("*")).isNull();
 
 
         final ExternalConfig config = new ExternalConfig();
@@ -206,25 +206,25 @@ class RegexConfigCacheTest {
 
         cache = build(config, ResourceId.from("a.b.*", true));
 
-        then(cache.getConfig(ResourceId.from("d.e.f"))).isEqualTo(new ExternalConfig());
-        then(cache.getConfig(ResourceId.from("x.y.z"))).isEqualTo(new ExternalConfig());
-        then(cache.getConfig(ResourceId.from("a.b.c"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("a.b.d"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("a.b.f"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("d.e.f"))).isEqualTo(new ExternalConfig());
+        then(cache.configOf(ResourceId.from("x.y.z"))).isEqualTo(new ExternalConfig());
+        then(cache.configOf(ResourceId.from("a.b.c"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("a.b.d"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("a.b.f"))).isEqualTo(config);
 
-        then(cache.getRegexConfig("*")).isNull();
-        final RegexValue<ExternalConfig, ResourceId> regexValue = cache.getRegexConfig("a.b.*");
-        then(regexValue.getConfig()).isEqualTo(config);
-        then(regexValue.getItems().size()).isEqualTo(3);
-        then(regexValue.getItems().contains(ResourceId.from("a.b.c"))).isTrue();
-        then(regexValue.getItems().contains(ResourceId.from("a.b.d"))).isTrue();
-        then(regexValue.getItems().contains(ResourceId.from("a.b.f"))).isTrue();
+        then(cache.regexConfigOf("*")).isNull();
+        final RegexValue<ExternalConfig, ResourceId> regexValue = cache.regexConfigOf("a.b.*");
+        then(regexValue.config()).isEqualTo(config);
+        then(regexValue.items().size()).isEqualTo(3);
+        then(regexValue.items().contains(ResourceId.from("a.b.c"))).isTrue();
+        then(regexValue.items().contains(ResourceId.from("a.b.d"))).isTrue();
+        then(regexValue.items().contains(ResourceId.from("a.b.f"))).isTrue();
     }
 
     @Test
-    void testGetRegexConfigs() {
+    void testRegexConfigs() {
         RegexConfigCache cache = new RegexConfigCache();
-        then(cache.getRegexConfigs()).isEmpty();
+        then(cache.regexConfigs()).isEmpty();
 
 
         final ExternalConfig config = new ExternalConfig();
@@ -233,31 +233,31 @@ class RegexConfigCacheTest {
         config.setFailureRateThreshold(RandomUtils.randomFloat(100));
 
         cache = build(config, ResourceId.from("a.b.*", true));
-        then(cache.getConfig(ResourceId.from("a.b.c"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("a.b.d"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("a.b.f"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("a.b.c"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("a.b.d"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("a.b.f"))).isEqualTo(config);
 
         cache.updateConfig(ResourceId.from("d.e.*", true), config);
-        then(cache.getConfig(ResourceId.from("d.e.a"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("d.e.b"))).isEqualTo(config);
-        then(cache.getConfig(ResourceId.from("d.e.c"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("d.e.a"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("d.e.b"))).isEqualTo(config);
+        then(cache.configOf(ResourceId.from("d.e.c"))).isEqualTo(config);
 
-        Map<String, RegexValue<ExternalConfig, ResourceId>> regexValues = cache.getRegexConfigs();
+        Map<String, RegexValue<ExternalConfig, ResourceId>> regexValues = cache.regexConfigs();
         then(regexValues.size()).isEqualTo(2);
 
-        final RegexValue<ExternalConfig, ResourceId> regexValue0 = cache.getRegexConfig("a.b.*");
-        then(regexValue0.getConfig()).isEqualTo(config);
-        then(regexValue0.getItems().size()).isEqualTo(3);
-        then(regexValue0.getItems().contains(ResourceId.from("a.b.c"))).isTrue();
-        then(regexValue0.getItems().contains(ResourceId.from("a.b.d"))).isTrue();
-        then(regexValue0.getItems().contains(ResourceId.from("a.b.f"))).isTrue();
+        final RegexValue<ExternalConfig, ResourceId> regexValue0 = cache.regexConfigOf("a.b.*");
+        then(regexValue0.config()).isEqualTo(config);
+        then(regexValue0.items().size()).isEqualTo(3);
+        then(regexValue0.items().contains(ResourceId.from("a.b.c"))).isTrue();
+        then(regexValue0.items().contains(ResourceId.from("a.b.d"))).isTrue();
+        then(regexValue0.items().contains(ResourceId.from("a.b.f"))).isTrue();
 
-        final RegexValue<ExternalConfig, ResourceId> regexValue1 = cache.getRegexConfig("d.e.*");
-        then(regexValue1.getConfig()).isEqualTo(config);
-        then(regexValue1.getItems().size()).isEqualTo(3);
-        then(regexValue1.getItems().contains(ResourceId.from("d.e.a"))).isTrue();
-        then(regexValue1.getItems().contains(ResourceId.from("d.e.b"))).isTrue();
-        then(regexValue1.getItems().contains(ResourceId.from("d.e.c"))).isTrue();
+        final RegexValue<ExternalConfig, ResourceId> regexValue1 = cache.regexConfigOf("d.e.*");
+        then(regexValue1.config()).isEqualTo(config);
+        then(regexValue1.items().size()).isEqualTo(3);
+        then(regexValue1.items().contains(ResourceId.from("d.e.a"))).isTrue();
+        then(regexValue1.items().contains(ResourceId.from("d.e.b"))).isTrue();
+        then(regexValue1.items().contains(ResourceId.from("d.e.c"))).isTrue();
     }
 
     private RegexConfigCache build(ExternalConfig config, final ResourceId resourceId) {

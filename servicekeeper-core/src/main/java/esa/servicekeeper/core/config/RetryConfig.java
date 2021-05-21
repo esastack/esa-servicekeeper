@@ -50,7 +50,7 @@ public class RetryConfig implements Serializable {
     }
 
     public static Builder copyFrom(RetryConfig retryConfig) {
-        Checks.checkNotNull(retryConfig, "The RetryConfig to copy from must not be null");
+        Checks.checkNotNull(retryConfig, "retryConfig");
         Builder newBuilder = builder();
         newBuilder.includeExceptions(retryConfig.getIncludeExceptions())
                 .excludeExceptions(retryConfig.getExcludeExceptions())

@@ -54,16 +54,16 @@ class RegexConfigCenterTest {
         regexMaxSizeLimits.addRegexConfig(regex, 100);
 
         then(regexConfigs.getAll().size()).isEqualTo(1);
-        then(regexConfigs.getAll().get(regex).getConfig()).isEqualTo(new ExternalConfig());
-        then(regexConfigs.getAll().get(regex).getItems()).isEmpty();
+        then(regexConfigs.getAll().get(regex).config()).isEqualTo(new ExternalConfig());
+        then(regexConfigs.getAll().get(regex).items()).isEmpty();
 
         then(regexMaxSizeLimits.getAll().size()).isEqualTo(1);
-        then(regexMaxSizeLimits.getAll().get(regex).getConfig()).isEqualTo(100);
-        then(regexMaxSizeLimits.getAll().get(regex).getItems()).isEmpty();
+        then(regexMaxSizeLimits.getAll().get(regex).config()).isEqualTo(100);
+        then(regexMaxSizeLimits.getAll().get(regex).items()).isEmpty();
     }
 
     @Test
-    void testGetConfig() throws InterruptedException {
+    void testConfig() throws InterruptedException {
         final String regex = "a.b.*";
 
         regexConfigs.addRegexConfig(regex, new ExternalConfig());
@@ -72,12 +72,12 @@ class RegexConfigCenterTest {
         for (int i = 0; i < 5; i++) {
             new Thread(() -> {
                 try {
-                    then(regexConfigs.getConfig(ResourceId.from("a.b.c"))).isNotNull();
-                    then(regexConfigs.getConfig(ResourceId.from("a.b.d"))).isNotNull();
+                    then(regexConfigs.configOf(ResourceId.from("a.b.c"))).isNotNull();
+                    then(regexConfigs.configOf(ResourceId.from("a.b.d"))).isNotNull();
 
-                    then(regexMaxSizeLimits.getConfig(new ArgConfigKey(ResourceId.from("a.b.c"), "",
+                    then(regexMaxSizeLimits.configOf(new ArgConfigKey(ResourceId.from("a.b.c"), "",
                             RATE_LIMIT))).isEqualTo(100);
-                    then(regexMaxSizeLimits.getConfig(new ArgConfigKey(ResourceId.from("a.b.d"), "",
+                    then(regexMaxSizeLimits.configOf(new ArgConfigKey(ResourceId.from("a.b.d"), "",
                             RATE_LIMIT))).isEqualTo(100);
                 } finally {
                     latch.countDown();
@@ -88,7 +88,7 @@ class RegexConfigCenterTest {
     }
 
     @Test
-    void testGetItems() throws InterruptedException {
+    void testItems() throws InterruptedException {
         final String regex = "a.b.*";
 
         regexConfigs.addRegexConfig(regex, new ExternalConfig());
@@ -97,20 +97,20 @@ class RegexConfigCenterTest {
         for (int i = 0; i < 5; i++) {
             new Thread(() -> {
                 try {
-                    regexConfigs.getConfig(ResourceId.from("a.b.c"));
-                    regexConfigs.getConfig(ResourceId.from("a.b.d"));
-                    then(regexConfigs.getItems(regex).size()).isEqualTo(2);
-                    then(regexConfigs.getItems(regex).contains(ResourceId.from("a.b.c")));
-                    then(regexConfigs.getItems(regex).contains(ResourceId.from("a.b.d")));
+                    regexConfigs.configOf(ResourceId.from("a.b.c"));
+                    regexConfigs.configOf(ResourceId.from("a.b.d"));
+                    then(regexConfigs.items(regex).size()).isEqualTo(2);
+                    then(regexConfigs.items(regex).contains(ResourceId.from("a.b.c")));
+                    then(regexConfigs.items(regex).contains(ResourceId.from("a.b.d")));
 
-                    regexMaxSizeLimits.getConfig(new ArgConfigKey(ResourceId.from("a.b.c"), "",
+                    regexMaxSizeLimits.configOf(new ArgConfigKey(ResourceId.from("a.b.c"), "",
                             RATE_LIMIT));
-                    regexMaxSizeLimits.getConfig(new ArgConfigKey(ResourceId.from("a.b.d"), "",
+                    regexMaxSizeLimits.configOf(new ArgConfigKey(ResourceId.from("a.b.d"), "",
                             RATE_LIMIT));
-                    then(regexMaxSizeLimits.getItems(regex).size()).isEqualTo(2);
-                    then(regexMaxSizeLimits.getItems(regex).contains(
+                    then(regexMaxSizeLimits.items(regex).size()).isEqualTo(2);
+                    then(regexMaxSizeLimits.items(regex).contains(
                             new ArgConfigKey(ResourceId.from("a.b.c"), "", RATE_LIMIT)));
-                    then(regexMaxSizeLimits.getItems(regex).contains(
+                    then(regexMaxSizeLimits.items(regex).contains(
                             new ArgConfigKey(ResourceId.from("a.b.d"), "", RATE_LIMIT)));
                 } finally {
                     latch.countDown();
@@ -133,8 +133,8 @@ class RegexConfigCenterTest {
                 .removeRegex(regex);
 
         assert (configValue != null);
-        then(configValue.getItems()).isEmpty();
-        then(configValue.getConfig()).isEqualTo(new ExternalConfig());
+        then(configValue.items()).isEmpty();
+        then(configValue.config()).isEqualTo(new ExternalConfig());
         then(regexConfigs.getAll()).isEmpty();
 
         regexMaxSizeLimits.removeRegex(null);
@@ -142,8 +142,8 @@ class RegexConfigCenterTest {
                 .removeRegex(regex);
 
         assert (argValue != null);
-        then(argValue.getItems()).isEmpty();
-        then(argValue.getConfig()).isEqualTo(100);
+        then(argValue.items()).isEmpty();
+        then(argValue.config()).isEqualTo(100);
         then(regexMaxSizeLimits.getAll()).isEmpty();
     }
 
@@ -156,11 +156,11 @@ class RegexConfigCenterTest {
 
         regexConfigs.addRegexConfig("a.b.*", new ExternalConfig());
         regexMaxSizeLimits.addRegexConfig("a.b.*", 100);
-        regexConfigs.getConfig(ResourceId.from("a.b.c"));
-        regexConfigs.getConfig(ResourceId.from("a.b.d"));
-        regexMaxSizeLimits.getConfig(new ArgConfigKey(ResourceId.from("a.b.c"), "",
+        regexConfigs.configOf(ResourceId.from("a.b.c"));
+        regexConfigs.configOf(ResourceId.from("a.b.d"));
+        regexMaxSizeLimits.configOf(new ArgConfigKey(ResourceId.from("a.b.c"), "",
                 RATE_LIMIT));
-        regexMaxSizeLimits.getConfig(new ArgConfigKey(ResourceId.from("a.b.d"), "",
+        regexMaxSizeLimits.configOf(new ArgConfigKey(ResourceId.from("a.b.d"), "",
                 RATE_LIMIT));
 
         final Map<String, ExternalConfig> externalConfigMap = new HashMap<>(2);
@@ -186,12 +186,12 @@ class RegexConfigCenterTest {
         }
         latch.await();
         then(regexConfigs.getAll().size()).isEqualTo(3);
-        then(regexConfigs.getItems("a.b.*").size()).isEqualTo(2);
-        then(regexConfigs.getConfig(ResourceId.from("a.b.c"))).isEqualTo(config);
-        then(regexConfigs.getConfig(ResourceId.from("a.b.d"))).isEqualTo(config);
+        then(regexConfigs.items("a.b.*").size()).isEqualTo(2);
+        then(regexConfigs.configOf(ResourceId.from("a.b.c"))).isEqualTo(config);
+        then(regexConfigs.configOf(ResourceId.from("a.b.d"))).isEqualTo(config);
 
         then(regexMaxSizeLimits.getAll().size()).isEqualTo(3);
-        then(regexMaxSizeLimits.getItems("a.b.*").size()).isEqualTo(2);
+        then(regexMaxSizeLimits.items("a.b.*").size()).isEqualTo(2);
     }
 
     @Test
@@ -207,12 +207,12 @@ class RegexConfigCenterTest {
                         regexConfigs.addRegexConfig("abc.def.*", new ExternalConfig());
                         regexMaxSizeLimits.addRegexConfig("abc.def.*", 100);
                     } else if (count.get() % 5 == 1) {
-                        regexConfigs.getConfig(ResourceId.from("a.b.c"));
-                        regexConfigs.getConfig(ResourceId.from("a.b.d"));
+                        regexConfigs.configOf(ResourceId.from("a.b.c"));
+                        regexConfigs.configOf(ResourceId.from("a.b.d"));
 
-                        regexMaxSizeLimits.getConfig(new ArgConfigKey(ResourceId.from("a.b.c"), "",
+                        regexMaxSizeLimits.configOf(new ArgConfigKey(ResourceId.from("a.b.c"), "",
                                 RATE_LIMIT));
-                        regexMaxSizeLimits.getConfig(new ArgConfigKey(ResourceId.from("a.b.d"), "",
+                        regexMaxSizeLimits.configOf(new ArgConfigKey(ResourceId.from("a.b.d"), "",
                                 RATE_LIMIT));
                     } else if (count.get() % 5 == 2) {
                         regexConfigs
@@ -223,12 +223,12 @@ class RegexConfigCenterTest {
                         regexConfigs.updateRegexConfigs(null);
                         regexMaxSizeLimits.updateRegexConfigs(null);
                     } else {
-                        regexConfigs.getConfig(ResourceId.from("a.b.c"));
-                        regexConfigs.getConfig(ResourceId.from("a.b.d"));
+                        regexConfigs.configOf(ResourceId.from("a.b.c"));
+                        regexConfigs.configOf(ResourceId.from("a.b.d"));
 
-                        regexMaxSizeLimits.getConfig(new ArgConfigKey(ResourceId.from("a.b.c"), "",
+                        regexMaxSizeLimits.configOf(new ArgConfigKey(ResourceId.from("a.b.c"), "",
                                 RATE_LIMIT));
-                        regexMaxSizeLimits.getConfig(new ArgConfigKey(ResourceId.from("a.b.d"), "",
+                        regexMaxSizeLimits.configOf(new ArgConfigKey(ResourceId.from("a.b.d"), "",
                                 RATE_LIMIT));
                     }
                 } catch (Throwable th) {

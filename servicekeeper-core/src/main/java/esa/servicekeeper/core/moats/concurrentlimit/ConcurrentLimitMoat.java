@@ -57,7 +57,7 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
                                ConcurrentLimitConfig immutableConfig,
                                List<MoatEventProcessor> processors) {
         super(processors, config);
-        Checks.checkNotNull(limitConfig, "The ConcurrentLimitConfig must not be null");
+        Checks.checkNotNull(limitConfig, "limitConfig");
         this.lifeCycleType = immutableConfig == null ? LifeCycleType.TEMPORARY : LifeCycleType.PERMANENT;
         this.limiter = REGISTRY.getOrCreate(config.getResourceId().getName(), limitConfig, immutableConfig, processors);
     }

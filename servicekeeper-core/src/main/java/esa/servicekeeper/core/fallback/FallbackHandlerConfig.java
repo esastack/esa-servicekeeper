@@ -27,7 +27,7 @@ public class FallbackHandlerConfig {
     private final OriginalInvocation originalInvocation;
 
     public FallbackHandlerConfig(FallbackConfig fallbackConfig, OriginalInvocation originalInvocation) {
-        Checks.checkNotNull(fallbackConfig, "FallbackConfig must not be null");
+        Checks.checkNotNull(fallbackConfig, "fallbackConfig");
         this.fallbackConfig = fallbackConfig;
         this.originalInvocation = originalInvocation;
     }

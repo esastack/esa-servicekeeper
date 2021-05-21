@@ -29,7 +29,7 @@ public class RetryableExecutionChain extends SyncExecutionChainImpl {
 
     public RetryableExecutionChain(List<Moat<?>> moats, RetryableExecutor executor) {
         super(moats);
-        Checks.checkNotNull(executor, "RetryableExecutor must not be null");
+        Checks.checkNotNull(executor, "executor");
         this.executor = executor;
     }
 

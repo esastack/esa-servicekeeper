@@ -57,8 +57,8 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
     private final MoatClusterFactory factory;
 
     AbstractServiceKeeperEntry(MoatClusterFactory factory, GlobalConfig globalConfig) {
-        Checks.checkNotNull(globalConfig, "GlobalConfig must not be null");
-        Checks.checkNotNull(factory, "MoatClusterFactory must not be null");
+        Checks.checkNotNull(globalConfig, "globalConfig");
+        Checks.checkNotNull(factory, "factory");
         this.globalConfig = globalConfig;
         this.factory = factory;
     }

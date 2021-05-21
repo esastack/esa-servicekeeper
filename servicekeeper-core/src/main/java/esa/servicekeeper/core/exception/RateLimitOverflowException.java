@@ -21,13 +21,13 @@ import esa.servicekeeper.core.metrics.RateLimitMetrics;
 /**
  * This exception will be thrown when current qps number has exceeds rateLimit.
  */
-public class RateLimitOverFlowException extends ServiceKeeperNotPermittedException {
+public class RateLimitOverflowException extends ServiceKeeperNotPermittedException {
 
     private static final long serialVersionUID = -7708913444776710002L;
 
     private final transient RateLimitMetrics metrics;
 
-    public RateLimitOverFlowException(String msg, Context ctx, RateLimitMetrics metrics) {
+    public RateLimitOverflowException(String msg, Context ctx, RateLimitMetrics metrics) {
         super(msg, ctx);
         this.metrics = metrics;
     }

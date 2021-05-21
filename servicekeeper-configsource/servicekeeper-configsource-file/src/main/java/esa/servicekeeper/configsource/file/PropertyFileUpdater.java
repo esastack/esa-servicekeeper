@@ -56,8 +56,8 @@ public class PropertyFileUpdater extends SelfStartUpdaters {
 
     @Override
     public void start() {
-        final String configDir = PropertyFileConstant.getConfigDir();
-        final String configName = PropertyFileConstant.getConfigName();
+        final String configDir = PropertyFileConstant.configDir();
+        final String configName = PropertyFileConstant.configName();
 
         if (createFile(configDir, configName)) {
             addWatcher(configDir, configName);
@@ -89,7 +89,7 @@ public class PropertyFileUpdater extends SelfStartUpdaters {
             return true;
         } catch (IOException e) {
             logger.error("Failed to get initial properties and add listener to file: {}",
-                    PropertyFileConstant.getConfigDir() + File.separator + configName, e);
+                    PropertyFileConstant.configDir() + File.separator + configName, e);
             return false;
         }
     }
@@ -123,7 +123,7 @@ public class PropertyFileUpdater extends SelfStartUpdaters {
         private final InternalConfigsHandler handler;
 
         TimingCheckTask(InternalConfigsHandler handler) {
-            Checks.checkNotNull(handler, "InternalConfigsHandler must not be null");
+            Checks.checkNotNull(handler, "handler");
             this.handler = handler;
         }
 
@@ -142,10 +142,10 @@ public class PropertyFileUpdater extends SelfStartUpdaters {
                     } catch (IOException ex) {
                         logger.error("Failed to load file {} while timing check updates", file.getName());
                     }
-                    handler.update(getConfigs(properties));
+                    handler.update(configs(properties));
                     handler.updateGlobalConfigs(getGlobalDisable(properties),
                             getArgLevelEnable(properties), getRetryEnable(properties));
-                    handler.updateMaxSizeLimits(getMaxSizeLimits(properties));
+                    handler.updateMaxSizeLimits(maxSizeLimits(properties));
                 }
             } catch (Throwable throwable) {
                 logger.error("Failed to update cached external config map", throwable);

@@ -91,8 +91,8 @@ public final class Bootstrap {
         private final BootstrapContext ctx;
 
         private IntimateItem(CompositeServiceKeeperEntry entry, BootstrapContext ctx) {
-            this.entry = Checks.checkNotNull(entry, "CompositeServiceKeeperEntry must not be null");
-            this.ctx = Checks.checkNotNull(ctx, "BootstrapContext must not be null");
+            this.entry = Checks.checkNotNull(entry, "entry");
+            this.ctx = Checks.checkNotNull(ctx, "ctx");
         }
     }
 }
