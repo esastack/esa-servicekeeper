@@ -37,6 +37,6 @@ class ExponentialBackOffPolicyTest {
 
         then(backOff.computeDelay(context)).isEqualTo((long) (delay * Math.pow(multiplier, 0)));
         then(backOff.computeDelay(context)).isEqualTo((long) (delay * Math.pow(multiplier, 1)));
-        then(backOff.computeDelay(context)).isEqualTo((long) maxDelay);
+        then(backOff.computeDelay(context)).isEqualTo(maxDelay);
     }
 }

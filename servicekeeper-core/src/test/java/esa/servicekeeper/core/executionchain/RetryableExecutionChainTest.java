@@ -40,6 +40,7 @@ class RetryableExecutionChainTest {
         new RetryableExecutionChain(Collections.emptyList(), mock(RetryableExecutor.class));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void testDoExecute0() throws Throwable {
         final RetryableExecutor executor = mock(RetryableExecutor.class);
@@ -56,13 +57,14 @@ class RetryableExecutionChainTest {
         verify(executor, times(1)).doExecute(any(), any(), any(Executable.class));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void testDoExecute1() throws Throwable {
         final RetryableExecutor executor = mock(RetryableExecutor.class);
         final RetryableExecutionChain execution = new RetryableExecutionChain(Collections.emptyList(), executor);
 
         final Context ctx = mock(Context.class);
-        final Executable executable = mock(Executable.class);
+        final Executable<?> executable = mock(Executable.class);
         execution.doExecute(ctx, () -> null, executable, true);
         verify(executable).execute();
         verify(executor, never()).doExecute(any(), any(), any(Executable.class));

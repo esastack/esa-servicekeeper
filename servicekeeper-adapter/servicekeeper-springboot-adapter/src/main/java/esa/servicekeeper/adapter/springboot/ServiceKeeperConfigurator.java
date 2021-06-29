@@ -32,8 +32,8 @@ public class ServiceKeeperConfigurator {
 
     @Bean
     @ConditionalOnMissingBean(CompletableStageHandler.class)
-    public AsyncResultHandler completableStageHandler() {
-        return new CompletableStageHandler();
+    public AsyncResultHandler<?> completableStageHandler() {
+        return new CompletableStageHandler<>();
     }
 
     @Bean

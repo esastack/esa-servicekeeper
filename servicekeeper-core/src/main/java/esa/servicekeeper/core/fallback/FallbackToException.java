@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 
 import static esa.servicekeeper.core.fallback.FallbackHandler.FallbackType.FALLBACK_TO_EXCEPTION;
 
-public class FallbackToException implements FallbackHandler {
+public class FallbackToException implements FallbackHandler<Object> {
 
     private static final Logger logger = LogUtils.logger();
 

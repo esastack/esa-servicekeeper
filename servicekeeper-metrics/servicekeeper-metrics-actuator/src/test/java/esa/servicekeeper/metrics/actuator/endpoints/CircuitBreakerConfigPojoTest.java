@@ -27,6 +27,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 class CircuitBreakerConfigPojoTest {
 
+    @SuppressWarnings("unchecked")
     @Test
     void testBasic() {
         final CircuitBreakerConfig config = CircuitBreakerConfig.builder()

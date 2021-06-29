@@ -116,7 +116,6 @@ public class RetryConfig implements Serializable {
                 .toString();
     }
 
-    @SuppressWarnings("rawtypes")
     public static class Builder {
         /**
          * Default includes, contains Exception and the SubExceptions

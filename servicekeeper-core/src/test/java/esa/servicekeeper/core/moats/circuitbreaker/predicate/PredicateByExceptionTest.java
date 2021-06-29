@@ -57,6 +57,7 @@ class PredicateByExceptionTest {
         then(predicateByException.isSuccess(ctx)).isFalse();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void testGetFond() {
         final PredicateByException predicate = new PredicateByException();
@@ -69,6 +70,7 @@ class PredicateByExceptionTest {
         then(Arrays.equals(new Class[]{RuntimeException.class}, predicate.getFond(config))).isTrue();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void testUpdateWithNewestConfig() {
         final PredicateByException predicate = new PredicateByException();
@@ -87,6 +89,7 @@ class PredicateByExceptionTest {
         then(predicate.listeningKey()).isEqualTo(ResourceId.from("ABC"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void testFill() {
         final PredicateByException predicate = new PredicateByException(ResourceId.from("ABC"));

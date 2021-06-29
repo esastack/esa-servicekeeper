@@ -65,7 +65,6 @@ public class CompositeServiceKeeperEntry extends DefaultServiceKeeperEntry imple
         this.groupConfig = groupConfig;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Object invoke(String aliasName, Method method, Object delegate, Object... args) throws Throwable {
         if (absentHandlers) {
@@ -75,12 +74,9 @@ public class CompositeServiceKeeperEntry extends DefaultServiceKeeperEntry imple
                     getOriginalInvocation(method);
 
             final Class<?> returnType = method.getReturnType();
-            if (returnType == null) {
-                return super.invoke(aliasName, method, delegate, args);
-            }
 
             method.setAccessible(true);
-            final Executable executable = () -> method.invoke(delegate, args);
+            final Executable<?> executable = () -> method.invoke(delegate, args);
             final Supplier<CompositeServiceKeeperConfig> configSupplier = () -> MethodUtils.getCompositeConfig(method);
 
             for (AsyncResultHandler<?> asyncResultHandler : handlers) {
@@ -116,8 +112,8 @@ public class CompositeServiceKeeperEntry extends DefaultServiceKeeperEntry imple
         if (absentHandlers) {
             return super.call(resourceId, immutableConfig, originalInvocation, callable, args);
         } else {
-            final Class<?> returnType = originalInvocation == null ? null :
-                    originalInvocation.get().getReturnType();
+            final Class<T> returnType = originalInvocation == null ? null :
+                    (Class<T>) originalInvocation.get().getReturnType();
             if (returnType == null) {
                 return super.call(resourceId, immutableConfig, originalInvocation, callable, args);
             }

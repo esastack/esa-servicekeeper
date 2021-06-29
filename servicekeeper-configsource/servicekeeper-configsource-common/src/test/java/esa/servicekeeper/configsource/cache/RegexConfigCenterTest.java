@@ -100,8 +100,8 @@ class RegexConfigCenterTest {
                     regexConfigs.configOf(ResourceId.from("a.b.c"));
                     regexConfigs.configOf(ResourceId.from("a.b.d"));
                     then(regexConfigs.items(regex).size()).isEqualTo(2);
-                    then(regexConfigs.items(regex).contains(ResourceId.from("a.b.c")));
-                    then(regexConfigs.items(regex).contains(ResourceId.from("a.b.d")));
+                    then(regexConfigs.items(regex).contains(ResourceId.from("a.b.c"))).isTrue();
+                    then(regexConfigs.items(regex).contains(ResourceId.from("a.b.d"))).isTrue();
 
                     regexMaxSizeLimits.configOf(new ArgConfigKey(ResourceId.from("a.b.c"), "",
                             RATE_LIMIT));
@@ -109,9 +109,9 @@ class RegexConfigCenterTest {
                             RATE_LIMIT));
                     then(regexMaxSizeLimits.items(regex).size()).isEqualTo(2);
                     then(regexMaxSizeLimits.items(regex).contains(
-                            new ArgConfigKey(ResourceId.from("a.b.c"), "", RATE_LIMIT)));
+                            new ArgConfigKey(ResourceId.from("a.b.c"), "", RATE_LIMIT))).isTrue();
                     then(regexMaxSizeLimits.items(regex).contains(
-                            new ArgConfigKey(ResourceId.from("a.b.d"), "", RATE_LIMIT)));
+                            new ArgConfigKey(ResourceId.from("a.b.d"), "", RATE_LIMIT))).isTrue();
                 } finally {
                     latch.countDown();
                 }

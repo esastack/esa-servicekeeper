@@ -49,10 +49,10 @@ class FallbackHandlerContextFactoryImplTest {
     }
 
     @Bean
-    public AsyncResultHandler asyncResultHandler() {
-        return new AsyncResultHandler() {
+    public AsyncResultHandler<?> asyncResultHandler() {
+        return new AsyncResultHandler<Object>() {
             @Override
-            public boolean supports(Class returnType) {
+            public boolean supports(Class<?> returnType) {
                 return false;
             }
 

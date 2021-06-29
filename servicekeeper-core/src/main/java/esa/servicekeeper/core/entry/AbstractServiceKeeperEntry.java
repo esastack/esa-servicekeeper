@@ -200,7 +200,7 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
      * @param callable callable
      * @return Supplier
      */
-    protected Supplier<OriginalInvocation> getOriginalInvocation(final Callable callable) {
+    protected Supplier<OriginalInvocation> getOriginalInvocation(final Callable<?> callable) {
         return () -> new OriginalInvocation(
                 GenericTypeUtils.getSuperClassGenericType(callable.getClass()), new Class[0]);
     }

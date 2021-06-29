@@ -24,6 +24,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 class DynamicConfigTest {
 
+    @SuppressWarnings("unchecked")
     @Test
     void testGetterAndSetter() {
         final int maxConcurrentLimit = 1;

@@ -32,7 +32,7 @@ public class MoatStatisticsImpl implements MoatClusterListener, MoatStatistics {
     private final Map<ArgConfigKey, AtomicInteger> countOfArgMap = new ConcurrentHashMap<>(1);
 
     @Override
-    public void onAdd(Moat moat) {
+    public void onAdd(Moat<?> moat) {
         totalCount.incrementAndGet();
 
         countOfTypeMap.computeIfAbsent(moat.type(), (type) -> new AtomicInteger()).incrementAndGet();
@@ -45,7 +45,7 @@ public class MoatStatisticsImpl implements MoatClusterListener, MoatStatistics {
     }
 
     @Override
-    public void onRemove(Moat moat) {
+    public void onRemove(Moat<?> moat) {
         // Decrement total count
         totalCount.decrementAndGet();
 

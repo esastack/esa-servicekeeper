@@ -17,7 +17,7 @@ package esa.servicekeeper.core;
 
 import esa.servicekeeper.core.moats.Moat;
 
-public interface MoatListener extends LifeCycleListener<Moat> {
+public interface MoatListener extends LifeCycleListener<Moat<?>> {
 
     /**
      * On initialization of {@link Moat}.
@@ -25,7 +25,7 @@ public interface MoatListener extends LifeCycleListener<Moat> {
      * @param value value
      */
     @Override
-    default void onInitialization(final Moat value) {
+    default void onInitialization(final Moat<?> value) {
 
     }
 
@@ -35,7 +35,7 @@ public interface MoatListener extends LifeCycleListener<Moat> {
      * @param value value
      */
     @Override
-    default void onDestroy(final Moat value) {
+    default void onDestroy(final Moat<?> value) {
 
     }
 }

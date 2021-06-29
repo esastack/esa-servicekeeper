@@ -27,7 +27,6 @@ class ReturnVoidTest {
     @Test
     void testReturnTypeIsVoid() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         final Method method = this.getClass().getDeclaredMethod("method1");
-        then(String.class.isAssignableFrom(method.getReturnType()));
         then(method.getReturnType()).isEqualTo(void.class);
 
         Object result = method.invoke(this);

@@ -134,7 +134,7 @@ public final class DurationUtils {
         }
 
         private Duration parse(String value) {
-            return Duration.of(Long.valueOf(value), this.chronoUnit);
+            return Duration.of(Long.parseLong(value), this.chronoUnit);
         }
     }
 }

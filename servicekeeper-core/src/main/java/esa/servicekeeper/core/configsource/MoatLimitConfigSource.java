@@ -15,6 +15,7 @@
  */
 package esa.servicekeeper.core.configsource;
 
+import esa.commons.StringUtils;
 import esa.servicekeeper.core.common.ArgConfigKey;
 import esa.servicekeeper.core.moats.MoatType;
 
@@ -46,17 +47,22 @@ public interface MoatLimitConfigSource extends ConfigSource {
      */
     static int getMaxSizeLimit(final ArgConfigKey key) {
         String maxSizeLimitValue = getFromEnvAndProp(key.toMaxSizeLimitKey());
-        try {
-            return Integer.parseInt(maxSizeLimitValue);
-        } catch (NumberFormatException ex) {
-            // ignore
+
+        if (StringUtils.isNotEmpty(maxSizeLimitValue)) {
+            try {
+                return Integer.parseInt(maxSizeLimitValue);
+            } catch (NumberFormatException ex) {
+                // ignore
+            }
         }
 
         maxSizeLimitValue = getFromEnvAndProp(MAX_SIZE_LIMIT_KEY);
-        try {
-            return Integer.parseInt(maxSizeLimitValue);
-        } catch (NumberFormatException ex) {
-            // ignore
+        if (StringUtils.isNotEmpty(maxSizeLimitValue)) {
+            try {
+                return Integer.parseInt(maxSizeLimitValue);
+            } catch (NumberFormatException ex) {
+                // ignore
+            }
         }
 
         return 100;

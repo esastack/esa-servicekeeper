@@ -22,7 +22,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 class CircuitBreakerRegistryTest {
 
-    private CircuitBreakerRegistry registry = CircuitBreakerRegistry.singleton();
+    private final CircuitBreakerRegistry registry = CircuitBreakerRegistry.singleton();
 
     @Test
     void testGetOrCreate() {

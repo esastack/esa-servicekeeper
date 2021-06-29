@@ -69,9 +69,9 @@ class FallbackHandlerFactoryImplTest {
                 .methodName("method4").build();
         OriginalInvocation invocation = new OriginalInvocation(int.class, new Class[0]);
         FallbackHandlerConfig config = new FallbackHandlerConfig(fallbackConfig, invocation);
-        FallbackToFunction fallbackToFunction = null;
+        FallbackToFunction<?> fallbackToFunction = null;
         try {
-            fallbackToFunction = (FallbackToFunction) factory.get(config);
+            fallbackToFunction = (FallbackToFunction<?>) factory.get(config);
         } catch (Throwable throwable) {
             // Do nothing
         }
@@ -85,7 +85,7 @@ class FallbackHandlerFactoryImplTest {
         invocation = new OriginalInvocation(int.class, new Class[]{int.class});
         config = new FallbackHandlerConfig(fallbackConfig, invocation);
         try {
-            fallbackToFunction = (FallbackToFunction) factory.get(config);
+            fallbackToFunction = (FallbackToFunction<?>) factory.get(config);
         } catch (Throwable throwable) {
             // Do nothing
         }
@@ -99,7 +99,7 @@ class FallbackHandlerFactoryImplTest {
         invocation = new OriginalInvocation(int.class, new Class[]{String.class});
         config = new FallbackHandlerConfig(fallbackConfig, invocation);
         try {
-            fallbackToFunction = (FallbackToFunction) factory.get(config);
+            fallbackToFunction = (FallbackToFunction<?>) factory.get(config);
         } catch (Throwable throwable) {
             // Do nothing
         }
@@ -116,7 +116,7 @@ class FallbackHandlerFactoryImplTest {
         invocation = new OriginalInvocation(int.class, new Class[]{String.class});
         config = new FallbackHandlerConfig(fallbackConfig, invocation);
         try {
-            fallbackToFunction = (FallbackToFunction) factory.get(config);
+            fallbackToFunction = (FallbackToFunction<?>) factory.get(config);
         } catch (Throwable throwable) {
             // Do nothing
         }
@@ -132,7 +132,7 @@ class FallbackHandlerFactoryImplTest {
         invocation = new OriginalInvocation(int.class, new Class[]{int.class});
         config = new FallbackHandlerConfig(fallbackConfig, invocation);
         try {
-            fallbackToFunction = (FallbackToFunction) factory.get(config);
+            fallbackToFunction = (FallbackToFunction<?>) factory.get(config);
         } catch (Throwable throwable) {
             // Do nothing
         }
@@ -148,7 +148,7 @@ class FallbackHandlerFactoryImplTest {
                 .methodName("fallbackMethod").build();
 
         final OriginalInvocation invocation = new OriginalInvocation(String.class, new Class[0]);
-        final FallbackToFunction fallbackToFunction = (FallbackToFunction)
+        final FallbackToFunction<?> fallbackToFunction = (FallbackToFunction<?>)
                 factory.get(new FallbackHandlerConfig(fallbackConfig, invocation));
 
         when(ctx.getArgs()).thenReturn(new Object[0]);
@@ -190,7 +190,7 @@ class FallbackHandlerFactoryImplTest {
         final OriginalInvocation invocation = new OriginalInvocation(String.class,
                 new Class[]{String.class, Object.class});
 
-        final FallbackToFunction fallbackToFunction = (FallbackToFunction)
+        final FallbackToFunction<?> fallbackToFunction = (FallbackToFunction<?>)
                 factory.get(new FallbackHandlerConfig(fallbackConfig, invocation));
 
         when(ctx.getArgs()).thenReturn(new Object[0]);

@@ -30,8 +30,8 @@ import static esa.servicekeeper.adapter.spring.constant.BeanNames.DEFAULT_SERVIC
 public class ServiceKeeperConfigurator {
 
     @Bean
-    public AsyncResultHandler completableFutureHandler() {
-        return new CompletableStageHandler();
+    public AsyncResultHandler<?> completableFutureHandler() {
+        return new CompletableStageHandler<>();
     }
 
     @Bean

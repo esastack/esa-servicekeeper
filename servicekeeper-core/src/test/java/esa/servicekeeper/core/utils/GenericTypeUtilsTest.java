@@ -26,7 +26,7 @@ class GenericTypeUtilsTest {
     @Test
     void testGetType() {
         Callable<String> callable = new InnerClass();
-        Class clazz = GenericTypeUtils.getSuperClassGenericType(callable.getClass());
+        Class<?> clazz = GenericTypeUtils.getSuperClassGenericType(callable.getClass());
         then(clazz).isEqualTo(String.class);
         callable = () -> "Hello World!";
         then(GenericTypeUtils.getSuperClassGenericType(callable.getClass())).isEqualTo(Object.class);

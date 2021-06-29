@@ -38,10 +38,9 @@ public final class ClassConvertUtils {
      * Class{Exception.class, IllegalStateException, RuntimeException}
      *
      * @param names qualified names
-     * @param <T>    T
      * @return Class[]
      */
-    public static <T> Class[] toClasses(final String names) {
+    public static Class<?>[] toClasses(final String names) {
         String value = StringUtils.trim(names);
         if (value == null || value.isEmpty()) {
             return new Class[0];
@@ -59,7 +58,7 @@ public final class ClassConvertUtils {
             return new Class[0];
         }
         // Array
-        List<Class<? extends T>> classes = new LinkedList<>();
+        List<Class<?>> classes = new LinkedList<>();
         for (String className : value.substring(1, value.length() - 1).split(Constants.COMMA)) {
             try {
                 if (StringUtils.isEmpty(className)) {
@@ -77,17 +76,16 @@ public final class ClassConvertUtils {
      * Get class by class's qualified name
      *
      * @param origin origin
-     * @param <T>    generic type
      * @return class
      */
-    public static <T> Class<T> toSingleClass(final String origin) {
-        Class[] classes = toClasses(origin);
+    public static Class<?> toSingleClass(final String origin) {
+        Class<?>[] classes = toClasses(origin);
         if (classes.length == 0) {
             logger.warn("Failed to convert origin string to class, origin: {}", origin);
             return null;
         }
 
-        return ClassCastUtils.cast(classes[0]);
+        return classes[0];
     }
 
 }
