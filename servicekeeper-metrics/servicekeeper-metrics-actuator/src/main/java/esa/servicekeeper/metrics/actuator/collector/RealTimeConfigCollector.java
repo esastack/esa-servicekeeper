@@ -47,7 +47,7 @@ public class RealTimeConfigCollector {
             return null;
         }
 
-        for (Moat moat : cluster.getAll()) {
+        for (Moat<?> moat : cluster.getAll()) {
             if (moat instanceof CircuitBreakerMoat) {
                 return ((CircuitBreakerMoat) moat).getCircuitBreaker().config();
             }
@@ -62,7 +62,7 @@ public class RealTimeConfigCollector {
             return null;
         }
 
-        for (Moat moat : cluster.getAll()) {
+        for (Moat<?> moat : cluster.getAll()) {
             if (moat instanceof ConcurrentLimitMoat) {
                 return ConcurrentLimitConfig.builder()
                         .threshold(((ConcurrentLimitMoat) moat).getConcurrentLimiter().metrics().threshold())
@@ -79,7 +79,7 @@ public class RealTimeConfigCollector {
             return null;
         }
 
-        for (Moat moat : moatCluster.getAll()) {
+        for (Moat<?> moat : moatCluster.getAll()) {
             if (moat instanceof RateLimitMoat) {
                 return ((RateLimitMoat) moat).rateLimiter().config();
             }
@@ -95,7 +95,7 @@ public class RealTimeConfigCollector {
         }
 
         ServiceKeeperConfig.Builder builder = ServiceKeeperConfig.builder();
-        for (Moat moat : cluster.getAll()) {
+        for (Moat<?> moat : cluster.getAll()) {
             if (moat instanceof RateLimitMoat) {
                 builder.rateLimiterConfig(((RateLimitMoat) moat).rateLimiter().config());
             } else if (moat instanceof ConcurrentLimitMoat) {

@@ -22,7 +22,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 class ConcurrentLimiterRegistryTest {
 
-    private ConcurrentLimiterRegistry registry = ConcurrentLimiterRegistry.singleton();
+    private final ConcurrentLimiterRegistry registry = ConcurrentLimiterRegistry.singleton();
 
     @Test
     void testGetOrCreate() {

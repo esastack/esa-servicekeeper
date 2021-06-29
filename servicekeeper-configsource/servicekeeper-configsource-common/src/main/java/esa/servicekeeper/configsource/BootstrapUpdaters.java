@@ -41,7 +41,7 @@ public class BootstrapUpdaters implements BootstrapContextListener {
         logger.info("Begin to init dynamic updaters...");
 
         final List<SelfStartUpdaters> updaters = SpiUtils.loadAll(SelfStartUpdaters.class);
-        if (updaters == null || updaters.isEmpty()) {
+        if (updaters.isEmpty()) {
             logger.info("The dynamic updaters loaded by spi are empty");
             return;
         }

@@ -28,11 +28,19 @@
     <name>ServiceKeeper :: Restlight :: Adapter</name>
 
     <properties>
+        <io.netty.common>4.1.63.Final</io.netty.common>
         <restlight.version>0.1.0</restlight.version>
         <guava.version>29.0-jre</guava.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+            <version>${io.netty.common}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>

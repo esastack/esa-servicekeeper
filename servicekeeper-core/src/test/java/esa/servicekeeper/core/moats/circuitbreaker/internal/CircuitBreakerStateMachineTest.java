@@ -35,7 +35,7 @@ class CircuitBreakerStateMachineTest {
     private final int ringBufferSizeInHalfOpenState = RandomUtils.randomInt(30);
     private final Duration waitDurationInOpenState = Duration.ofMillis(10L);
 
-    private CircuitBreakerConfig breakerConfig = CircuitBreakerConfig.builder()
+    private final CircuitBreakerConfig breakerConfig = CircuitBreakerConfig.builder()
             .failureRateThreshold(failureRateThreshold)
             .ringBufferSizeInClosedState(ringBufferSizeInClosedState)
             .ringBufferSizeInHalfOpenState(ringBufferSizeInHalfOpenState)

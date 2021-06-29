@@ -23,11 +23,11 @@ public final class GenericTypeUtils {
     private GenericTypeUtils() {
     }
 
-    public static Class getSuperClassGenericType(Class clazz) {
+    public static Class<?> getSuperClassGenericType(Class<?> clazz) {
         return getSuperClassGenericType(clazz, 0);
     }
 
-    private static Class getSuperClassGenericType(Class clazz, int index) {
+    private static Class<?> getSuperClassGenericType(Class<?> clazz, int index) {
         final Type type = clazz.getGenericInterfaces()[0];
         if (!(type instanceof ParameterizedType)) {
             return Object.class;
@@ -40,6 +40,6 @@ public final class GenericTypeUtils {
         if (!(params[index] instanceof Class)) {
             return Object.class;
         }
-        return (Class) params[index];
+        return (Class<?>) params[index];
     }
 }

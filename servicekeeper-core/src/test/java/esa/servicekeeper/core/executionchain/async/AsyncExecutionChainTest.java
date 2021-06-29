@@ -74,7 +74,7 @@ class AsyncExecutionChainTest {
         for (int i = 0; i < maxConcurrentLimit * 2; i++) {
             try {
                 chain.asyncExecute(new AsyncContext(name), null, executable,
-                        new CompletableStageHandler());
+                        new CompletableStageHandler<>());
             } catch (ConcurrentOverFlowException ex) {
                 concurrentOverFlowCount.incrementAndGet();
             }
@@ -111,10 +111,10 @@ class AsyncExecutionChainTest {
         final AtomicInteger normalCount = new AtomicInteger(0);
         for (int i = 0; i < maxConcurrentLimit * 2; i++) {
             Object result = chain.asyncExecute(new AsyncContext(name), null,
-                    executable, new CompletableStageHandler());
-            if (fallbackValue.equals(result)) {
+                    executable, new CompletableStageHandler<>());
+            if (result.equals(fallbackValue)) {
                 fallbackCount.incrementAndGet();
-            } else if (result != null) {
+            } else {
                 normalCount.incrementAndGet();
             }
         }
@@ -139,7 +139,7 @@ class AsyncExecutionChainTest {
         for (int i = 0; i < limitForPeriod * 2; i++) {
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler());
+                        executable, new CompletableStageHandler<>());
             } catch (RateLimitOverflowException ex) {
                 rateLimitOverFlowCount.incrementAndGet();
             } catch (Throwable throwable) {
@@ -167,7 +167,7 @@ class AsyncExecutionChainTest {
         for (int i = 0; i < limitForPeriod * 2; i++) {
             try {
                 final Object result = chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler());
+                        executable, new CompletableStageHandler<>());
                 if (result != null) {
                     normalCount.incrementAndGet();
                 }
@@ -208,7 +208,7 @@ class AsyncExecutionChainTest {
             final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler());
+                        executable, new CompletableStageHandler<>());
             } catch (Throwable throwable) {
                 fail();
             }
@@ -222,7 +222,7 @@ class AsyncExecutionChainTest {
             final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler());
+                        executable, new CompletableStageHandler<>());
             } catch (CircuitBreakerNotPermittedException ex) {
                 circuitBreakerNotPermittedCount++;
             } catch (Throwable throwable) {
@@ -258,7 +258,7 @@ class AsyncExecutionChainTest {
             final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler());
+                        executable, new CompletableStageHandler<>());
             } catch (Throwable throwable) {
                 fail();
             }
@@ -272,8 +272,8 @@ class AsyncExecutionChainTest {
             final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
             try {
                 final Object result = chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler());
-                if (fallbackValue.equals(result)) {
+                        executable, new CompletableStageHandler<>());
+                if (result.equals(fallbackValue)) {
                     circuitBreakerNotPermittedCount++;
                 }
             } catch (Throwable throwable) {

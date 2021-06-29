@@ -56,6 +56,7 @@ class ExternalConfigTest {
         then(config.getFallbackExceptionClass()).isEqualTo(RuntimeException.class);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void testIsAllEmpty() {
         final ExternalConfig config = new ExternalConfig();

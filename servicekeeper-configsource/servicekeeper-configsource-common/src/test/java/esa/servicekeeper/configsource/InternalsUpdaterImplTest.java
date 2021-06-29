@@ -408,11 +408,10 @@ class InternalsUpdaterImplTest {
     private static class InternalGroupConfigSource implements GroupConfigSource {
 
         private final Map<GroupResourceId, ExternalConfig> configMap = new HashMap<>(2);
-        private final ExternalGroupConfig config1 = new ExternalGroupConfig();
-        private final ExternalGroupConfig config2 = new ExternalGroupConfig();
         private final Set<ResourceId> groupItems = new HashSet<>(3);
 
         private InternalGroupConfigSource() {
+            ExternalGroupConfig config1 = new ExternalGroupConfig();
             config1.setMaxConcurrentLimit(RandomUtils.randomInt(200));
             groupItems.add(ResourceId.from("abc"));
             groupItems.add(ResourceId.from("def"));
@@ -420,6 +419,7 @@ class InternalsUpdaterImplTest {
             config1.setItems(groupItems);
 
             configMap.putIfAbsent(GroupResourceId.from("testUpdateGroupConfig1"), config1);
+            ExternalGroupConfig config2 = new ExternalGroupConfig();
             configMap.putIfAbsent(GroupResourceId.from("testUpdateGroupConfig2"), config2);
         }
 

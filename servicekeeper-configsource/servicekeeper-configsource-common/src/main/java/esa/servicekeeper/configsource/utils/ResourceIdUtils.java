@@ -87,7 +87,7 @@ public final class ResourceIdUtils {
             return Collections.singletonList(from(name));
         }
 
-        final String prefix = trim(name.substring(0, Math.max(0, index)));
+        final String prefix = trim(name.substring(0, index));
         final String postfix = trim(name.substring(index + 1));
         if (isEmpty(postfix)) {
             return Collections.singletonList(from(prefix));

@@ -81,10 +81,10 @@ class ListenableFutureHandlerTest {
         final AtomicInteger normalCount = new AtomicInteger(0);
         for (int i = 0; i < maxConcurrentLimit * 2; i++) {
             Object result = chain.asyncExecute(new AsyncContext(name), null,
-                    executable, new ListenableFutureHandler());
-            if (fallbackValue.equals(result)) {
+                    executable, new ListenableFutureHandler<>());
+            if (result.equals(fallbackValue)) {
                 fallbackCount.incrementAndGet();
-            } else if (result != null) {
+            } else {
                 normalCount.incrementAndGet();
             }
         }
@@ -109,7 +109,7 @@ class ListenableFutureHandlerTest {
         for (int i = 0; i < limitForPeriod * 2; i++) {
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new ListenableFutureHandler());
+                        executable, new ListenableFutureHandler<>());
             } catch (RateLimitOverflowException ex) {
                 rateLimitOverFlowCount.incrementAndGet();
             } catch (Throwable throwable) {
@@ -136,7 +136,7 @@ class ListenableFutureHandlerTest {
             final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new ListenableFutureHandler());
+                        executable, new ListenableFutureHandler<>());
             } catch (Throwable throwable) {
                 fail();
             }
@@ -149,7 +149,7 @@ class ListenableFutureHandlerTest {
             final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new ListenableFutureHandler());
+                        executable, new ListenableFutureHandler<>());
             } catch (CircuitBreakerNotPermittedException ex) {
                 circuitBreakerNotPermittedCount++;
             } catch (Throwable throwable) {
@@ -185,7 +185,7 @@ class ListenableFutureHandlerTest {
             final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new ListenableFutureHandler());
+                        executable, new ListenableFutureHandler<>());
             } catch (Throwable throwable) {
                 fail();
             }
@@ -199,7 +199,7 @@ class ListenableFutureHandlerTest {
             final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new ListenableFutureHandler());
+                        executable, new ListenableFutureHandler<>());
             } catch (CircuitBreakerNotPermittedException ex) {
                 circuitBreakerNotPermittedCount++;
             } catch (Throwable throwable) {

@@ -56,7 +56,7 @@ public final class RegexConfigCenter<C, K> {
     }
 
     public C configOf(K key) {
-        if (cachedNullValueIds.keySet().contains(key)) {
+        if (cachedNullValueIds.containsKey(key)) {
             return null;
         }
 

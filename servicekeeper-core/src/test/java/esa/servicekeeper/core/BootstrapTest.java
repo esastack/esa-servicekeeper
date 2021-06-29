@@ -45,10 +45,10 @@ class BootstrapTest {
 
 
         final List<AsyncResultHandler<?>> handlers = new LinkedList<>();
-        handlers.add(new CompletableStageHandler());
-        handlers.add(new AsyncResultHandler() {
+        handlers.add(new CompletableStageHandler<>());
+        handlers.add(new AsyncResultHandler<Object>() {
             @Override
-            public boolean supports(Class returnType) {
+            public boolean supports(Class<?> returnType) {
                 return false;
             }
 

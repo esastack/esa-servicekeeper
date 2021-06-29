@@ -23,9 +23,6 @@ class FallbackConfigTest {
 
     @Test
     void testEquals() {
-        final FallbackConfig config = FallbackConfig.ofDefault();
-        then(config.equals(config)).isTrue();
-
         FallbackConfig config1 = FallbackConfig.builder().specifiedValue("ABC")
                 .specifiedException(RuntimeException.class)
                 .targetClass(Object.class)

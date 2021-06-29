@@ -52,7 +52,7 @@ public final class BeanUtils {
 
     public static List<Field> getAllFields(Class<?> clazz) {
         final List<Field> fields = new ArrayList<>(32);
-        for (; clazz != null && clazz != Object.class; ) {
+        while (clazz != null && clazz != Object.class) {
             Collections.addAll(fields, clazz.getDeclaredFields());
             clazz = clazz.getSuperclass();
         }

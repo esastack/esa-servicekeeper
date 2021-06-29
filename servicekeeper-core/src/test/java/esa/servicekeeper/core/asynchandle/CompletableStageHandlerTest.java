@@ -59,7 +59,7 @@ class CompletableStageHandlerTest {
                 Collections.emptyList()));
         final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
 
-        final CompletableStageHandler<?> handler = new CompletableStageHandler();
+        final CompletableStageHandler<?> handler = new CompletableStageHandler<>();
         assertThrows(IllegalStateException.class,
                 () -> handler.handle(null, new RequestHandleImpl(chain, new AsyncContext(name))));
     }
@@ -93,10 +93,10 @@ class CompletableStageHandlerTest {
         final AtomicInteger normalCount = new AtomicInteger(0);
         for (int i = 0; i < maxConcurrentLimit * 2; i++) {
             Object result = chain.asyncExecute(new AsyncContext(name), null,
-                    executable, new CompletableStageHandler());
-            if (fallbackValue.equals(result)) {
+                    executable, new CompletableStageHandler<>());
+            if (result.equals(fallbackValue)) {
                 fallbackCount.incrementAndGet();
-            } else if (result != null) {
+            } else {
                 normalCount.incrementAndGet();
             }
         }
@@ -121,7 +121,7 @@ class CompletableStageHandlerTest {
         for (int i = 0; i < limitForPeriod * 2; i++) {
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler());
+                        executable, new CompletableStageHandler<>());
             } catch (RateLimitOverflowException ex) {
                 rateLimitOverFlowCount.incrementAndGet();
             } catch (Throwable throwable) {
@@ -148,7 +148,7 @@ class CompletableStageHandlerTest {
             final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler());
+                        executable, new CompletableStageHandler<>());
             } catch (Throwable throwable) {
                 fail();
             }
@@ -161,7 +161,7 @@ class CompletableStageHandlerTest {
             final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler());
+                        executable, new CompletableStageHandler<>());
             } catch (CircuitBreakerNotPermittedException ex) {
                 circuitBreakerNotPermittedCount++;
             } catch (Throwable throwable) {
@@ -197,7 +197,7 @@ class CompletableStageHandlerTest {
             final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler());
+                        executable, new CompletableStageHandler<>());
             } catch (Throwable throwable) {
                 fail();
             }
@@ -211,7 +211,7 @@ class CompletableStageHandlerTest {
             final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler());
+                        executable, new CompletableStageHandler<>());
             } catch (CircuitBreakerNotPermittedException ex) {
                 circuitBreakerNotPermittedCount++;
             } catch (Throwable throwable) {

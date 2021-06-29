@@ -134,7 +134,7 @@ public class InternalsUpdaterImpl implements InternalsUpdater {
 
             if (listener instanceof LifeCycleSupport && ((LifeCycleSupport) listener).shouldDelete()) {
                 if (listener instanceof Moat) {
-                    cluster0.remove((Moat) listener);
+                    cluster0.remove((Moat<?>) listener);
                 } else if (cluster0 instanceof RetryableMoatCluster && listener instanceof RetryOperationsImpl) {
                     ((RetryableMoatCluster) cluster0).updateRetryExecutor(null);
                 }
@@ -184,7 +184,7 @@ public class InternalsUpdaterImpl implements InternalsUpdater {
             }
         }
 
-        for (Moat moat : cluster0.getAll()) {
+        for (Moat<?> moat : cluster0.getAll()) {
             if (moat instanceof ExternalConfigListener) {
                 listeners.add((ExternalConfigListener) moat);
             }

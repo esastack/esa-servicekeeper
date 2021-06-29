@@ -29,8 +29,8 @@ public class ListenableFutureConfigurator {
 
     @Bean
     @ConditionalOnMissingBean(ListenableFutureHandler.class)
-    public AsyncResultHandler listenableFutureHandler() {
-        return new ListenableFutureHandler();
+    public AsyncResultHandler<?> listenableFutureHandler() {
+        return new ListenableFutureHandler<>();
     }
 
 }

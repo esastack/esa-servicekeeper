@@ -67,21 +67,21 @@ public class MoatClusterImpl implements MoatCluster {
     public boolean contains(MoatType type) {
         switch (type) {
             case RATE_LIMIT:
-                for (Moat moat : getAll()) {
+                for (Moat<?> moat : getAll()) {
                     if (moat instanceof RateLimitMoat) {
                         return true;
                     }
                 }
                 return false;
             case CIRCUIT_BREAKER:
-                for (Moat moat : getAll()) {
+                for (Moat<?> moat : getAll()) {
                     if (moat instanceof CircuitBreakerMoat) {
                         return true;
                     }
                 }
                 return false;
             case CONCURRENT_LIMIT:
-                for (Moat moat : getAll()) {
+                for (Moat<?> moat : getAll()) {
                     if (moat instanceof ConcurrentLimitMoat) {
                         return true;
                     }
@@ -95,7 +95,7 @@ public class MoatClusterImpl implements MoatCluster {
     @Override
     public void remove(MoatType type) {
         final List<Moat<?>> moatsToRemove = new ArrayList<>(1);
-        for (Moat moat : moats) {
+        for (Moat<?> moat : moats) {
             if (moat.type().equals(type)) {
                 moatsToRemove.add(moat);
             }

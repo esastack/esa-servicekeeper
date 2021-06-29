@@ -37,26 +37,26 @@ import org.slf4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class LimitableMoatFactory<CNF2, RTU> extends AbstractMoatFactory<CNF2, RTU> {
+abstract class LimitableMoatFactory<CNF, M> extends AbstractMoatFactory<CNF, M> {
 
     private static final Logger logger = LogUtils.logger();
 
-    private final MoatCreationLimit limit;
+    private final MoatCreationLimit limiter;
     private final LimitableMoatFactoryContext context;
 
     LimitableMoatFactory(LimitableMoatFactoryContext context) {
         super(context);
         this.context = context;
-        this.limit = context.limit();
+        this.limiter = context.limit();
     }
 
     @Override
-    public final RTU doCreate(ResourceId id, FallbackConfig config0, OriginalInvocation config1,
-                              CNF2 config2, CNF2 immutableConfig) {
-        if (limit.canCreate(buildKey(id))) {
-            return doCreate0(id, config0, config1, config2, immutableConfig);
+    public final M doCreate(ResourceId id, FallbackConfig fallbackConfig, OriginalInvocation invocation,
+                            CNF compositeConfig, CNF immutableConfig) {
+        if (limiter.canCreate(buildKey(id))) {
+            return doCreate0(id, fallbackConfig, invocation, compositeConfig, immutableConfig);
         } else {
-            return handleLimited(id, config0, config1, config2, immutableConfig);
+            return handleLimited(id, fallbackConfig, invocation, compositeConfig, immutableConfig);
         }
     }
 
@@ -65,8 +65,8 @@ abstract class LimitableMoatFactory<CNF2, RTU> extends AbstractMoatFactory<CNF2,
         return context;
     }
 
-    private RTU handleLimited(ResourceId id, FallbackConfig config0, OriginalInvocation config1,
-                              CNF2 config2, CNF2 immutableConfig2) {
+    private M handleLimited(ResourceId id, FallbackConfig config0, OriginalInvocation config1,
+                            CNF config2, CNF immutableConfig2) {
         logger.info("The moat of {} is null(due to not permitted), config: {}; immutable config: {}",
                 id, config2, immutableConfig2);
 
@@ -100,8 +100,8 @@ abstract class LimitableMoatFactory<CNF2, RTU> extends AbstractMoatFactory<CNF2,
      * @param immutableConfig2 immutable config
      * @return instance
      */
-    protected abstract RTU doCreate0(ResourceId id, FallbackConfig config0, OriginalInvocation config1,
-                                     CNF2 config2, CNF2 immutableConfig2);
+    protected abstract M doCreate0(ResourceId id, FallbackConfig config0, OriginalInvocation config1,
+                                   CNF config2, CNF immutableConfig2);
 
     MoatConfig buildConfig(ResourceId id, FallbackConfig config0, OriginalInvocation config1) {
         return new MoatConfig(id, config0 == null
@@ -129,7 +129,7 @@ abstract class LimitableMoatFactory<CNF2, RTU> extends AbstractMoatFactory<CNF2,
 
             final ConcurrentLimitMoat moat = new ConcurrentLimitMoat(buildConfig(id, config0, config1), config2,
                     immutableConfig, processors);
-            logger.info("Created concurrent limit moat successfully, resourceId: {}," +
+            logger.info("Created concurrent limiter moat successfully, resourceId: {}," +
                     " config: {}, immutable config: {}", id, config2, immutableConfig);
 
             processors.forEach(processor -> processor.onInitialization(moat));
@@ -161,7 +161,7 @@ abstract class LimitableMoatFactory<CNF2, RTU> extends AbstractMoatFactory<CNF2,
 
             final RateLimitMoat moat = new RateLimitMoat(buildConfig(id, config0, config1), config2,
                     immutableConfig, processors);
-            logger.info("Created rate limit moat successfully, resourceId: {}," +
+            logger.info("Created rate limiter moat successfully, resourceId: {}," +
                     " config: {}, immutable config: {}", id, config2, immutableConfig);
 
             processors.forEach(processor -> processor.onInitialization(moat));
