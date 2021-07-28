@@ -90,7 +90,11 @@ class PredicateStrategyFactoryImplTest {
 
     @Test
     void testDoCreate0() {
-        then(factory.doCreate0(PredicateByException.class)).isNotNull();
-        assertThrows(RuntimeException.class, () -> factory.doCreate0(PredicateByExceptionAndSpendTime.class));
+        then(factory.doCreate0(PredicateStrategyConfig.from(ResourceId.from("abc"), CircuitBreakerConfig.ofDefault(),
+                CircuitBreakerConfig.ofDefault()))).isNotNull();
+        assertThrows(RuntimeException.class, () -> factory.doCreate0(
+                PredicateStrategyConfig.from(ResourceId.from("xyz"), CircuitBreakerConfig.builder()
+                .predicateStrategy(PredicateByExceptionAndSpendTime.class).build(),
+                        CircuitBreakerConfig.ofDefault())));
     }
 }

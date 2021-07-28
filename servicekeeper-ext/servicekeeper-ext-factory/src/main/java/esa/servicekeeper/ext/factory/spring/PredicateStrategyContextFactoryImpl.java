@@ -15,6 +15,7 @@
  */
 package esa.servicekeeper.ext.factory.spring;
 
+import esa.servicekeeper.core.factory.PredicateStrategyConfig;
 import esa.servicekeeper.core.factory.PredicateStrategyFactoryImpl;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateStrategy;
 import esa.servicekeeper.core.utils.LogUtils;
@@ -35,8 +36,9 @@ public class PredicateStrategyContextFactoryImpl extends PredicateStrategyFactor
     }
 
     @Override
-    protected PredicateStrategy doCreate0(Class<? extends PredicateStrategy> clazz) {
-        final PredicateStrategy strategy = SpringContextUtils.getBean(clazz);
+    protected PredicateStrategy doCreate0(PredicateStrategyConfig config) {
+        Class<? extends PredicateStrategy> clazz = config.getPredicate();
+        PredicateStrategy strategy = SpringContextUtils.getBean(clazz);
         if (strategy != null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Got custom predicate strategy: {} from application context successfully",
@@ -49,7 +51,7 @@ public class PredicateStrategyContextFactoryImpl extends PredicateStrategyFactor
             logger.debug("Failed to get custom predicate strategy: {} from application context," +
                     " try to get it by reflection again", clazz.getName());
         }
-        return super.doCreate0(clazz);
+        return super.doCreate0(config);
     }
 
 }

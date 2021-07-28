@@ -44,40 +44,38 @@ public class PredicateStrategyFactoryImpl implements PredicateStrategyFactory {
     public PredicateStrategy get(PredicateStrategyConfig config) {
         final Class<? extends PredicateStrategy> clazz = config.getPredicate();
         Checks.checkNotNull(clazz, "clazz");
-        return getOrCreate(config);
-    }
-
-    private PredicateStrategy getOrCreate(PredicateStrategyConfig config) {
         if (isSingleton()) {
-            return cachedPredicates.computeIfAbsent(config, (key) -> doCreate(config));
+            return cachedPredicates.computeIfAbsent(config, key -> doCreate(config));
         } else {
             return doCreate(config);
         }
     }
 
-    private PredicateStrategy doCreate(PredicateStrategyConfig config) {
+    protected PredicateStrategy doCreate(PredicateStrategyConfig config) {
         final Class<? extends PredicateStrategy> clazz = config.getPredicate();
         if (clazz.equals(PredicateByException.class)) {
-            return doCreate0(config.getIgnoreExceptions(), config.getOriginIgnoreExceptions(), config.getName());
+            return predicateByException(config.getIgnoreExceptions(), config.getOriginIgnoreExceptions(),
+                    config.getName());
         } else if (clazz.equals(PredicateBySpendTime.class)) {
-            return doCreate0(config.getMaxSpendTimeMs(), config.getOriginalMaxSpendTimeMs(),
+            return predicateBySpendTime(config.getMaxSpendTimeMs(), config.getOriginalMaxSpendTimeMs(),
                     config.getName());
         } else if (clazz.equals(PredicateByExceptionAndSpendTime.class)) {
-            return doCreate0(config.getIgnoreExceptions(),
+            return predicateByExceptionAndSpendTime(config.getIgnoreExceptions(),
                     config.getMaxSpendTimeMs(), config.getOriginalMaxSpendTimeMs(),
                     config.getOriginIgnoreExceptions(), config.getName());
         } else {
-            return doCreate0(clazz);
+            return doCreate0(config);
         }
     }
 
     /**
      * Produce a instance of predicateStrategy by refection.
      *
-     * @param clazz clazz
+     * @param config config
      * @return instance
      */
-    protected PredicateStrategy doCreate0(Class<? extends PredicateStrategy> clazz) {
+    protected PredicateStrategy doCreate0(PredicateStrategyConfig config) {
+        Class<? extends PredicateStrategy> clazz = config.getPredicate();
         try {
             final PredicateStrategy predicate = clazz.getDeclaredConstructor().newInstance();
             if (logger.isDebugEnabled()) {
@@ -90,9 +88,9 @@ public class PredicateStrategyFactoryImpl implements PredicateStrategyFactory {
         }
     }
 
-    private PredicateByException doCreate0(Class<?>[] ignoreExceptions,
-                                           Class<?>[] originIgnoreExceptions,
-                                           ResourceId name) {
+    protected PredicateByException predicateByException(Class<?>[] ignoreExceptions,
+                                                        Class<?>[] originIgnoreExceptions,
+                                                        ResourceId name) {
         final Class<PredicateByException> clazz = PredicateByException.class;
         if (ignoreExceptions == null) {
             ignoreExceptions = new Class[0];
@@ -112,8 +110,9 @@ public class PredicateStrategyFactoryImpl implements PredicateStrategyFactory {
         }
     }
 
-    private PredicateBySpendTime doCreate0(long maxSpendTimeMs, long originalMaxSpendTimeMs,
-                                           ResourceId name) {
+    protected PredicateBySpendTime predicateBySpendTime(long maxSpendTimeMs,
+                                                        long originalMaxSpendTimeMs,
+                                                        ResourceId name) {
         final Class<PredicateBySpendTime> clazz = PredicateBySpendTime.class;
         try {
             final PredicateBySpendTime predicate =
@@ -130,17 +129,17 @@ public class PredicateStrategyFactoryImpl implements PredicateStrategyFactory {
         }
     }
 
-    private PredicateByExceptionAndSpendTime doCreate0(Class<?>[] ignoreExceptions,
-                                                       long maxSpendTimeMs,
-                                                       long originalMaxSpendTimeMs,
-                                                       Class<?>[] originIgnoreExceptions,
-                                                       ResourceId name) {
+    protected PredicateByExceptionAndSpendTime predicateByExceptionAndSpendTime(Class<?>[] ignoreExceptions,
+                                                                                long maxSpendTimeMs,
+                                                                                long originalMaxSpendTimeMs,
+                                                                                Class<?>[] originIgnoreExceptions,
+                                                                                ResourceId name) {
         final Class<PredicateByExceptionAndSpendTime> clazz = PredicateByExceptionAndSpendTime.class;
         try {
             final PredicateByExceptionAndSpendTime predicate = clazz
                     .getDeclaredConstructor(PredicateByException.class, PredicateBySpendTime.class)
-                    .newInstance(doCreate0(ignoreExceptions, originIgnoreExceptions, name),
-                            doCreate0(maxSpendTimeMs, originalMaxSpendTimeMs, name));
+                    .newInstance(predicateByException(ignoreExceptions, originIgnoreExceptions, name),
+                            predicateBySpendTime(maxSpendTimeMs, originalMaxSpendTimeMs, name));
             if (logger.isDebugEnabled()) {
                 logger.debug("Created predicateByExceptionAndSpendTime strategy by reflection successfully," +
                                 " maxSpendTimeMs: {}, ignoreExceptions: {}", maxSpendTimeMs,
