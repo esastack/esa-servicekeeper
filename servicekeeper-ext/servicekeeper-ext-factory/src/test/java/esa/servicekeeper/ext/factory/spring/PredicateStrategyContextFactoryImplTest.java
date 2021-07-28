@@ -15,7 +15,10 @@
  */
 package esa.servicekeeper.ext.factory.spring;
 
+import esa.servicekeeper.core.common.ResourceId;
+import esa.servicekeeper.core.config.CircuitBreakerConfig;
 import esa.servicekeeper.core.executionchain.Context;
+import esa.servicekeeper.core.factory.PredicateStrategyConfig;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateStrategy;
 import esa.servicekeeper.ext.factory.spring.utils.SpringContextUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,7 +32,6 @@ import static org.assertj.core.api.BDDAssertions.then;
 @Configuration
 class PredicateStrategyContextFactoryImplTest {
 
-    private static AnnotationConfigApplicationContext ctx;
     private static PredicateStrategyContextFactoryImpl factory;
 
     @Bean
@@ -44,7 +46,7 @@ class PredicateStrategyContextFactoryImplTest {
 
     @BeforeAll
     static void setUp() {
-        ctx = new AnnotationConfigApplicationContext();
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
         ctx.register(PredicateStrategyContextFactoryImplTest.class);
         ctx.refresh();
 
@@ -53,7 +55,9 @@ class PredicateStrategyContextFactoryImplTest {
 
     @Test
     void testDoCreate0() {
-        then(factory.doCreate0(CustomPredicateStrategy.class)).isNotNull();
+        then(factory.doCreate0(PredicateStrategyConfig.from(ResourceId.from("abc"), CircuitBreakerConfig.builder()
+                .predicateStrategy(CustomPredicateStrategy.class).build(), CircuitBreakerConfig.ofDefault())))
+                .isNotNull();
     }
 
     private static class CustomPredicateStrategy implements PredicateStrategy {

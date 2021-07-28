@@ -69,7 +69,7 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
                 ? null : invocation.getParameterTypes();
 
         // Firstly: Try to create fallback function
-        final FallbackToFunction function = doCreate(fallbackConfig.getMethodName(),
+        final FallbackToFunction<?> function = doCreate(fallbackConfig.getMethodName(),
                 fallbackConfig.getTargetClass(), returnType,
                 parameterTypes);
         if (function != null) {
@@ -122,9 +122,9 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
         final boolean allStatic = fallbackMethods.stream().allMatch(FallbackMethod::isStatic);
 
         if (allStatic) {
-            return new FallbackToFunction(null, fallbackMethods);
+            return new FallbackToFunction<>(null, fallbackMethods);
         } else {
-            return new FallbackToFunction(getOrNewInstance(targetClass), fallbackMethods);
+            return new FallbackToFunction<>(getOrNewInstance(targetClass), fallbackMethods);
         }
     }
 

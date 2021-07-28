@@ -81,7 +81,7 @@ class DefaultServiceKeeperEntryTest {
         final Method method = HelloService.class.getDeclaredMethod("sayHello");
         final Object delegate = new HelloService();
 
-        then(entry.invoke("abc", method, delegate, new Object[0])).isEqualTo("Hello");
+        then(entry.invoke("abc", method, delegate)).isEqualTo("Hello");
     }
 
     @Test
@@ -93,12 +93,12 @@ class DefaultServiceKeeperEntryTest {
 
     @Test
     void testRun() throws Throwable {
-        entry.run("abc", () -> {}, new Object[0]);
+        entry.run("abc", () -> {});
     }
 
     @Test
     void testRun1() throws Throwable {
-        entry.run("abc", null, () -> {}, new Object[0]);
+        entry.run("abc", null, () -> {});
     }
 
     @Test
@@ -106,26 +106,26 @@ class DefaultServiceKeeperEntryTest {
         final Method method = HelloService.class.getDeclaredMethod("sayHello");
         final Object delegate = new HelloService();
 
-        then(entry.invoke(method, delegate, new Object[0])).isEqualTo("Hello");
+        then(entry.invoke(method, delegate)).isEqualTo("Hello");
     }
 
     @Test
     void testCall1() throws Throwable {
         final HelloService delegate = new HelloService();
-        then(entry.call("abc", delegate::sayHello, new Object[0])).isEqualTo("Hello");
+        then(entry.call("abc", delegate::sayHello)).isEqualTo("Hello");
     }
 
     @Test
     void testCall2() throws Throwable {
         final HelloService delegate = new HelloService();
-        then(entry.call("abc", null, delegate::sayHello, new Object[0])).isEqualTo("Hello");
+        then(entry.call("abc", null, delegate::sayHello)).isEqualTo("Hello");
     }
 
     @Test
     void testCall3() throws Throwable {
         final HelloService delegate = new HelloService();
-        then(entry.call("abc", (CompositeServiceKeeperConfig) null, null,
-                delegate::sayHello, new Object[0])).isEqualTo("Hello");
+        then(entry.call("abc", null, null,
+                delegate::sayHello)).isEqualTo("Hello");
     }
 
     @Test

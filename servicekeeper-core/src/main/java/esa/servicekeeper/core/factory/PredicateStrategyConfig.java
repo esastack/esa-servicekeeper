@@ -74,11 +74,11 @@ public class PredicateStrategyConfig {
         return maxSpendTimeMs;
     }
 
-    long getOriginalMaxSpendTimeMs() {
+    public long getOriginalMaxSpendTimeMs() {
         return originalMaxSpendTimeMs;
     }
 
-    Class<? extends Throwable>[] getOriginIgnoreExceptions() {
+    public Class<? extends Throwable>[] getOriginIgnoreExceptions() {
         return originIgnoreExceptions;
     }
 
