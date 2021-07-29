@@ -81,7 +81,6 @@ public final class ClassConvertUtils {
     public static Class<?> toSingleClass(final String origin) {
         Class<?>[] classes = toClasses(origin);
         if (classes.length == 0) {
-            logger.warn("Failed to convert origin string to class, origin: {}", origin);
             return null;
         }
 
