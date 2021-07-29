@@ -34,6 +34,7 @@ import esa.servicekeeper.core.moats.MoatType;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateConfigFilling;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateStrategy;
 import esa.servicekeeper.core.utils.LogUtils;
+import esa.servicekeeper.core.utils.TimerLogger;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -54,6 +55,7 @@ public class CircuitBreakerMoat extends AbstractMoat<CircuitBreakerConfig>
 
     private static final CircuitBreakerRegistry REGISTRY = CircuitBreakerRegistry.singleton();
 
+    private final TimerLogger timerLogger = new TimerLogger();
     private final AtomicBoolean shouldDestroy = new AtomicBoolean(false);
     private final LifeCycleType lifeCycleType;
     private final AtomicReference<CircuitBreaker> breaker;
@@ -64,7 +66,7 @@ public class CircuitBreakerMoat extends AbstractMoat<CircuitBreakerConfig>
      * Designed for unit test purpose.
      */
     public CircuitBreakerMoat(MoatConfig config, CircuitBreakerConfig breakerConfig,
-                       CircuitBreakerConfig immutableConfig, PredicateStrategy predicate) {
+                              CircuitBreakerConfig immutableConfig, PredicateStrategy predicate) {
         this(config, breakerConfig, immutableConfig, predicate, null, null);
     }
 
@@ -90,7 +92,7 @@ public class CircuitBreakerMoat extends AbstractMoat<CircuitBreakerConfig>
             } else {
                 // ***  Note: Mustn't modify the log content which is used for keyword alarms.  **
 
-                LogUtils.logCircuitBreakerPeriodically("The circuitBreaker doesn't permit request" +
+                timerLogger.logPeriodically("The circuitBreaker doesn't permit request" +
                         " to through, which name is {} and current state is {}", breaker.name(), breaker.getState());
                 return false;
             }
@@ -102,7 +104,7 @@ public class CircuitBreakerMoat extends AbstractMoat<CircuitBreakerConfig>
                 process(MoatEventImpl.REJECTED_BY_CIRCUIT_BREAKER);
 
                 // ***  Note: Mustn't modify the log content which is used for keyword alarms.  **
-                LogUtils.logCircuitBreakerPeriodically("The circuitBreaker doesn't permit request" +
+                timerLogger.logPeriodically("The circuitBreaker doesn't permit request" +
                         " to through, which name is {} and current state is {}", breaker.name(), breaker.getState());
                 return false;
             }

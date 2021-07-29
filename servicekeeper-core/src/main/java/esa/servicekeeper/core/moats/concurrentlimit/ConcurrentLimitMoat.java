@@ -32,6 +32,7 @@ import esa.servicekeeper.core.moats.MoatEventImpl;
 import esa.servicekeeper.core.moats.MoatEventProcessor;
 import esa.servicekeeper.core.moats.MoatType;
 import esa.servicekeeper.core.utils.LogUtils;
+import esa.servicekeeper.core.utils.TimerLogger;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -49,6 +50,7 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
 
     private static final ConcurrentLimiterRegistry REGISTRY = ConcurrentLimiterRegistry.singleton();
 
+    private final TimerLogger timerLogger = new TimerLogger();
     private final AtomicBoolean shouldDestroy = new AtomicBoolean(false);
     private final LifeCycleType lifeCycleType;
     private final ConcurrentLimiter limiter;
@@ -69,7 +71,7 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
                 return true;
             } else {
                 // ***  Note: Mustn't modify the log content which is used for keyword alarms.  **
-                LogUtils.logConcurrentPeriodically("The concurrent exceeds limit {}, which name is {}",
+                timerLogger.logPeriodically("The concurrent exceeds limit {}, which name is {}",
                         limiter.config().getThreshold(), limiter.name());
                 return false;
             }
@@ -81,7 +83,7 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
                 process(MoatEventImpl.REJECTED_BY_CONCURRENT_LIMIT);
                 // ***  Note: Mustn't modify the log content which is used for keyword alarms.  **
 
-                LogUtils.logConcurrentPeriodically("The concurrent exceeds limit {}, which name is {}",
+                timerLogger.logPeriodically("The concurrent exceeds limit {}, which name is {}",
                         limiter.config().getThreshold(), limiter.name());
                 return false;
             }

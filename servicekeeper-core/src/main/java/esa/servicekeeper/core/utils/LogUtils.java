@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.System.lineSeparator;
 
@@ -29,35 +27,11 @@ public final class LogUtils {
 
     private static final Logger logger = LoggerFactory.getLogger("esa.servicekeeper");
 
-    private static final long LOG_PERIOD = TimeUnit.SECONDS.toNanos(30L);
-    private static final LogUtils INSTANCE = new LogUtils();
-    private final AtomicLong lastRateLogTime = new AtomicLong(0L);
-    private final AtomicLong lastConcurrentLogTime = new AtomicLong(0L);
-    private final AtomicLong lastCircuitBreakerLogTime = new AtomicLong(0L);
-
     private LogUtils() {
     }
 
     public static Logger logger() {
         return logger;
-    }
-
-    public static void logRatePeriodically(String message, Object... objects) {
-        if (canLogRateNow()) {
-            logger.warn(message, objects);
-        }
-    }
-
-    public static void logConcurrentPeriodically(String message, Object... objects) {
-        if (canLogConcurrentNow()) {
-            logger.warn(message, objects);
-        }
-    }
-
-    public static void logCircuitBreakerPeriodically(String message, Object... objects) {
-        if (canLogCircuitBreakerNow()) {
-            logger.warn(message, objects);
-        }
     }
 
     public static String concatValue(List<?> values) {
@@ -95,33 +69,6 @@ public final class LogUtils {
 
         builder.append("]");
         return builder.toString();
-    }
-
-    private static boolean canLogRateNow() {
-        long timestamp = System.nanoTime();
-        if (timestamp - INSTANCE.lastRateLogTime.get() > LOG_PERIOD) {
-            INSTANCE.lastRateLogTime.lazySet(timestamp);
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean canLogConcurrentNow() {
-        long timestamp = System.nanoTime();
-        if (timestamp - INSTANCE.lastConcurrentLogTime.get() > LOG_PERIOD) {
-            INSTANCE.lastConcurrentLogTime.lazySet(timestamp);
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean canLogCircuitBreakerNow() {
-        long timestamp = System.nanoTime();
-        if (timestamp - INSTANCE.lastCircuitBreakerLogTime.get() > LOG_PERIOD) {
-            INSTANCE.lastCircuitBreakerLogTime.lazySet(timestamp);
-            return true;
-        }
-        return false;
     }
 }
 

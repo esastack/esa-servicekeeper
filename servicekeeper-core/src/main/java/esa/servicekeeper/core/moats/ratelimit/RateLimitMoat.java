@@ -32,6 +32,7 @@ import esa.servicekeeper.core.moats.MoatEventImpl;
 import esa.servicekeeper.core.moats.MoatEventProcessor;
 import esa.servicekeeper.core.moats.MoatType;
 import esa.servicekeeper.core.utils.LogUtils;
+import esa.servicekeeper.core.utils.TimerLogger;
 import org.slf4j.Logger;
 
 import java.time.Duration;
@@ -50,6 +51,7 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
 
     private static final RateLimiterRegistry REGISTRY = RateLimiterRegistry.singleton();
 
+    private final TimerLogger timerLogger = new TimerLogger();
     private final AtomicBoolean shouldDestroy = new AtomicBoolean(false);
     private final LifeCycleType lifeCycleType;
     private final RateLimiter limiter;
@@ -73,7 +75,7 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
                 return true;
             } else {
                 // ***  Note: Mustn't modify the log content which is used for keyword alarms.  **
-                LogUtils.logRatePeriodically("The rate limit exceeds threshold {}, which name is {}",
+                timerLogger.logPeriodically("The rate limit exceeds threshold {}, which name is {}",
                         limiter.config().getLimitForPeriod(), limiter.name());
                 return false;
             }
@@ -85,7 +87,7 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
                 process(MoatEventImpl.REJECTED_BY_RATE_LIMIT);
 
                 // ***  Note: Mustn't modify the log content which is used for keyword alarms.  **
-                LogUtils.logRatePeriodically("The rate limit exceeds threshold {}, which name is {}",
+                timerLogger.logPeriodically("The rate limit exceeds threshold {}, which name is {}",
                         limiter.config().getLimitForPeriod(), limiter.name());
                 return false;
             }
