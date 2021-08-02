@@ -45,6 +45,7 @@ class DefaultServiceKeeperAopTest {
 
     @BeforeAll
     static void setUp() {
+        System.setProperty("servicekeeper.configurators.disable", "true");
         ctx = new AnnotationConfigApplicationContext();
         ctx.register(DefaultServiceKeeperAopTest.class);
 
