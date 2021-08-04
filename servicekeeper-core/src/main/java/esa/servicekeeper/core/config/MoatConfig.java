@@ -26,20 +26,14 @@ public class MoatConfig implements Serializable {
     private static final long serialVersionUID = 682178548352105156L;
 
     private final ResourceId resourceId;
-    private final FallbackHandler<?> fallbackHandler;
 
-    public MoatConfig(ResourceId resourceId, FallbackHandler<?> fallbackHandler) {
+    public MoatConfig(ResourceId resourceId) {
         Checks.checkNotNull(resourceId, "resourceId");
         this.resourceId = resourceId;
-        this.fallbackHandler = fallbackHandler;
     }
 
     public ResourceId getResourceId() {
         return resourceId;
-    }
-
-    public FallbackHandler<?> getFallbackHandler() {
-        return fallbackHandler;
     }
 
 }

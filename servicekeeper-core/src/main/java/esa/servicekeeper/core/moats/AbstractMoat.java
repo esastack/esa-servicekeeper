@@ -28,36 +28,12 @@ public abstract class AbstractMoat<T> implements Moat<T> {
     protected final boolean hasProcessors;
     private final List<MoatEventProcessor> processors;
     private final MoatConfig config;
-    private final boolean hasCustomFallbackHandler;
-    private final FallbackHandler.FallbackType fallbackType;
 
     public AbstractMoat(List<MoatEventProcessor> processors, MoatConfig config) {
         Checks.checkNotNull(config, "config");
         this.processors = (processors == null ? null : Collections.unmodifiableList(processors));
         this.config = config;
         this.hasProcessors = (processors != null && !processors.isEmpty());
-        this.hasCustomFallbackHandler = (config.getFallbackHandler() != null);
-        this.fallbackType = (hasCustomFallbackHandler ? config.getFallbackHandler().getType() :
-                FallbackHandler.FallbackType.FALLBACK_TO_EXCEPTION);
-    }
-
-    @Override
-    public Object fallback(Context ctx) throws Throwable {
-        if (hasCustomFallbackHandler) {
-            return config.getFallbackHandler().handle(ctx);
-        } else {
-            throw defaultFallbackToException(ctx);
-        }
-    }
-
-    @Override
-    public FallbackHandler.FallbackType fallbackType() {
-        return this.fallbackType;
-    }
-
-    @Override
-    public boolean hasCustomFallbackHandler() {
-        return hasCustomFallbackHandler;
     }
 
     @Override

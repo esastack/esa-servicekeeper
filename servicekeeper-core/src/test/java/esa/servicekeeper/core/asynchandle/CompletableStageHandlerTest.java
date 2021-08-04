@@ -61,7 +61,7 @@ class CompletableStageHandlerTest {
 
         final CompletableStageHandler<?> handler = new CompletableStageHandler<>();
         assertThrows(IllegalStateException.class,
-                () -> handler.handle(null, new RequestHandleImpl(chain, new AsyncContext(name))));
+                () -> handler.handle(null, RequestHandleImpl.createAllowHandle(chain, new AsyncContext(name), null)));
     }
 
     @Test

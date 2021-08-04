@@ -51,12 +51,12 @@ abstract class LimitableMoatFactory<CNF, M> extends AbstractMoatFactory<CNF, M> 
     }
 
     @Override
-    public final M doCreate(ResourceId id, FallbackConfig fallbackConfig, OriginalInvocation invocation,
+    public final M doCreate(ResourceId id, OriginalInvocation invocation,
                             CNF compositeConfig, CNF immutableConfig) {
         if (limiter.canCreate(buildKey(id))) {
-            return doCreate0(id, fallbackConfig, invocation, compositeConfig, immutableConfig);
+            return doCreate0(id, invocation, compositeConfig, immutableConfig);
         } else {
-            return handleLimited(id, fallbackConfig, invocation, compositeConfig, immutableConfig);
+            return handleLimited(id, invocation, compositeConfig, immutableConfig);
         }
     }
 
@@ -65,7 +65,7 @@ abstract class LimitableMoatFactory<CNF, M> extends AbstractMoatFactory<CNF, M> 
         return context;
     }
 
-    private M handleLimited(ResourceId id, FallbackConfig config0, OriginalInvocation config1,
+    private M handleLimited(ResourceId id, OriginalInvocation config1,
                             CNF config2, CNF immutableConfig2) {
         logger.info("The moat of {} is null(due to not permitted), config: {}; immutable config: {}",
                 id, config2, immutableConfig2);
@@ -94,18 +94,16 @@ abstract class LimitableMoatFactory<CNF, M> extends AbstractMoatFactory<CNF, M> 
      * Create instance by supplied all.
      *
      * @param id               resourceId
-     * @param config0          config0
      * @param config1          config1
      * @param config2          config2
      * @param immutableConfig2 immutable config
      * @return instance
      */
-    protected abstract M doCreate0(ResourceId id, FallbackConfig config0, OriginalInvocation config1,
+    protected abstract M doCreate0(ResourceId id, OriginalInvocation config1,
                                    CNF config2, CNF immutableConfig2);
 
-    MoatConfig buildConfig(ResourceId id, FallbackConfig config0, OriginalInvocation config1) {
-        return new MoatConfig(id, config0 == null
-                ? null : context.handler().get(new FallbackHandlerConfig(config0, config1)));
+    MoatConfig buildConfig(ResourceId id, OriginalInvocation config1) {
+        return new MoatConfig(id);
     }
 
     static class LimitableConcurrentMoatFactory extends
@@ -116,7 +114,7 @@ abstract class LimitableMoatFactory<CNF, M> extends AbstractMoatFactory<CNF, M> 
         }
 
         @Override
-        protected ConcurrentLimitMoat doCreate0(ResourceId id, FallbackConfig config0,
+        protected ConcurrentLimitMoat doCreate0(ResourceId id,
                                                 OriginalInvocation config1, ConcurrentLimitConfig config2,
                                                 ConcurrentLimitConfig immutableConfig) {
             List<MoatEventProcessor> processors = new ArrayList<>(1);
@@ -127,7 +125,7 @@ abstract class LimitableMoatFactory<CNF, M> extends AbstractMoatFactory<CNF, M> 
                 }
             }
 
-            final ConcurrentLimitMoat moat = new ConcurrentLimitMoat(buildConfig(id, config0, config1), config2,
+            final ConcurrentLimitMoat moat = new ConcurrentLimitMoat(buildConfig(id, config1), config2,
                     immutableConfig, processors);
             logger.info("Created concurrent limiter moat successfully, resourceId: {}," +
                     " config: {}, immutable config: {}", id, config2, immutableConfig);
@@ -149,7 +147,7 @@ abstract class LimitableMoatFactory<CNF, M> extends AbstractMoatFactory<CNF, M> 
         }
 
         @Override
-        protected RateLimitMoat doCreate0(ResourceId id, FallbackConfig config0, OriginalInvocation config1,
+        protected RateLimitMoat doCreate0(ResourceId id, OriginalInvocation config1,
                                           RateLimitConfig config2, RateLimitConfig immutableConfig) {
             List<MoatEventProcessor> processors = new ArrayList<>(1);
             for (EventProcessorFactory factory : context().processors()) {
@@ -159,7 +157,7 @@ abstract class LimitableMoatFactory<CNF, M> extends AbstractMoatFactory<CNF, M> 
                 }
             }
 
-            final RateLimitMoat moat = new RateLimitMoat(buildConfig(id, config0, config1), config2,
+            final RateLimitMoat moat = new RateLimitMoat(buildConfig(id, config1), config2,
                     immutableConfig, processors);
             logger.info("Created rate limiter moat successfully, resourceId: {}," +
                     " config: {}, immutable config: {}", id, config2, immutableConfig);
@@ -182,7 +180,7 @@ abstract class LimitableMoatFactory<CNF, M> extends AbstractMoatFactory<CNF, M> 
         }
 
         @Override
-        protected CircuitBreakerMoat doCreate0(ResourceId id, FallbackConfig config0,
+        protected CircuitBreakerMoat doCreate0(ResourceId id,
                                                OriginalInvocation config1,
                                                CircuitBreakerConfig config2, CircuitBreakerConfig immutableConfig) {
             final PredicateStrategy predicateStrategy = context().strategy().get(
@@ -196,7 +194,7 @@ abstract class LimitableMoatFactory<CNF, M> extends AbstractMoatFactory<CNF, M> 
                 }
             }
 
-            final CircuitBreakerMoat moat = new CircuitBreakerMoat(buildConfig(id, config0, config1),
+            final CircuitBreakerMoat moat = new CircuitBreakerMoat(buildConfig(id, config1),
                     config2, immutableConfig, predicateStrategy, processors, context().cProcessors().all());
             logger.info("Created circuit breaker moat successfully, resourceId: {}," +
                     " config: {}, immutable config: {}", id, config2, immutableConfig);

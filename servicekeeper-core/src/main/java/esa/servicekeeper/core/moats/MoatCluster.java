@@ -15,11 +15,14 @@
  */
 package esa.servicekeeper.core.moats;
 
+import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
 import esa.servicekeeper.core.moats.concurrentlimit.ConcurrentLimitMoat;
 import esa.servicekeeper.core.moats.ratelimit.RateLimitMoat;
 
 import java.util.List;
+
+//TODO 将fallbackHandler()抽到其他地方去，因为Arg的MoatCluster没有fallbackHandler()
 
 /**
  * Many moats makes up one cluster. Usually, a moat cluster is corresponding with one resource. eg,
@@ -63,5 +66,4 @@ public interface MoatCluster {
      * @param type type
      */
     void remove(MoatType type);
-
 }

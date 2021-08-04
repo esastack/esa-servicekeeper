@@ -84,29 +84,26 @@ public class CircuitBreakerMoat extends AbstractMoat<CircuitBreakerConfig>
     }
 
     @Override
-    public boolean tryThrough(Context ctx) {
+    public void tryThrough(Context ctx) throws ServiceKeeperNotPermittedException {
         final CircuitBreaker breaker = this.breaker.get();
         if (!hasProcessors) {
-            if (breaker.isCallPermitted()) {
-                return true;
-            } else {
+            if (!breaker.isCallPermitted()) {
                 // ***  Note: Mustn't modify the log content which is used for keyword alarms.  **
 
                 timerLogger.logPeriodically("The circuitBreaker doesn't permit request" +
                         " to through, which name is {} and current state is {}", breaker.name(), breaker.getState());
-                return false;
+                throw notPermittedException(ctx);
             }
         } else {
             if (breaker.isCallPermitted()) {
                 process(MoatEventImpl.PERMITTED);
-                return true;
             } else {
                 process(MoatEventImpl.REJECTED_BY_CIRCUIT_BREAKER);
 
                 // ***  Note: Mustn't modify the log content which is used for keyword alarms.  **
                 timerLogger.logPeriodically("The circuitBreaker doesn't permit request" +
                         " to through, which name is {} and current state is {}", breaker.name(), breaker.getState());
-                return false;
+                throw notPermittedException(ctx);
             }
         }
     }
@@ -120,8 +117,7 @@ public class CircuitBreakerMoat extends AbstractMoat<CircuitBreakerConfig>
         }
     }
 
-    @Override
-    public ServiceKeeperNotPermittedException defaultFallbackToException(Context ctx) {
+    private ServiceKeeperNotPermittedException notPermittedException(Context ctx) {
         final CircuitBreaker breaker = this.breaker.get();
         return new CircuitBreakerNotPermittedException(StringUtils.concat("Current state of" +
                 " circuitBreaker ", breaker.name(), ": ", breaker.getState().toString()), ctx,

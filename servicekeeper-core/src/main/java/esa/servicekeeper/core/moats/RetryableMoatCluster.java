@@ -15,19 +15,21 @@
  */
 package esa.servicekeeper.core.moats;
 
+import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.retry.RetryableExecutor;
 
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class RetryableMoatCluster extends MoatClusterImpl {
+//TODO 代码里面有一些通过instanceOf来判断的逻辑，抽成一个静态逻辑放到这个类里面
+public class RetryableMoatCluster extends MethodMoatClusterImpl {
 
     private final AtomicReference<RetryableExecutor> retryable;
 
     public RetryableMoatCluster(List<Moat<?>> moats, List<MoatClusterListener> listeners,
-                                RetryableExecutor retryable) {
-        super(moats, listeners);
+                                FallbackHandler<?> fallbackHandler, RetryableExecutor retryable) {
+        super(moats, listeners, fallbackHandler);
         this.retryable = new AtomicReference<>(retryable);
     }
 

@@ -15,10 +15,13 @@
  */
 package esa.servicekeeper.core.factory;
 
+import esa.servicekeeper.core.common.ArgResourceId;
 import esa.servicekeeper.core.common.OriginalInvocation;
 import esa.servicekeeper.core.common.ResourceId;
 import esa.servicekeeper.core.config.ServiceKeeperConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
+import esa.servicekeeper.core.moats.ArgMoatCluster;
+import esa.servicekeeper.core.moats.MethodMoatCluster;
 import esa.servicekeeper.core.moats.MoatCluster;
 
 import java.util.function.Supplier;
@@ -26,17 +29,30 @@ import java.util.function.Supplier;
 public interface MoatClusterFactory {
 
     /**
-     * Try to get a moat cluster by resourceId, if null try to doCreate one and return.
+     * Try to get a moat cluster by methodResourceId, if null try to doCreate one and return.
      *
-     * @param resourceId                     resourceId
-     * @param originalInvocation         the supplier to get original invocation
-     * @param immutableConfig                the supplier to get immutable config
-     * @param externalConfig                 the supplier to get external config
-     * @return moat cluster, null if not configured.
+     * @param resourceId   methodResourceId
+     * @param originalInvocation the supplier to get original invocation
+     * @param immutableConfig    the supplier to get immutable config
+     * @param externalConfig     the supplier to get external config
+     * @return moat cluster of method, null if not configured.
      */
-    MoatCluster getOrCreate(ResourceId resourceId, Supplier<OriginalInvocation> originalInvocation,
-                            Supplier<ServiceKeeperConfig> immutableConfig,
-                            Supplier<ExternalConfig> externalConfig);
+    MethodMoatCluster getOrCreateOfMethod(ResourceId resourceId, Supplier<OriginalInvocation> originalInvocation,
+                                          Supplier<ServiceKeeperConfig> immutableConfig,
+                                          Supplier<ExternalConfig> externalConfig);
+
+    /**
+     * Try to get a moat cluster by argResourceId, if null try to doCreate one and return.
+     *
+     * @param resourceId      argResourceId
+     * @param originalInvocation the supplier to get original invocation
+     * @param immutableConfig    the supplier to get immutable config
+     * @param externalConfig     the supplier to get external config
+     * @return moat cluster of arg, null if not configured.
+     */
+    ArgMoatCluster getOrCreateOfArg(ArgResourceId resourceId, Supplier<OriginalInvocation> originalInvocation,
+                                    Supplier<ServiceKeeperConfig> immutableConfig,
+                                    Supplier<ExternalConfig> externalConfig);
 
     /**
      * Try to update moat cluster with newest config.

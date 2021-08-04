@@ -28,11 +28,10 @@ import esa.servicekeeper.core.executionchain.ExecutionChain;
 import esa.servicekeeper.core.executionchain.RetryableExecutionChain;
 import esa.servicekeeper.core.executionchain.SyncExecutionChainImpl;
 import esa.servicekeeper.core.factory.MoatClusterFactory;
+import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.internal.GlobalConfig;
 import esa.servicekeeper.core.internal.ImmutableConfigs;
-import esa.servicekeeper.core.moats.Moat;
-import esa.servicekeeper.core.moats.MoatCluster;
-import esa.servicekeeper.core.moats.RetryableMoatCluster;
+import esa.servicekeeper.core.moats.*;
 import esa.servicekeeper.core.retry.RetryableExecutor;
 import esa.servicekeeper.core.utils.GenericTypeUtils;
 import esa.servicekeeper.core.utils.LogUtils;
@@ -96,16 +95,16 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
 
     /**
      * Build composite chain of current invocation(include method's and args').
-     *
+     * <p>
      * When accessing original resource, a {@link ExecutionChain} corresponding with the invocation will be built, and
      * you can get the permission of current accesses with {@link ExecutionChain#tryToExecute(Context)}. The chain is
      * built with method's {@link MoatCluster} and args' {@link MoatCluster}.
      *
-     * @param name                           the name of current method
-     * @param invocation                     the Supplier to supply OriginalInvocation
-     * @param immutableConfig                to supply config or name
-     * @param isAsync                        async or not
-     * @param args                           args
+     * @param name            the name of current method
+     * @param invocation      the Supplier to supply OriginalInvocation
+     * @param immutableConfig to supply config or name
+     * @param isAsync         async or not
+     * @param args            args
      * @return execution chain
      */
     final AbstractExecutionChain buildExecutionChain(String name,
@@ -127,7 +126,7 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
         final CompositeServiceKeeperConfig immutableConfig0 = getOrComputeConfig(resourceId, immutableConfig);
 
         // Get method chain
-        final MoatCluster cluster = factory.getOrCreate(resourceId,
+        final MethodMoatCluster cluster = factory.getOrCreateOfMethod(resourceId,
                 invocation,
                 () -> (immutableConfig0 == null ? null : immutableConfig0.getMethodConfig()),
                 () -> getExternalConfig(resourceId));
@@ -165,7 +164,7 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
             // If the current arg value is not configured in immutable config or external config, that means
             // the value is not considered as a governed value, just continue the next arg.
             final int index = i;
-            final MoatCluster argCluster = factory.getOrCreate(argId,
+            final ArgMoatCluster argCluster = factory.getOrCreateOfArg(argId,
                     invocation,
                     () -> getImmutableConfig(resourceId, args[index], argConfig),
                     () -> getExternalConfig(argId));
@@ -175,23 +174,27 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
         }
 
         // Add method cluster at last
+        FallbackHandler<?> fallbackHandler = null;
         if (cluster != null) {
             moats.addAll(cluster.getAll());
+            fallbackHandler = cluster.fallbackHandler();
         }
 
         RetryableExecutor executor;
-        if ((cluster instanceof RetryableMoatCluster)
+        if (cluster instanceof RetryableMoatCluster
                 && (executor = ((RetryableMoatCluster) cluster).retryExecutor()) != null) {
             if (!globalConfig.retryEnable()) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("ServiceKeeper retry has been disabled, so current call {} will through without" +
                             " retrying", name);
                 }
-                return buildExecutionChain(moats, isAsync);
+                return buildExecutionChain(moats, fallbackHandler, isAsync);
             }
-            return isAsync ? new AsyncExecutionChainImpl(moats) : new RetryableExecutionChain(moats, executor);
+            return isAsync ? new AsyncExecutionChainImpl(moats, cluster.fallbackHandler()) :
+                    new RetryableExecutionChain(moats, fallbackHandler, executor);
         }
-        return buildExecutionChain(moats, isAsync);
+
+        return buildExecutionChain(moats, fallbackHandler, isAsync);
     }
 
     /**
@@ -217,8 +220,8 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
      * Get immutable composite configuration, and add the governed values and maxSizeLimits to
      * {@link ImmutableConfigs} when compute the config successfully.
      *
-     * @param resourceId              resourceId
-     * @param immutableConfig         the supplier to get immutable config
+     * @param resourceId      resourceId
+     * @param immutableConfig the supplier to get immutable config
      * @return composite config
      */
     protected abstract CompositeServiceKeeperConfig getOrComputeConfig(ResourceId resourceId,
@@ -278,7 +281,7 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
      * @param cluster moat cluster
      * @return execution chain
      */
-    private AbstractExecutionChain buildExecutionChain(MoatCluster cluster, boolean isAsync, String name) {
+    private AbstractExecutionChain buildExecutionChain(MethodMoatCluster cluster, boolean isAsync, String name) {
         if (cluster == null) {
             return null;
         }
@@ -286,13 +289,13 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
         // Async invocation
         final List<Moat<?>> moats = cluster.getAll();
         if (isAsync) {
-            return moats.isEmpty() ? null : new AsyncExecutionChainImpl(moats);
+            return moats.isEmpty() ? null : new AsyncExecutionChainImpl(moats, cluster.fallbackHandler());
         }
 
         // Sync invocation
         RetryableExecutor executor;
         if (!(cluster instanceof RetryableMoatCluster)) {
-            return moats.isEmpty() ? null : new SyncExecutionChainImpl(moats);
+            return moats.isEmpty() ? null : new SyncExecutionChainImpl(moats, cluster.fallbackHandler());
         }
 
         executor = ((RetryableMoatCluster) cluster).retryExecutor();
@@ -305,28 +308,29 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
                 logger.debug("ServiceKeeper retry has been disabled, so current call {} will through without" +
                         " retrying", name);
             }
-            return new SyncExecutionChainImpl(moats);
+            return new SyncExecutionChainImpl(moats, cluster.fallbackHandler());
         }
 
-        return executor == null ? new SyncExecutionChainImpl(moats) : new RetryableExecutionChain(moats, executor);
+        return executor == null ? new SyncExecutionChainImpl(moats, cluster.fallbackHandler()) :
+                new RetryableExecutionChain(moats, cluster.fallbackHandler(), executor);
     }
 
     /**
      * Build execution chain
      *
-     * @param moats             moats
+     * @param moats moats
      * @return execution chain
      */
-    private AbstractExecutionChain buildExecutionChain(List<Moat<?>> moats, boolean isAsync) {
+    private AbstractExecutionChain buildExecutionChain(List<Moat<?>> moats, FallbackHandler<?> fallbackHandler, boolean isAsync) {
         if (moats.isEmpty()) {
             return null;
         }
 
         if (isAsync) {
-            return new AsyncExecutionChainImpl(moats);
+            return new AsyncExecutionChainImpl(moats, fallbackHandler);
         }
 
-        return new SyncExecutionChainImpl(moats);
+        return new SyncExecutionChainImpl(moats, fallbackHandler);
     }
 
 }

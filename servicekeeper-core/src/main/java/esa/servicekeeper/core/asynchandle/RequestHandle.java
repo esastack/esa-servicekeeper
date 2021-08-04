@@ -24,8 +24,6 @@ import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateStrategy;
  * request. Also, you can end the request by this instance. Be aware that one request has one but only handler.
  */
 public interface RequestHandle {
-    FallbackNotConfiguredException FALLBACK_NOT_CONFIGURED_EXCEPTION =
-            new FallbackNotConfiguredException("The fallback strategy isn't configured!");
 
     IllegalStateException ILLEGAL_FALLBACK_EXCEPTION =
             new IllegalStateException("The request is allowed, so the fallback doesn't take effect!");
@@ -40,11 +38,6 @@ public interface RequestHandle {
         }
 
         @Override
-        public Object getFallbackResult() {
-            throw ILLEGAL_FALLBACK_EXCEPTION;
-        }
-
-        @Override
         public ServiceKeeperNotPermittedException getNotAllowedCause() {
             throw ILLEGAL_GET_NOT_ALLOWED_CAUSE_EXCEPTION;
         }
@@ -55,34 +48,22 @@ public interface RequestHandle {
         }
 
         @Override
-        public void endWithResult(Object result) {
-            // Do nothing
-        }
-
-        @Override
         public void endWithError(Throwable throwable) {
             // Do nothing
         }
 
         @Override
-        public boolean isFallbackSucceed() {
+        public Object fallback(Throwable throwable) {
             throw ILLEGAL_FALLBACK_EXCEPTION;
         }
 
         @Override
-        public Throwable getFallbackFailsCause() {
-            throw ILLEGAL_FALLBACK_EXCEPTION;
+        public void endWithResult(Object result) {
+            // Do nothing
         }
-    };
 
-    /**
-     * End the invocation with success and record the result.
-     * Note: The result if for further use, eg: To custom {@link PredicateStrategy}
-     *
-     * @param result result
-     * @see PredicateStrategy#isSuccess(Context)
-     */
-    void endWithResult(final Object result);
+
+    };
 
     /**
      * Whether the request is allowed.
@@ -92,13 +73,6 @@ public interface RequestHandle {
     boolean isAllowed();
 
     /**
-     * Try to get fallback result.
-     *
-     * @return result
-     */
-    Object getFallbackResult();
-
-    /**
      * Try to get the reason of the request is not allowed.
      *
      * @return throwable
@@ -106,18 +80,13 @@ public interface RequestHandle {
     ServiceKeeperNotPermittedException getNotAllowedCause();
 
     /**
-     * Whether the fallback has executed successfully.
+     * End the invocation with success and record the result.
+     * Note: The result if for further use, eg: To custom {@link PredicateStrategy}
      *
-     * @return true or false
+     * @param result result
+     * @see PredicateStrategy#isSuccess(Context)
      */
-    boolean isFallbackSucceed();
-
-    /**
-     * Get the reason of fallback fails.
-     *
-     * @return The reason of fallback fails.
-     */
-    Throwable getFallbackFailsCause();
+    void endWithResult(final Object result);
 
     /**
      * End the invocation with success.
@@ -131,9 +100,10 @@ public interface RequestHandle {
      */
     void endWithError(final Throwable throwable);
 
-    class FallbackNotConfiguredException extends RuntimeException {
-        FallbackNotConfiguredException(String msg) {
-            super(msg);
-        }
-    }
+    /**
+     * End the invocation with error and fallback
+     *
+     * @throws Throwable TODO 考虑这块是抛出一个Throwable，还是一个运行时的异常，模仿一下以前的fallback逻辑
+     */
+    Object fallback(final Throwable throwable) throws Throwable;
 }

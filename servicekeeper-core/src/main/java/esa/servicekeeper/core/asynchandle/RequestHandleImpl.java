@@ -15,9 +15,11 @@
  */
 package esa.servicekeeper.core.asynchandle;
 
+import esa.commons.Checks;
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.executionchain.AsyncExecutionChain;
 import esa.servicekeeper.core.executionchain.Context;
+import esa.servicekeeper.core.fallback.FallbackHandler;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -28,35 +30,18 @@ public class RequestHandleImpl implements RequestHandle {
 
     private final Context ctx;
     private final AtomicReference<AsyncExecutionChain> executionChain;
+    private final FallbackHandler<?> fallbackHandler;
+    private final boolean isAllow;
+    private final ServiceKeeperNotPermittedException notAllowCause;
 
-    public RequestHandleImpl(AsyncExecutionChain executionChain, Context ctx) {
+    private RequestHandleImpl(AsyncExecutionChain executionChain, Context ctx,
+                              FallbackHandler<?> fallbackHandler, boolean isAllow,
+                              ServiceKeeperNotPermittedException notAllowCause) {
         this.executionChain = new AtomicReference<>(executionChain);
         this.ctx = ctx;
-    }
-
-    @Override
-    public boolean isAllowed() {
-        return true;
-    }
-
-    @Override
-    public Object getFallbackResult() {
-        throw ILLEGAL_FALLBACK_EXCEPTION;
-    }
-
-    @Override
-    public ServiceKeeperNotPermittedException getNotAllowedCause() {
-        throw ILLEGAL_GET_NOT_ALLOWED_CAUSE_EXCEPTION;
-    }
-
-    @Override
-    public boolean isFallbackSucceed() {
-        throw ILLEGAL_FALLBACK_EXCEPTION;
-    }
-
-    @Override
-    public Throwable getFallbackFailsCause() {
-        throw ILLEGAL_FALLBACK_EXCEPTION;
+        this.fallbackHandler = fallbackHandler;
+        this.isAllow = isAllow;
+        this.notAllowCause = notAllowCause;
     }
 
     @Override
@@ -70,6 +55,16 @@ public class RequestHandleImpl implements RequestHandle {
     }
 
     @Override
+    public boolean isAllowed() {
+        return isAllow;
+    }
+
+    @Override
+    public ServiceKeeperNotPermittedException getNotAllowedCause() {
+        return notAllowCause;
+    }
+
+    @Override
     public void endWithResult(final Object result) {
         AsyncExecutionChain chain = executionChain.getAndUpdate((pre) -> null);
         if (chain == null) {
@@ -79,10 +74,10 @@ public class RequestHandleImpl implements RequestHandle {
         }
     }
 
-    @Override
     public void endWithError(final Throwable throwable) {
-        AsyncExecutionChain chain = executionChain.getAndUpdate((pre) -> null);
+        Checks.checkNotNull(throwable, "throwable");
 
+        AsyncExecutionChain chain = executionChain.getAndUpdate((pre) -> null);
         if (chain == null) {
             throw REPEAT_END_EXCEPTION;
         } else {
@@ -90,7 +85,32 @@ public class RequestHandleImpl implements RequestHandle {
         }
     }
 
+    @Override
+    public Object fallback(Throwable cause) throws Throwable {
+        endWithError(cause);
+        if (fallbackHandler == null) {
+            throw cause;
+        }
+        if (fallbackHandler.applyToBizException()
+                || (cause instanceof ServiceKeeperNotPermittedException)
+        ) {
+            return fallbackHandler.handle(ctx);
+        }
+        throw cause;
+    }
+
     public Context getCtx() {
         return ctx;
+    }
+
+    public static RequestHandleImpl createAllowHandle(AsyncExecutionChain executionChain, Context ctx,
+                                                      FallbackHandler<?> fallbackHandler) {
+        return new RequestHandleImpl(executionChain, ctx, fallbackHandler, true, null);
+    }
+
+    public static RequestHandleImpl createNotAllowHandle(AsyncExecutionChain executionChain, Context ctx,
+                                                         FallbackHandler<?> fallbackHandler,
+                                                         ServiceKeeperNotPermittedException notAllowCause) {
+        return new RequestHandleImpl(executionChain, ctx, fallbackHandler, false, notAllowCause);
     }
 }

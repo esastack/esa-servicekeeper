@@ -15,7 +15,7 @@
  */
 package esa.servicekeeper.core.exception;
 
-public class ServiceKeeperException extends RuntimeException {
+public class ServiceKeeperException extends Exception {
 
     private static final long serialVersionUID = 1264768661894792753L;
 

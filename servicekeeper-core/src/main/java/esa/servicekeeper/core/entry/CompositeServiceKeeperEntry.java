@@ -106,6 +106,7 @@ public class CompositeServiceKeeperEntry extends DefaultServiceKeeperEntry imple
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T call(String resourceId, Supplier<CompositeServiceKeeperConfig> immutableConfig,
                       Supplier<OriginalInvocation> originalInvocation,
                       Callable<T> callable, Object... args) throws Throwable {
