@@ -71,7 +71,7 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
         // Firstly: Try to create fallback function
         final FallbackToFunction<?> function = doCreate(fallbackConfig.getMethodName(),
                 fallbackConfig.getTargetClass(), returnType,
-                parameterTypes);
+                parameterTypes, fallbackConfig.isApplyToBizException());
         if (function != null) {
             logger.info("Created fallback function handler successfully, config: {}", fallbackConfig);
             return function;
@@ -83,7 +83,7 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
         // Secondly: Try to create fallback to value
         if ((canFallbackToValue) && StringUtils.isNotEmpty(fallbackConfig.getSpecifiedValue())) {
             logger.info("Created fallback value handler successfully, config: {}", fallbackConfig);
-            return new FallbackToValue(fallbackConfig.getSpecifiedValue());
+            return new FallbackToValue(fallbackConfig.getSpecifiedValue(), fallbackConfig.isApplyToBizException());
         }
 
         // Finally: Try to crete fallback to exception
@@ -99,7 +99,8 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
     protected FallbackToFunction<?> doCreate(final String methodName,
                                              Class<?> targetClass,
                                              Class<?> originalReturnType,
-                                             Class<?>[] originalParameterTypes) {
+                                             Class<?>[] originalParameterTypes,
+                                             boolean applyToBizException) {
         if (StringUtils.isEmpty(methodName) || targetClass == null) {
             return null;
         }
@@ -122,9 +123,9 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
         final boolean allStatic = fallbackMethods.stream().allMatch(FallbackMethod::isStatic);
 
         if (allStatic) {
-            return new FallbackToFunction<>(null, fallbackMethods);
+            return new FallbackToFunction<>(null, fallbackMethods, applyToBizException);
         } else {
-            return new FallbackToFunction<>(getOrNewInstance(targetClass), fallbackMethods);
+            return new FallbackToFunction<>(getOrNewInstance(targetClass), fallbackMethods, applyToBizException);
         }
     }
 
@@ -140,7 +141,7 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
             return null;
         }
 
-        FallbackToException fallback = new FallbackToException((Exception) getOrNewInstance(exception));
+        FallbackToException fallback = new FallbackToException((Exception) getOrNewInstance(exception), config.isApplyToBizException());
         logger.info("Created fallback exception handler successfully, config: {}", config);
         return fallback;
     }

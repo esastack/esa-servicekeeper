@@ -56,7 +56,7 @@ import static esa.servicekeeper.core.fallback.FallbackHandler.FallbackType.FALLB
  *         }
  *     }
  * </pre>
- *
+ * <p>
  * As show above, when the rejection is caused by {@link CircuitBreakerNotPermittedException} the method first method
  * will be used to handle fallback, and when the rejection is caused by {@link RateLimitOverflowException} the second
  * method will be used. In other scenes, the last one will be used.
@@ -68,11 +68,14 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
     private final Object obj;
     private final Set<FallbackMethod> fallbackMethods;
     private final Map<CauseType, FallbackMethod> fallbackMethodMap;
+    private final boolean applyToBizException;
 
-    public FallbackToFunction(Object obj, Set<FallbackMethod> fallbackMethods) {
+    public FallbackToFunction(Object obj, Set<FallbackMethod> fallbackMethods,
+                              boolean applyToBizException) {
         this.obj = obj;
         this.fallbackMethods = fallbackMethods;
         this.fallbackMethodMap = initFallbackMethodMap();
+        this.applyToBizException = applyToBizException;
     }
 
     @Override
@@ -125,6 +128,11 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
     @Override
     public FallbackType getType() {
         return FALLBACK_TO_FUNCTION;
+    }
+
+    @Override
+    public boolean applyToBizException() {
+        return applyToBizException;
     }
 
     @Override

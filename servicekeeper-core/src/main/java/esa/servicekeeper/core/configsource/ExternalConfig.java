@@ -25,6 +25,7 @@ public class ExternalConfig extends DynamicConfig {
     private Class<?> fallbackClass;
     private String fallbackValue;
     private Class<? extends Exception> fallbackExceptionClass;
+    private Boolean fallbackApplyToBizException;
 
     public Class<? extends PredicateStrategy> getPredicateStrategy() {
         return predicateStrategy;
@@ -66,6 +67,14 @@ public class ExternalConfig extends DynamicConfig {
         this.fallbackExceptionClass = fallbackExceptionClass;
     }
 
+    public Boolean getFallbackApplyToBizException() {
+        return fallbackApplyToBizException;
+    }
+
+    public void setFallbackApplyToBizException(Boolean fallbackApplyToBizException) {
+        this.fallbackApplyToBizException = fallbackApplyToBizException;
+    }
+
     protected boolean isAllEmpty() {
         return getMaxConcurrentLimit() == null &&
                 getLimitForPeriod() == null &&
@@ -88,7 +97,8 @@ public class ExternalConfig extends DynamicConfig {
                 getFallbackMethodName() == null &&
                 getFallbackClass() == null &&
                 getFallbackValue() == null &&
-                getFallbackExceptionClass() == null;
+                getFallbackExceptionClass() == null &&
+                getFallbackApplyToBizException() == null;
     }
 
     @Override
@@ -132,6 +142,15 @@ public class ExternalConfig extends DynamicConfig {
                 sb.append(", fallbackExceptionClass=").append(fallbackExceptionClass);
             }
         }
+        if (fallbackApplyToBizException != null) {
+            if (isFirstOne) {
+                sb.append("fallbackApplyToBizException=").append(fallbackApplyToBizException);
+                isFirstOne = false;
+            } else {
+                sb.append(", fallbackApplyToBizException=").append(fallbackApplyToBizException);
+            }
+        }
+
         if (!isFirstOne) {
             sb.append(", ");
         }

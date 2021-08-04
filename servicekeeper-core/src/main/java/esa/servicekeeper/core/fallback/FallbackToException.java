@@ -27,10 +27,12 @@ public class FallbackToException implements FallbackHandler<Object> {
     private static final Logger logger = LogUtils.logger();
 
     private final Exception ex;
+    private final boolean applyToBizException;
 
-    public FallbackToException(Exception ex) {
+    public FallbackToException(Exception ex, boolean applyToBizException) {
         Checks.checkNotNull(ex, "ex");
         this.ex = ex;
+        this.applyToBizException = applyToBizException;
     }
 
     @Override
@@ -44,6 +46,11 @@ public class FallbackToException implements FallbackHandler<Object> {
     @Override
     public FallbackType getType() {
         return FALLBACK_TO_EXCEPTION;
+    }
+
+    @Override
+    public boolean applyToBizException() {
+        return applyToBizException;
     }
 
     @Override

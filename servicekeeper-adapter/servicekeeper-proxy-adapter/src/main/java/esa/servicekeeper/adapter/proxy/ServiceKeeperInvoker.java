@@ -103,12 +103,12 @@ public final class ServiceKeeperInvoker {
      * Try to call the original callable with {@link CompositeServiceKeeperConfig} immutable config and
      * {@link OriginalInvocation}. The original invocation is useful while locating fallback method.
      *
-     * @param name                   name
-     * @param immutableConfig        immutable config
+     * @param name               name
+     * @param immutableConfig    immutable config
      * @param originalInvocation original invocation
-     * @param callable               callable
-     * @param args                   args
-     * @param <T>                    T
+     * @param callable           callable
+     * @param args               args
+     * @param <T>                T
      * @return original return value or fallback result
      * @throws Throwable any throwable
      */
@@ -122,12 +122,12 @@ public final class ServiceKeeperInvoker {
     /**
      * Note: this method is useful for spring application.
      *
-     * @param name                           name
-     * @param immutableConfigSupplier        supplier to get immutable config
-     * @param originalInvocation             supplier to get original invocation
-     * @param callable                       callable
-     * @param args                           args
-     * @param <T>                            T
+     * @param name                    name
+     * @param immutableConfigSupplier supplier to get immutable config
+     * @param originalInvocation      supplier to get original invocation
+     * @param callable                callable
+     * @param args                    args
+     * @param <T>                     T
      * @return original return value or fallback result.
      * @throws Throwable any throwable
      */
@@ -141,10 +141,10 @@ public final class ServiceKeeperInvoker {
     /**
      * Run original runnable.
      *
-     * @param name                      name
-     * @param runnable                  runnable
-     * @param args                      args
-     * @throws Throwable                any throwable
+     * @param name     name
+     * @param runnable runnable
+     * @param args     args
+     * @throws Throwable any throwable
      */
     public static void run(String name, Runnable runnable, Object[] args) throws Throwable {
         Bootstrap.entry().run(name, runnable, args);
@@ -153,11 +153,11 @@ public final class ServiceKeeperInvoker {
     /**
      * Run original runnable with immutable config.
      *
-     * @param name                      name
-     * @param immutableConfig           immutable config
-     * @param runnable                  runnable
-     * @param args                      args
-     * @throws Throwable                any throwable
+     * @param name            name
+     * @param immutableConfig immutable config
+     * @param runnable        runnable
+     * @param args            args
+     * @throws Throwable any throwable
      */
     public static void run(String name, CompositeServiceKeeperConfig immutableConfig,
                            Runnable runnable, Object[] args) throws Throwable {
@@ -184,6 +184,6 @@ public final class ServiceKeeperInvoker {
      * @throws Throwable throwable
      */
     public static Object handleWhenNotAllowed(final RequestHandle requestHandle) throws Throwable {
-        return RequestHandleUtils.handle(requestHandle);
+        return requestHandle.fallback(requestHandle.getNotAllowedCause());
     }
 }

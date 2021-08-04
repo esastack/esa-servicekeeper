@@ -84,9 +84,9 @@ public final class ServiceKeeperAsyncInvoker {
      * {@link OriginalInvocation#getReturnType()} and fallback method's parameter types should as same as
      * original method's parameter types.
      *
-     * @param resourceId             resourceId
-     * @param originalInvocation     original invocation. It's helpful to locate fallback method.
-     * @param args                   args
+     * @param resourceId         resourceId
+     * @param originalInvocation original invocation. It's helpful to locate fallback method.
+     * @param args               args
      * @return Request handle
      */
     public static RequestHandle tryAsyncInvokeWithOriginalInvocation(String resourceId,
@@ -133,10 +133,10 @@ public final class ServiceKeeperAsyncInvoker {
      * Try to get permission to access the given resourceId with {@link CompositeServiceKeeperConfig} and
      * {@link OriginalInvocation}.
      *
-     * @param resourceId             resourceId
-     * @param immutableConfig        immutable config
-     * @param originalInvocation     original invocation
-     * @param args                   args
+     * @param resourceId         resourceId
+     * @param immutableConfig    immutable config
+     * @param originalInvocation original invocation
+     * @param args               args
      * @return Request handle
      * @see #tryAsyncInvokeWithConfig(String, CompositeServiceKeeperConfig, Object...)
      * @see #tryAsyncInvokeWithOriginalInvocation(String, OriginalInvocation, Object...)
@@ -177,6 +177,6 @@ public final class ServiceKeeperAsyncInvoker {
      * @throws Throwable throwable
      */
     public static Object handleWhenNotAllowed(final RequestHandle requestHandle) throws Throwable {
-        return RequestHandleUtils.handle(requestHandle);
+        return requestHandle.fallback(requestHandle.getNotAllowedCause());
     }
 }

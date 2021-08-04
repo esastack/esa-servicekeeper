@@ -28,13 +28,16 @@ public class FallbackConfig implements Serializable {
     private Class<?> targetClass;
     private final String specifiedValue;
     private final Class<? extends Exception> specifiedException;
+    private final boolean applyToBizException;
 
     private FallbackConfig(String methodName, Class<?> targetClass, String specifiedValue,
-                           Class<? extends Exception> specifiedException) {
+                           Class<? extends Exception> specifiedException,
+                           boolean applyToBizException) {
         this.methodName = methodName;
         this.targetClass = targetClass;
         this.specifiedValue = specifiedValue;
         this.specifiedException = specifiedException;
+        this.applyToBizException = applyToBizException;
     }
 
     public static Builder builder() {
@@ -51,7 +54,8 @@ public class FallbackConfig implements Serializable {
                 .methodName(config.getMethodName())
                 .targetClass(config.getTargetClass())
                 .specifiedValue(config.getSpecifiedValue())
-                .specifiedException(config.getSpecifiedException());
+                .specifiedException(config.getSpecifiedException())
+                .applyToBizException(config.isApplyToBizException());
     }
 
     public String getMethodName() {
@@ -76,6 +80,10 @@ public class FallbackConfig implements Serializable {
 
     public void setTargetClass(Class<?> targetClass) {
         this.targetClass = targetClass;
+    }
+
+    public boolean isApplyToBizException() {
+        return applyToBizException;
     }
 
     @Override
@@ -144,6 +152,7 @@ public class FallbackConfig implements Serializable {
         private Class<?> targetClass;
         private String specifiedValue = "";
         private Class<? extends Exception> specifiedException;
+        private boolean applyToBizException;
 
         private Builder() {
         }
@@ -163,13 +172,19 @@ public class FallbackConfig implements Serializable {
             return this;
         }
 
+        public Builder applyToBizException(boolean applyToBizException) {
+            this.applyToBizException = applyToBizException;
+            return this;
+        }
+
         public Builder specifiedException(Class<? extends Exception> fallbackExceptionClass) {
             this.specifiedException = fallbackExceptionClass;
             return this;
         }
 
         public FallbackConfig build() {
-            return new FallbackConfig(methodName, targetClass, specifiedValue, specifiedException);
+            return new FallbackConfig(methodName, targetClass, specifiedValue,
+                    specifiedException, applyToBizException);
         }
     }
 }
