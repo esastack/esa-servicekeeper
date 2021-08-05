@@ -91,7 +91,7 @@ public class RequestHandleImpl implements RequestHandle {
         if (fallbackHandler == null) {
             throw cause;
         }
-        if (fallbackHandler.applyToBizException()
+        if (fallbackHandler.alsoApplyToBizException()
                 || (cause instanceof ServiceKeeperNotPermittedException)
         ) {
             return fallbackHandler.handle(ctx);

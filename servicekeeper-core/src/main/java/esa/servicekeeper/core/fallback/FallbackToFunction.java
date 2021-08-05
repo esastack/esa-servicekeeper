@@ -68,14 +68,14 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
     private final Object obj;
     private final Set<FallbackMethod> fallbackMethods;
     private final Map<CauseType, FallbackMethod> fallbackMethodMap;
-    private final boolean applyToBizException;
+    private final boolean alsoApplyToBizException;
 
     public FallbackToFunction(Object obj, Set<FallbackMethod> fallbackMethods,
-                              boolean applyToBizException) {
+                              boolean alsoApplyToBizException) {
         this.obj = obj;
         this.fallbackMethods = fallbackMethods;
         this.fallbackMethodMap = initFallbackMethodMap();
-        this.applyToBizException = applyToBizException;
+        this.alsoApplyToBizException = alsoApplyToBizException;
     }
 
     @Override
@@ -131,8 +131,8 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
     }
 
     @Override
-    public boolean applyToBizException() {
-        return applyToBizException;
+    public boolean alsoApplyToBizException() {
+        return alsoApplyToBizException;
     }
 
     @Override

@@ -27,12 +27,12 @@ public class FallbackToValue implements FallbackHandler<String> {
     private static final Logger logger = LogUtils.logger();
 
     private final String value;
-    private final boolean applyToBizException;
+    private final boolean alsoApplyToBizException;
 
-    public FallbackToValue(String value, boolean applyToBizException) {
+    public FallbackToValue(String value, boolean alsoApplyToBizException) {
         Checks.checkNotNull(value, "value");
         this.value = value;
-        this.applyToBizException = applyToBizException;
+        this.alsoApplyToBizException = alsoApplyToBizException;
     }
 
     @Override
@@ -49,8 +49,8 @@ public class FallbackToValue implements FallbackHandler<String> {
     }
 
     @Override
-    public boolean applyToBizException() {
-        return applyToBizException;
+    public boolean alsoApplyToBizException() {
+        return alsoApplyToBizException;
     }
 
     @Override

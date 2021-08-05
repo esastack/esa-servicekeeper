@@ -28,16 +28,16 @@ public class FallbackConfig implements Serializable {
     private Class<?> targetClass;
     private final String specifiedValue;
     private final Class<? extends Exception> specifiedException;
-    private final boolean applyToBizException;
+    private final boolean alsoApplyToBizException;
 
     private FallbackConfig(String methodName, Class<?> targetClass, String specifiedValue,
                            Class<? extends Exception> specifiedException,
-                           boolean applyToBizException) {
+                           boolean alsoApplyToBizException) {
         this.methodName = methodName;
         this.targetClass = targetClass;
         this.specifiedValue = specifiedValue;
         this.specifiedException = specifiedException;
-        this.applyToBizException = applyToBizException;
+        this.alsoApplyToBizException = alsoApplyToBizException;
     }
 
     public static Builder builder() {
@@ -55,7 +55,7 @@ public class FallbackConfig implements Serializable {
                 .targetClass(config.getTargetClass())
                 .specifiedValue(config.getSpecifiedValue())
                 .specifiedException(config.getSpecifiedException())
-                .applyToBizException(config.isApplyToBizException());
+                .alsoApplyToBizException(config.isAlsoApplyToBizException());
     }
 
     public String getMethodName() {
@@ -82,8 +82,8 @@ public class FallbackConfig implements Serializable {
         this.targetClass = targetClass;
     }
 
-    public boolean isApplyToBizException() {
-        return applyToBizException;
+    public boolean isAlsoApplyToBizException() {
+        return alsoApplyToBizException;
     }
 
     @Override
@@ -152,7 +152,7 @@ public class FallbackConfig implements Serializable {
         private Class<?> targetClass;
         private String specifiedValue = "";
         private Class<? extends Exception> specifiedException;
-        private boolean applyToBizException;
+        private boolean alsoApplyToBizException;
 
         private Builder() {
         }
@@ -172,8 +172,8 @@ public class FallbackConfig implements Serializable {
             return this;
         }
 
-        public Builder applyToBizException(boolean applyToBizException) {
-            this.applyToBizException = applyToBizException;
+        public Builder alsoApplyToBizException(boolean alsoApplyToBizException) {
+            this.alsoApplyToBizException = alsoApplyToBizException;
             return this;
         }
 
@@ -184,7 +184,7 @@ public class FallbackConfig implements Serializable {
 
         public FallbackConfig build() {
             return new FallbackConfig(methodName, targetClass, specifiedValue,
-                    specifiedException, applyToBizException);
+                    specifiedException, alsoApplyToBizException);
         }
     }
 }

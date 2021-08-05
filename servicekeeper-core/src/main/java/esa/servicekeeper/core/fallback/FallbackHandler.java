@@ -35,7 +35,7 @@ public interface FallbackHandler<R> {
      */
     FallbackType getType();
 
-    boolean applyToBizException();
+    boolean alsoApplyToBizException();
 
     enum FallbackType {
         /**

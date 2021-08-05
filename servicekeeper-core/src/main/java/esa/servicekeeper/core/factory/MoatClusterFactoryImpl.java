@@ -67,10 +67,10 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
     }
 
     @Override
-    public MethodMoatCluster getOrCreateOfMethod(ResourceId resourceId, Supplier<OriginalInvocation> originalInvocation,
-                                                 Supplier<ServiceKeeperConfig> immutableConfig,
-                                                 Supplier<ExternalConfig> externalConfig) {
-        return (MethodMoatCluster) getOrCreate(resourceId, originalInvocation, immutableConfig, externalConfig);
+    public RetryableMoatCluster getOrCreateOfMethod(ResourceId resourceId, Supplier<OriginalInvocation> originalInvocation,
+                                                    Supplier<ServiceKeeperConfig> immutableConfig,
+                                                    Supplier<ExternalConfig> externalConfig) {
+        return (RetryableMoatCluster) getOrCreate(resourceId, originalInvocation, immutableConfig, externalConfig);
     }
 
     @Override
@@ -211,7 +211,7 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
         if (resourceId instanceof ArgResourceId) {
             return createArgMoatCluster(moats);
         } else {
-            return createMethodMoatCluster(resourceId, invocation, moats,
+            return createRetryableMoatCluster(resourceId, invocation, moats,
                     combinedConfig, immutableConfig);
         }
 
@@ -279,9 +279,9 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
         return new ArgMoatClusterImpl(moats, context.listeners());
     }
 
-    private MethodMoatCluster createMethodMoatCluster(ResourceId resourceId, OriginalInvocation invocation,
-                                                      List<Moat<?>> moats, ServiceKeeperConfig combinedConfig,
-                                                      ServiceKeeperConfig immutableConfig) {
+    private RetryableMoatCluster createRetryableMoatCluster(ResourceId resourceId, OriginalInvocation invocation,
+                                                            List<Moat<?>> moats, ServiceKeeperConfig combinedConfig,
+                                                            ServiceKeeperConfig immutableConfig) {
         return new RetryableMoatCluster(
                 moats,
                 context.listeners(),

@@ -25,7 +25,7 @@ public class ExternalConfig extends DynamicConfig {
     private Class<?> fallbackClass;
     private String fallbackValue;
     private Class<? extends Exception> fallbackExceptionClass;
-    private Boolean fallbackApplyToBizException;
+    private Boolean fallbackAlsoApplyToBizException;
 
     public Class<? extends PredicateStrategy> getPredicateStrategy() {
         return predicateStrategy;
@@ -67,12 +67,12 @@ public class ExternalConfig extends DynamicConfig {
         this.fallbackExceptionClass = fallbackExceptionClass;
     }
 
-    public Boolean getFallbackApplyToBizException() {
-        return fallbackApplyToBizException;
+    public Boolean getFallbackAlsoApplyToBizException() {
+        return fallbackAlsoApplyToBizException;
     }
 
-    public void setFallbackApplyToBizException(Boolean fallbackApplyToBizException) {
-        this.fallbackApplyToBizException = fallbackApplyToBizException;
+    public void setFallbackAlsoApplyToBizException(Boolean fallbackAlsoApplyToBizException) {
+        this.fallbackAlsoApplyToBizException = fallbackAlsoApplyToBizException;
     }
 
     protected boolean isAllEmpty() {
@@ -98,7 +98,7 @@ public class ExternalConfig extends DynamicConfig {
                 getFallbackClass() == null &&
                 getFallbackValue() == null &&
                 getFallbackExceptionClass() == null &&
-                getFallbackApplyToBizException() == null;
+                getFallbackAlsoApplyToBizException() == null;
     }
 
     @Override
@@ -142,12 +142,12 @@ public class ExternalConfig extends DynamicConfig {
                 sb.append(", fallbackExceptionClass=").append(fallbackExceptionClass);
             }
         }
-        if (fallbackApplyToBizException != null) {
+        if (fallbackAlsoApplyToBizException != null) {
             if (isFirstOne) {
-                sb.append("fallbackApplyToBizException=").append(fallbackApplyToBizException);
+                sb.append("fallbackAlsoApplyToBizException=").append(fallbackAlsoApplyToBizException);
                 isFirstOne = false;
             } else {
-                sb.append(", fallbackApplyToBizException=").append(fallbackApplyToBizException);
+                sb.append(", fallbackAlsoApplyToBizException=").append(fallbackAlsoApplyToBizException);
             }
         }
 

@@ -23,6 +23,7 @@ import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.moats.ArgMoatCluster;
 import esa.servicekeeper.core.moats.MethodMoatCluster;
 import esa.servicekeeper.core.moats.MoatCluster;
+import esa.servicekeeper.core.moats.RetryableMoatCluster;
 
 import java.util.function.Supplier;
 
@@ -37,9 +38,9 @@ public interface MoatClusterFactory {
      * @param externalConfig     the supplier to get external config
      * @return moat cluster of method, null if not configured.
      */
-    MethodMoatCluster getOrCreateOfMethod(ResourceId resourceId, Supplier<OriginalInvocation> originalInvocation,
-                                          Supplier<ServiceKeeperConfig> immutableConfig,
-                                          Supplier<ExternalConfig> externalConfig);
+    RetryableMoatCluster getOrCreateOfMethod(ResourceId resourceId, Supplier<OriginalInvocation> originalInvocation,
+                                             Supplier<ServiceKeeperConfig> immutableConfig,
+                                             Supplier<ExternalConfig> externalConfig);
 
     /**
      * Try to get a moat cluster by argResourceId, if null try to doCreate one and return.

@@ -56,6 +56,6 @@ public @interface Fallback {
      * - false: only the internal exception of serviceKeeper
      * will cause a fallback
      */
-    boolean applyToBizException() default false;
+    boolean alsoApplyToBizException() default false;
 
 }
