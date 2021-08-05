@@ -58,11 +58,10 @@ class ListenableFutureHandlerTest {
         final String fallbackValue = "XYZ";
         final String name = "testConcurrentLimit";
         final int maxConcurrentLimit = 1;
-        List<Moat<?>> moats = Collections.singletonList(new ConcurrentLimitMoat(new MoatConfig(ResourceId.from(name),
-                new FallbackToValue(fallbackValue)),
+        List<Moat<?>> moats = Collections.singletonList(new ConcurrentLimitMoat(new MoatConfig(ResourceId.from(name)),
                 ConcurrentLimitConfig.builder().threshold(maxConcurrentLimit).build(), null,
                 Collections.emptyList()));
-        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, new FallbackToValue(fallbackValue, false));
 
         final CountDownLatch latch = new CountDownLatch(maxConcurrentLimit);
 
@@ -103,7 +102,7 @@ class ListenableFutureHandlerTest {
         List<Moat<?>> moats = Collections.singletonList(new RateLimitMoat(getConfig(name),
                 RateLimitConfig.builder().limitForPeriod(limitForPeriod).build(), null,
                 Collections.emptyList()));
-        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         final AtomicInteger rateLimitOverFlowCount = new AtomicInteger(0);
 
         for (int i = 0; i < limitForPeriod * 2; i++) {
@@ -133,7 +132,7 @@ class ListenableFutureHandlerTest {
                 CircuitBreakerConfig.ofDefault(),
                 new PredicateByException()));
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new ListenableFutureHandler<>());
@@ -146,7 +145,7 @@ class ListenableFutureHandlerTest {
         TimeUnit.MILLISECONDS.sleep(500L);
         int circuitBreakerNotPermittedCount = 0;
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new ListenableFutureHandler<>());
@@ -182,7 +181,7 @@ class ListenableFutureHandlerTest {
                 CircuitBreakerConfig.ofDefault(),
                 new PredicateBySpendTime(3L)));
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new ListenableFutureHandler<>());
@@ -196,7 +195,7 @@ class ListenableFutureHandlerTest {
         TimeUnit.MILLISECONDS.sleep(500L);
         int circuitBreakerNotPermittedCount = 0;
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new ListenableFutureHandler<>());
@@ -210,7 +209,7 @@ class ListenableFutureHandlerTest {
     }
 
     private MoatConfig getConfig(String name) {
-        return new MoatConfig(ResourceId.from(name), null);
+        return new MoatConfig(ResourceId.from(name));
     }
 }
 

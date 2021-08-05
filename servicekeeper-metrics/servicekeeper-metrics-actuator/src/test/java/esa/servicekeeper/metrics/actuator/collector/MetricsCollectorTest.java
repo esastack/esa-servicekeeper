@@ -16,11 +16,7 @@
 package esa.servicekeeper.metrics.actuator.collector;
 
 import esa.servicekeeper.core.common.ResourceId;
-import esa.servicekeeper.core.config.CircuitBreakerConfig;
-import esa.servicekeeper.core.config.ConcurrentLimitConfig;
-import esa.servicekeeper.core.config.MoatConfig;
-import esa.servicekeeper.core.config.RateLimitConfig;
-import esa.servicekeeper.core.config.RetryConfig;
+import esa.servicekeeper.core.config.*;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
 import esa.servicekeeper.core.metrics.Metrics;
 import esa.servicekeeper.core.moats.Moat;
@@ -36,12 +32,7 @@ import esa.servicekeeper.core.retry.internal.impl.ExceptionPredicate;
 import esa.servicekeeper.core.retry.internal.impl.ExponentialBackOffPolicy;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.Mockito.mock;
@@ -60,7 +51,7 @@ class MetricsCollectorTest {
         then(collector.metrics(id, Metrics.Type.CIRCUIT_BREAKER)).isNull();
         then(collector.metrics(id, Metrics.Type.CONCURRENT_LIMIT)).isNull();
         then(collector.metrics(id, Metrics.Type.RETRY)).isNull();
-        final MoatConfig config = new MoatConfig(id, null);
+        final MoatConfig config = new MoatConfig(id);
 
         final List<Moat<?>> moats0 = new ArrayList<>(3);
         moats0.add(new CircuitBreakerMoat(config, CircuitBreakerConfig.ofDefault(),
@@ -73,10 +64,9 @@ class MetricsCollectorTest {
                 null,
                 Collections.emptyList()));
 
-        final MoatCluster cluster0 = new RetryableMoatCluster(moats0, Collections.emptyList(),
+        final MoatCluster cluster0 = new RetryableMoatCluster(moats0, Collections.emptyList(), null,
                 new RetryableExecutor(new RetryOperationsImpl(id,
                         new LinkedList<>(),
-                        null,
                         new ExponentialBackOffPolicy(200, 10_000, 1.0d),
                         new ExceptionPredicate(4),
                         RetryConfig.ofDefault(),
@@ -100,7 +90,7 @@ class MetricsCollectorTest {
         then(collector.metrics(id, Metrics.Type.CIRCUIT_BREAKER)).isNull();
         then(collector.metrics(id, Metrics.Type.CONCURRENT_LIMIT)).isNull();
         then(collector.metrics(id, Metrics.Type.RETRY)).isNull();
-        final MoatConfig config = new MoatConfig(id, null);
+        final MoatConfig config = new MoatConfig(id);
 
         final List<Moat<?>> moats0 = new ArrayList<>(3);
         moats0.add(new CircuitBreakerMoat(config, CircuitBreakerConfig.ofDefault(),
@@ -113,10 +103,9 @@ class MetricsCollectorTest {
                 null,
                 Collections.emptyList()));
 
-        final MoatCluster cluster0 = new RetryableMoatCluster(moats0, Collections.emptyList(),
+        final MoatCluster cluster0 = new RetryableMoatCluster(moats0, Collections.emptyList(), null,
                 new RetryableExecutor(new RetryOperationsImpl(id,
                         new LinkedList<>(),
-                        null,
                         new ExponentialBackOffPolicy(200, 10_000, 1.0d),
                         new ExceptionPredicate(4),
                         RetryConfig.ofDefault(),
@@ -143,7 +132,7 @@ class MetricsCollectorTest {
         final Map<ResourceId, MoatCluster> clusters = new HashMap<>(2);
 
         // MoatCluster0
-        final MoatConfig config = new MoatConfig(id0, null);
+        final MoatConfig config = new MoatConfig(id0);
         final List<Moat<?>> moats0 = new ArrayList<>(3);
         moats0.add(new CircuitBreakerMoat(config, CircuitBreakerConfig.ofDefault(),
                 null,
@@ -154,10 +143,9 @@ class MetricsCollectorTest {
         moats0.add(new RateLimitMoat(config, RateLimitConfig.ofDefault(),
                 null,
                 Collections.emptyList()));
-        final MoatCluster cluster0 = new RetryableMoatCluster(moats0, Collections.emptyList(),
+        final MoatCluster cluster0 = new RetryableMoatCluster(moats0, Collections.emptyList(), null,
                 new RetryableExecutor(new RetryOperationsImpl(id0,
                         new LinkedList<>(),
-                        null,
                         new ExponentialBackOffPolicy(200, 10_000, 1.0d),
                         new ExceptionPredicate(4),
                         RetryConfig.ofDefault(),
@@ -165,7 +153,7 @@ class MetricsCollectorTest {
         clusters.putIfAbsent(id0, cluster0);
 
         // MoatCluster1
-        final MoatConfig config1 = new MoatConfig(id1, null);
+        final MoatConfig config1 = new MoatConfig(id1);
         final List<Moat<?>> moats1 = new ArrayList<>(3);
         moats1.add(new CircuitBreakerMoat(config1, CircuitBreakerConfig.ofDefault(),
                 null,
@@ -176,10 +164,9 @@ class MetricsCollectorTest {
         moats1.add(new RateLimitMoat(config1, RateLimitConfig.ofDefault(),
                 null,
                 Collections.emptyList()));
-        final MoatCluster cluster1 = new RetryableMoatCluster(moats1, Collections.emptyList(),
+        final MoatCluster cluster1 = new RetryableMoatCluster(moats1, Collections.emptyList(), null,
                 new RetryableExecutor(new RetryOperationsImpl(id1,
                         new LinkedList<>(),
-                        null,
                         new ExponentialBackOffPolicy(200, 10_000, 1.0d),
                         new ExceptionPredicate(4),
                         RetryConfig.ofDefault(),

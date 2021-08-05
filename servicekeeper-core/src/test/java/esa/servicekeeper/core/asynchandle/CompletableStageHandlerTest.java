@@ -53,11 +53,11 @@ class CompletableStageHandlerTest {
         final String fallbackValue = "XYZ";
         final String name = "testWhenHandleNull";
         final List<Moat<?>> moats = Collections.singletonList(new ConcurrentLimitMoat(
-                new MoatConfig(ResourceId.from(name),
-                        new FallbackToValue(fallbackValue)),
+                new MoatConfig(ResourceId.from(name)),
                 ConcurrentLimitConfig.ofDefault(), null,
                 Collections.emptyList()));
-        final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats,
+                new FallbackToValue(fallbackValue, false));
 
         final CompletableStageHandler<?> handler = new CompletableStageHandler<>();
         assertThrows(IllegalStateException.class,
@@ -70,10 +70,10 @@ class CompletableStageHandlerTest {
         final String name = "testConcurrentLimit";
         final int maxConcurrentLimit = 1;
         final List<Moat<?>> moats = Collections.singletonList(new ConcurrentLimitMoat(new MoatConfig(
-                ResourceId.from(name), new FallbackToValue(fallbackValue)),
+                ResourceId.from(name)),
                 ConcurrentLimitConfig.builder().threshold(maxConcurrentLimit).build(), null,
                 Collections.emptyList()));
-        final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, new FallbackToValue(fallbackValue, false));
 
         final CountDownLatch latch = new CountDownLatch(maxConcurrentLimit);
 
@@ -115,7 +115,7 @@ class CompletableStageHandlerTest {
         final List<Moat<?>> moats = Collections.singletonList(new RateLimitMoat(getConfig(name),
                 RateLimitConfig.builder().limitForPeriod(limitForPeriod).build(), null,
                 Collections.emptyList()));
-        final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         final AtomicInteger rateLimitOverFlowCount = new AtomicInteger(0);
 
         for (int i = 0; i < limitForPeriod * 2; i++) {
@@ -145,7 +145,7 @@ class CompletableStageHandlerTest {
                 CircuitBreakerConfig.ofDefault(),
                 new PredicateByException()));
         for (int i = 0; i < ringBufferSizeInCloseState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new CompletableStageHandler<>());
@@ -158,7 +158,7 @@ class CompletableStageHandlerTest {
         TimeUnit.MILLISECONDS.sleep(500L);
         int circuitBreakerNotPermittedCount = 0;
         for (int i = 0; i < ringBufferSizeInCloseState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new CompletableStageHandler<>());
@@ -194,7 +194,7 @@ class CompletableStageHandlerTest {
                 CircuitBreakerConfig.ofDefault(),
                 new PredicateBySpendTime(3L)));
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new CompletableStageHandler<>());
@@ -208,7 +208,7 @@ class CompletableStageHandlerTest {
         TimeUnit.MILLISECONDS.sleep(500L);
         int circuitBreakerNotPermittedCount = 0;
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new CompletableStageHandler<>());
@@ -222,6 +222,6 @@ class CompletableStageHandlerTest {
     }
 
     private MoatConfig getConfig(String name) {
-        return new MoatConfig(ResourceId.from(name), null);
+        return new MoatConfig(ResourceId.from(name));
     }
 }

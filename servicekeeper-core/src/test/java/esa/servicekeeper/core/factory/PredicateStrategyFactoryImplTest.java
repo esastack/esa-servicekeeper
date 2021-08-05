@@ -30,8 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PredicateStrategyFactoryImplTest {
 
-    private final MoatConfig config = new MoatConfig(ResourceId.from("PredicateStrategyFactoryImplTest"),
-            null);
+    private final MoatConfig config = new MoatConfig(ResourceId.from("PredicateStrategyFactoryImplTest"));
 
     private final PredicateStrategyFactoryImpl factory = new PredicateStrategyFactoryImpl();
 
@@ -94,7 +93,7 @@ class PredicateStrategyFactoryImplTest {
                 CircuitBreakerConfig.ofDefault()))).isNotNull();
         assertThrows(RuntimeException.class, () -> factory.doCreate0(
                 PredicateStrategyConfig.from(ResourceId.from("xyz"), CircuitBreakerConfig.builder()
-                .predicateStrategy(PredicateByExceptionAndSpendTime.class).build(),
+                                .predicateStrategy(PredicateByExceptionAndSpendTime.class).build(),
                         CircuitBreakerConfig.ofDefault())));
     }
 }

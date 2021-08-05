@@ -28,16 +28,21 @@ public class CompletableStageHandler<M> implements AsyncResultHandler<Completion
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public CompletionStage<M> handle0(CompletionStage<M> returnValue, RequestHandle requestHandle) {
-        returnValue.whenComplete((r, t) -> {
+        return returnValue.handle((r, t) -> {
             if (t != null) {
-                requestHandle.endWithError(t);
+                try {
+                    return (M) requestHandle.fallback(t);
+                } catch (Throwable e) {
+                    //TODO 想办法抛出这个异常
+                    return null;
+                }
             } else {
                 requestHandle.endWithResult(r);
+                return r;
             }
         });
-
-        return returnValue;
     }
 
     @Override

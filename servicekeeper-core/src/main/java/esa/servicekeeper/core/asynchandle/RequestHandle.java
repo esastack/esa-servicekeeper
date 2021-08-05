@@ -103,7 +103,7 @@ public interface RequestHandle {
     /**
      * End the invocation with error and fallback
      *
-     * @throws Throwable TODO 考虑这块是抛出一个Throwable，还是一个运行时的异常，模仿一下以前的fallback逻辑
+     * @throws Throwable error
      */
     Object fallback(final Throwable throwable) throws Throwable;
 }

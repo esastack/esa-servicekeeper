@@ -18,11 +18,7 @@ package esa.servicekeeper.core.moats.circuitbreaker.predicate;
 import esa.servicekeeper.core.common.ResourceId;
 import esa.servicekeeper.core.config.CircuitBreakerConfig;
 import esa.servicekeeper.core.config.MoatConfig;
-import esa.servicekeeper.core.executionchain.Context;
-import esa.servicekeeper.core.executionchain.Executable;
-import esa.servicekeeper.core.executionchain.SyncContext;
-import esa.servicekeeper.core.executionchain.SyncExecutionChain;
-import esa.servicekeeper.core.executionchain.SyncExecutionChainImpl;
+import esa.servicekeeper.core.executionchain.*;
 import esa.servicekeeper.core.fallback.FallbackToValue;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
 import org.junit.jupiter.api.Test;
@@ -42,10 +38,9 @@ class PredicateStrategyTest {
         };
 
         final SyncExecutionChain chain = new SyncExecutionChainImpl(Collections.singletonList(
-                new CircuitBreakerMoat(new MoatConfig(resourceId,
-                        new FallbackToValue("Fallback")),
+                new CircuitBreakerMoat(new MoatConfig(resourceId),
                         CircuitBreakerConfig.ofDefault(), CircuitBreakerConfig.ofDefault(),
-                        (ctx) -> true)));
+                        (ctx) -> true)), new FallbackToValue("Fallback", false));
 
         for (int i = 0; i < 100; i++) {
             final Context ctx = new SyncContext(resourceId.getName());

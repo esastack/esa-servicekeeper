@@ -15,12 +15,7 @@
  */
 package esa.servicekeeper.core.fallback;
 
-import esa.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
-import esa.servicekeeper.core.exception.ConcurrentOverFlowException;
-import esa.servicekeeper.core.exception.RateLimitOverflowException;
-import esa.servicekeeper.core.exception.ServiceKeeperException;
-import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
-import esa.servicekeeper.core.exception.ServiceRetryException;
+import esa.servicekeeper.core.exception.*;
 import esa.servicekeeper.core.executionchain.Context;
 import org.junit.jupiter.api.Test;
 
@@ -54,7 +49,7 @@ class FallbackToFunctionTest {
                 ServiceKeeperException.class)));
 
 
-        final FallbackToFunction<String> fallback0 = new FallbackToFunction<>(foo, methods0);
+        final FallbackToFunction<String> fallback0 = new FallbackToFunction<>(foo, methods0, false);
         final Context context0 = mock(Context.class);
         when(context0.getThroughFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, null, null));
         then(fallback0.handle(context0)).isEqualTo("method0");
@@ -91,7 +86,7 @@ class FallbackToFunctionTest {
                 ServiceKeeperNotPermittedException.class)));
         methods1.add(new FallbackMethod(Foo.class.getDeclaredMethod("method4")));
 
-        final FallbackToFunction<String> fallback1 = new FallbackToFunction<>(foo, methods1);
+        final FallbackToFunction<String> fallback1 = new FallbackToFunction<>(foo, methods1, false);
         final Context context1 = mock(Context.class);
         when(context1.getThroughFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, null, null));
         then(fallback1.handle(context1)).isEqualTo("method0");
@@ -111,7 +106,7 @@ class FallbackToFunctionTest {
                 CircuitBreakerNotPermittedException.class)));
         methods2.add(new FallbackMethod(Foo.class.getDeclaredMethod("method4")));
 
-        final FallbackToFunction<String> fallback2 = new FallbackToFunction<>(foo, methods2);
+        final FallbackToFunction<String> fallback2 = new FallbackToFunction<>(foo, methods2, false);
         final Context context2 = mock(Context.class);
         when(context2.getThroughFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, null, null));
         then(fallback2.handle(context2)).isEqualTo("method0");
@@ -144,7 +139,7 @@ class FallbackToFunctionTest {
         methods0.add(new FallbackMethod(Foo1.class.getDeclaredMethod("method6",
                 ServiceKeeperException.class, String.class)));
 
-        final FallbackToFunction<String> fallback0 = new FallbackToFunction<>(foo1, methods0);
+        final FallbackToFunction<String> fallback0 = new FallbackToFunction<>(foo1, methods0, false);
         final Context context0 = mock(Context.class);
         when(context0.getThroughFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, null, null));
         when(context0.getArgs()).thenReturn(new String[]{"LiMing"});
@@ -173,7 +168,7 @@ class FallbackToFunctionTest {
                 ServiceKeeperNotPermittedException.class, String.class)));
         methods1.add(new FallbackMethod(Foo1.class.getDeclaredMethod("method4", String.class)));
 
-        final FallbackToFunction<String> fallback1 = new FallbackToFunction<>(foo1, methods1);
+        final FallbackToFunction<String> fallback1 = new FallbackToFunction<>(foo1, methods1, false);
         final Context context1 = mock(Context.class);
         when(context1.getThroughFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, null, null));
         when(context1.getArgs()).thenReturn(new String[]{"LiMing"});
@@ -194,7 +189,7 @@ class FallbackToFunctionTest {
                 CircuitBreakerNotPermittedException.class, String.class)));
         methods2.add(new FallbackMethod(Foo1.class.getDeclaredMethod("method4", String.class)));
 
-        final FallbackToFunction<String> fallback2 = new FallbackToFunction<>(foo1, methods2);
+        final FallbackToFunction<String> fallback2 = new FallbackToFunction<>(foo1, methods2, false);
         final Context context2 = mock(Context.class);
         when(context2.getThroughFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, null, null));
         when(context2.getArgs()).thenReturn(new String[]{"LiMing"});
@@ -215,7 +210,7 @@ class FallbackToFunctionTest {
         final Object foo = new Foo();
         final Set<FallbackMethod> methods0 = new HashSet<>(0);
 
-        final FallbackToFunction<String> fallback0 = new FallbackToFunction<>(foo, methods0);
+        final FallbackToFunction<String> fallback0 = new FallbackToFunction<>(foo, methods0, false);
         final Context context0 = mock(Context.class);
         when(context0.getThroughFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, null, null));
         assertThrows(CircuitBreakerNotPermittedException.class, () -> fallback0.handle(context0));

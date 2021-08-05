@@ -21,7 +21,6 @@ import esa.servicekeeper.core.config.RetryConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.exception.ServiceRetryException;
 import esa.servicekeeper.core.executionchain.Context;
-import esa.servicekeeper.core.fallback.FallbackToValue;
 import esa.servicekeeper.core.metrics.RetryMetrics;
 import esa.servicekeeper.core.retry.internal.impl.ExceptionPredicate;
 import esa.servicekeeper.core.retry.internal.impl.ExponentialBackOffPolicy;
@@ -42,7 +41,7 @@ class RetryOperationsImplTest {
     void testGetConfig() {
         final RetryConfig config = RetryConfig.ofDefault();
         final RetryOperations operations = new RetryOperationsImpl(ResourceId.from("testGetConfig"),
-                null, null, new ExponentialBackOffPolicy(0, 0, 0),
+                null, new ExponentialBackOffPolicy(0, 0, 0),
                 new ExceptionPredicate(3), config, null);
         then(operations.getConfig()).isEqualTo(config);
     }
@@ -51,7 +50,7 @@ class RetryOperationsImplTest {
     void testGetFond() {
         final RetryConfig config = RetryConfig.ofDefault();
         final RetryOperationsImpl operations = new RetryOperationsImpl(ResourceId.from("testGetFond"),
-                null, null, new ExponentialBackOffPolicy(0, 0, 0),
+                null, new ExponentialBackOffPolicy(0, 0, 0),
                 new ExceptionPredicate(3), config, null);
         then(operations.getFond(null)).isNull();
 
@@ -81,7 +80,7 @@ class RetryOperationsImplTest {
 
         final RetryConfig config = RetryConfig.ofDefault();
         final RetryOperationsImpl operations = new RetryOperationsImpl(resourceId,
-                null, null, new ExponentialBackOffPolicy(0, 0, 0),
+                null, new ExponentialBackOffPolicy(0, 0, 0),
                 new ExceptionPredicate(3), config, null);
         then(operations.listeningKey()).isEqualTo(resourceId);
     }
@@ -89,7 +88,7 @@ class RetryOperationsImplTest {
     @Test
     void testExecute() throws Throwable {
         final RetryOperations operations = new RetryOperationsImpl(ResourceId.from("testExecute"),
-                null, new FallbackToValue("Retry fallback"),
+                null,
                 new ExponentialBackOffPolicy(0, 0, 0),
                 new ExceptionPredicate(3), RetryConfig.ofDefault(), null);
 
@@ -123,7 +122,7 @@ class RetryOperationsImplTest {
     @Test
     void testUpdate() {
         final RetryOperationsImpl operations = new RetryOperationsImpl(ResourceId.from("testUpdate"),
-                null, new FallbackToValue("Fallback"), new ExponentialBackOffPolicy(0,
+                null, new ExponentialBackOffPolicy(0,
                 0, 0),
                 new ExceptionPredicate(3), RetryConfig.ofDefault(), null);
 
@@ -173,7 +172,7 @@ class RetryOperationsImplTest {
     @Test
     void testUpdateParallel() throws InterruptedException {
         final RetryOperationsImpl operations = new RetryOperationsImpl(ResourceId.from("testUpdate"),
-                null, new FallbackToValue("Fallback"),
+                null,
                 new ExponentialBackOffPolicy(0, 0, 0),
                 new ExceptionPredicate(3), RetryConfig.ofDefault(), null);
 

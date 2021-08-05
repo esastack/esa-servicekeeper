@@ -22,29 +22,26 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 class RetryableExecutionChainTest {
 
     @Test
     void testConstructor() {
         assertThrows(NullPointerException.class,
-                () -> new RetryableExecutionChain(null, mock(RetryableExecutor.class)));
+                () -> new RetryableExecutionChain(null, null, mock(RetryableExecutor.class)));
 
         assertThrows(NullPointerException.class,
-                () -> new RetryableExecutionChain(Collections.emptyList(), null));
+                () -> new RetryableExecutionChain(Collections.emptyList(), null, null));
 
-        new RetryableExecutionChain(Collections.emptyList(), mock(RetryableExecutor.class));
+        new RetryableExecutionChain(Collections.emptyList(), null, mock(RetryableExecutor.class));
     }
 
     @SuppressWarnings("unchecked")
     @Test
     void testDoExecute0() throws Throwable {
         final RetryableExecutor executor = mock(RetryableExecutor.class);
-        final RetryableExecutionChain execution = new RetryableExecutionChain(Collections.emptyList(), executor);
+        final RetryableExecutionChain execution = new RetryableExecutionChain(Collections.emptyList(), null, executor);
 
         final Context ctx = mock(Context.class);
         final Runnable runnable = mock(Runnable.class);
@@ -61,7 +58,7 @@ class RetryableExecutionChainTest {
     @Test
     void testDoExecute1() throws Throwable {
         final RetryableExecutor executor = mock(RetryableExecutor.class);
-        final RetryableExecutionChain execution = new RetryableExecutionChain(Collections.emptyList(), executor);
+        final RetryableExecutionChain execution = new RetryableExecutionChain(Collections.emptyList(), null, executor);
 
         final Context ctx = mock(Context.class);
         final Executable<?> executable = mock(Executable.class);

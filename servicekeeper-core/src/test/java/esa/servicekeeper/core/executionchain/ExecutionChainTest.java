@@ -55,7 +55,7 @@ class ExecutionChainTest {
                 ConcurrentLimitConfig.builder().threshold(maxConcurrentLimit).build(),
                 null, Collections.emptyList()));
 
-        ExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        ExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         final int cycleCount = maxConcurrentLimit * 2;
         final AtomicInteger concurrentOverFlowCount = new AtomicInteger(0);
         final CountDownLatch latch = new CountDownLatch(cycleCount);
@@ -94,7 +94,7 @@ class ExecutionChainTest {
                 CircuitBreakerConfig.ofDefault(), null,
                 new PredicateByException()));
 
-        ExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        ExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         final int cycleCount = maxConcurrentLimit * 2;
         final AtomicInteger concurrentOverFlowCount = new AtomicInteger(0);
         final CountDownLatch latch = new CountDownLatch(cycleCount);
@@ -125,7 +125,7 @@ class ExecutionChainTest {
         List<Moat<?>> moats = Collections.singletonList(new RateLimitMoat(getConfig(name), RateLimitConfig.builder()
                 .limitForPeriod(limitForPeriod).build(),
                 null, Collections.emptyList()));
-        ExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        ExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         final int cycleCount = limitForPeriod * 2;
         final AtomicInteger rateLimitOverFlowCount = new AtomicInteger(0);
         for (int i = 0; i < cycleCount; i++) {
@@ -159,7 +159,7 @@ class ExecutionChainTest {
                 CircuitBreakerConfig.ofDefault(), null,
                 new PredicateByException()));
 
-        ExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        ExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         final int cycleCount = limitForPeriod * 2;
         final AtomicInteger rateLimitOverFlowCount = new AtomicInteger(0);
         for (int i = 0; i < cycleCount; i++) {
@@ -186,7 +186,7 @@ class ExecutionChainTest {
                 CircuitBreakerConfig.ofDefault(), null,
                 new PredicateByException());
         List<Moat<?>> moats = Collections.singletonList(circuitBreakerMoat);
-        ExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        ExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         for (int i = 0; i < 100; i++) {
             RequestHandle requestHandle = chain.tryToExecute(new AsyncContext(name));
             then(requestHandle.isAllowed()).isTrue();
@@ -212,7 +212,7 @@ class ExecutionChainTest {
         moats.add(new CircuitBreakerMoat(getConfig(name), CircuitBreakerConfig.ofDefault(), null,
                 new PredicateByException()));
 
-        ExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        ExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         for (int i = 0; i < 100; i++) {
             RequestHandle requestHandle = chain.tryToExecute(new AsyncContext(name));
             then(requestHandle.isAllowed()).isTrue();
@@ -237,7 +237,7 @@ class ExecutionChainTest {
                 CircuitBreakerConfig.ofDefault(), null,
                 new PredicateByException()));
 
-        AbstractExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        AbstractExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         final AtomicInteger callNotPermitCount = new AtomicInteger(0);
         for (int i = 0; i < 200; i++) {
             final Context ctx = new AsyncContext(name);
@@ -262,7 +262,7 @@ class ExecutionChainTest {
         List<Moat<?>> moats = new ArrayList<>(1);
         moats.add(new ConcurrentLimitMoat(getConfig(name), ConcurrentLimitConfig.builder().threshold(20).build(),
                 null, Collections.emptyList()));
-        ExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        ExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         final Context ctx = new AsyncContext(name);
         final RequestHandle requestHandle = chain.tryToExecute(ctx);
         requestHandle.endWithSuccess();
@@ -276,7 +276,7 @@ class ExecutionChainTest {
         List<Moat<?>> moats = Collections.singletonList(new
                 ConcurrentLimitMoat(getConfig(name), ConcurrentLimitConfig.ofDefault(),
                 null, Collections.emptyList()));
-        ExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        ExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         assertThrows(IllegalStateException.class, () -> chain.endWithSuccess(new AsyncContext(name)));
     }
 
@@ -287,7 +287,7 @@ class ExecutionChainTest {
         List<Moat<?>> moats = Collections.singletonList(new
                 ConcurrentLimitMoat(getConfig(name), ConcurrentLimitConfig.ofDefault(),
                 null, Collections.emptyList()));
-        ExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        ExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         assertThrows(IllegalStateException.class, () -> chain.endWithResult(new AsyncContext(name), new Object()));
     }
 
@@ -298,7 +298,7 @@ class ExecutionChainTest {
         List<Moat<?>> moats = Collections.singletonList(new
                 ConcurrentLimitMoat(getConfig(name), ConcurrentLimitConfig.ofDefault(),
                 null, Collections.emptyList()));
-        ExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        ExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         assertThrows(IllegalStateException.class,
                 () -> chain.endWithError(new AsyncContext(name), new RuntimeException()));
     }
@@ -320,7 +320,7 @@ class ExecutionChainTest {
         moats.add(new RateLimitMoat(getConfig(name), RateLimitConfig.ofDefault(),
                 null, Collections.emptyList()));
         moats.add(circuitBreakerMoat);
-        SyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        SyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         assertThrows(RuntimeException.class,
                 () -> chain.execute(new AsyncContext(name), null, executable));
     }
@@ -340,11 +340,11 @@ class ExecutionChainTest {
         moats.add(new RateLimitMoat(getConfig(name), RateLimitConfig.ofDefault(),
                 null, Collections.emptyList()));
         moats.add(circuitBreakerMoat);
-        SyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        SyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         then(chain.execute(new AsyncContext(name), null, executable)).isEqualTo(result);
     }
 
     private MoatConfig getConfig(String name) {
-        return new MoatConfig(ResourceId.from(name), null);
+        return new MoatConfig(ResourceId.from(name));
     }
 }

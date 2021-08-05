@@ -57,7 +57,7 @@ class AsyncExecutionChainTest {
         List<Moat<?>> moats = Collections.singletonList(new ConcurrentLimitMoat(getConfig(name),
                 ConcurrentLimitConfig.builder().threshold(maxConcurrentLimit).build(), null,
                 Collections.emptyList()));
-        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
 
         final CountDownLatch latch = new CountDownLatch(maxConcurrentLimit);
         Executable<CompletableFuture<Void>> executable = () -> CompletableFuture.runAsync(() -> {
@@ -89,11 +89,10 @@ class AsyncExecutionChainTest {
         final String fallbackValue = "XYZ";
         final String name = "testAsyncTriggerConcurrentLimit1";
         final int maxConcurrentLimit = RandomUtils.randomInt(5);
-        List<Moat<?>> moats = Collections.singletonList(new ConcurrentLimitMoat(new MoatConfig(ResourceId.from(name),
-                new FallbackToValue(fallbackValue)),
+        List<Moat<?>> moats = Collections.singletonList(new ConcurrentLimitMoat(new MoatConfig(ResourceId.from(name)),
                 ConcurrentLimitConfig.builder().threshold(maxConcurrentLimit).build(), null,
                 Collections.emptyList()));
-        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, new FallbackToValue(fallbackValue, false));
 
         final CountDownLatch latch = new CountDownLatch(maxConcurrentLimit);
         Executable<CompletableFuture<String>> executable = () -> CompletableFuture.supplyAsync(() -> {
@@ -133,7 +132,7 @@ class AsyncExecutionChainTest {
         List<Moat<?>> moats = Collections.singletonList(new RateLimitMoat(getConfig(name),
                 RateLimitConfig.builder().limitForPeriod(limitForPeriod).build(), null,
                 Collections.emptyList()));
-        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         final AtomicInteger rateLimitOverFlowCount = new AtomicInteger(0);
 
         for (int i = 0; i < limitForPeriod * 2; i++) {
@@ -157,10 +156,10 @@ class AsyncExecutionChainTest {
         final String name = "testAsyncTriggerRateLimit1";
         final int limitForPeriod = RandomUtils.randomInt(5);
         List<Moat<?>> moats = Collections.singletonList(new RateLimitMoat(
-                new MoatConfig(ResourceId.from(name), new FallbackToException(fallbackException)),
+                new MoatConfig(ResourceId.from(name)),
                 RateLimitConfig.builder().limitForPeriod(limitForPeriod).build(), null,
                 Collections.emptyList()));
-        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, new FallbackToException(fallbackException, false));
 
         final AtomicInteger fallbackCount = new AtomicInteger(0);
         final AtomicInteger normalCount = new AtomicInteger(0);
@@ -205,7 +204,7 @@ class AsyncExecutionChainTest {
                 CircuitBreakerConfig.ofDefault(),
                 new PredicateByException()));
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new CompletableStageHandler<>());
@@ -219,7 +218,7 @@ class AsyncExecutionChainTest {
         TimeUnit.MILLISECONDS.sleep(20L);
         int circuitBreakerNotPermittedCount = 0;
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new CompletableStageHandler<>());
@@ -251,11 +250,11 @@ class AsyncExecutionChainTest {
         });
 
         List<Moat<?>> moats = Collections.singletonList(new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from(fallbackValue), new FallbackToValue(fallbackValue)),
+                new MoatConfig(ResourceId.from(fallbackValue)),
                 CircuitBreakerConfig.builder().ringBufferSizeInClosedState(ringBufferSizeInClosedState).build(),
                 CircuitBreakerConfig.ofDefault(), new PredicateByException()));
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, new FallbackToValue(fallbackValue, false));
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new CompletableStageHandler<>());
@@ -269,7 +268,7 @@ class AsyncExecutionChainTest {
         TimeUnit.MILLISECONDS.sleep(20L);
         int circuitBreakerNotPermittedCount = 0;
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats);
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
             try {
                 final Object result = chain.asyncExecute(new AsyncContext(name), null,
                         executable, new CompletableStageHandler<>());
@@ -284,6 +283,6 @@ class AsyncExecutionChainTest {
     }
 
     private MoatConfig getConfig(String name) {
-        return new MoatConfig(ResourceId.from(name), null);
+        return new MoatConfig(ResourceId.from(name));
     }
 }

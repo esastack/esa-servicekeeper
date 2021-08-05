@@ -41,9 +41,9 @@ class RequestHandleImplTest {
     @Test
     void testEndWithSuccessParallel() throws InterruptedException {
         AsyncExecutionChain chain = new AsyncExecutionChainImpl(Collections.singletonList(
-                new ConcurrentLimitMoat(new MoatConfig(ResourceId.from("testEndWithSuccessParallel"), null),
+                new ConcurrentLimitMoat(new MoatConfig(ResourceId.from("testEndWithSuccessParallel")),
                         ConcurrentLimitConfig.ofDefault(),
-                        ConcurrentLimitConfig.ofDefault(), null)));
+                        ConcurrentLimitConfig.ofDefault(), null)), null);
         RequestHandle handle = chain.tryToExecute(new AsyncContext("testEndWithSuccessParallel"));
 
         int count = RandomUtils.randomInt(5);
@@ -68,9 +68,9 @@ class RequestHandleImplTest {
     @Test
     void testEndWithResultParallel() throws InterruptedException {
         AsyncExecutionChain chain = new AsyncExecutionChainImpl(Collections.singletonList(
-                new RateLimitMoat(new MoatConfig(ResourceId.from("testEndWithResultParallel"), null),
+                new RateLimitMoat(new MoatConfig(ResourceId.from("testEndWithResultParallel")),
                         RateLimitConfig.ofDefault(),
-                        RateLimitConfig.ofDefault(), null)));
+                        RateLimitConfig.ofDefault(), null)), null);
         RequestHandle handle = chain.tryToExecute(new AsyncContext("testEndWithResultParallel"));
 
         int count = RandomUtils.randomInt(5);
@@ -95,9 +95,9 @@ class RequestHandleImplTest {
     @Test
     void testEndWithErrorParallel() throws InterruptedException {
         AsyncExecutionChain chain = new AsyncExecutionChainImpl(Collections.singletonList(
-                new CircuitBreakerMoat(new MoatConfig(ResourceId.from("testEndWithErrorParallel"), null),
+                new CircuitBreakerMoat(new MoatConfig(ResourceId.from("testEndWithErrorParallel")),
                         CircuitBreakerConfig.ofDefault(),
-                        CircuitBreakerConfig.ofDefault(), new PredicateByException())));
+                        CircuitBreakerConfig.ofDefault(), new PredicateByException())), null);
         RequestHandle handle = chain.tryToExecute(new AsyncContext("testEndWithErrorParallel"));
 
         int count = RandomUtils.randomInt(5);
@@ -122,9 +122,9 @@ class RequestHandleImplTest {
     @Test
     void testCompositeEndParallel() throws InterruptedException {
         AsyncExecutionChain chain = new AsyncExecutionChainImpl(Collections.singletonList(
-                new CircuitBreakerMoat(new MoatConfig(ResourceId.from("testCompositeEndParallel"), null),
+                new CircuitBreakerMoat(new MoatConfig(ResourceId.from("testCompositeEndParallel")),
                         CircuitBreakerConfig.ofDefault(),
-                        CircuitBreakerConfig.ofDefault(), new PredicateByException())));
+                        CircuitBreakerConfig.ofDefault(), new PredicateByException())), null);
         RequestHandle handle = chain.tryToExecute(new AsyncContext("testCompositeEndParallel"));
 
         int count = RandomUtils.randomInt(5);

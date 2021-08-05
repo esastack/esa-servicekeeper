@@ -24,7 +24,6 @@ import esa.servicekeeper.core.exception.ServiceRetryException;
 import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.executionchain.Executable;
 import esa.servicekeeper.core.executionchain.SyncContext;
-import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.listener.FondConfigListener;
 import esa.servicekeeper.core.metrics.RetryMetrics;
 import esa.servicekeeper.core.moats.LifeCycleSupport;
@@ -79,7 +78,7 @@ public class RetryOperationsImpl implements RetryOperations, FondConfigListener<
         this.predicate = predicate;
         this.lifeCycleType = immutableConfig == null ? TEMPORARY : PERMANENT;
         if (processors == null) {
-            this.processors = Collections.unmodifiableList(Collections.singletonList(statistics));
+            this.processors = Collections.singletonList(statistics);
         } else {
             processors.add(statistics);
             this.processors = Collections.unmodifiableList(processors);

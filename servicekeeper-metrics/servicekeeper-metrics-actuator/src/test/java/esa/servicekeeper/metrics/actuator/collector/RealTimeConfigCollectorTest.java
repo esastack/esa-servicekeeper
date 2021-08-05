@@ -16,11 +16,7 @@
 package esa.servicekeeper.metrics.actuator.collector;
 
 import esa.servicekeeper.core.common.ResourceId;
-import esa.servicekeeper.core.config.CircuitBreakerConfig;
-import esa.servicekeeper.core.config.ConcurrentLimitConfig;
-import esa.servicekeeper.core.config.MoatConfig;
-import esa.servicekeeper.core.config.RateLimitConfig;
-import esa.servicekeeper.core.config.ServiceKeeperConfig;
+import esa.servicekeeper.core.config.*;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
 import esa.servicekeeper.core.moats.Moat;
 import esa.servicekeeper.core.moats.MoatCluster;
@@ -31,11 +27,7 @@ import esa.servicekeeper.core.moats.concurrentlimit.ConcurrentLimitMoat;
 import esa.servicekeeper.core.moats.ratelimit.RateLimitMoat;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.Mockito.mock;
@@ -52,7 +44,7 @@ class RealTimeConfigCollectorTest {
         Map<ResourceId, MoatCluster> clusters = new HashMap<>();
         when(cluster.getAll()).thenReturn(clusters);
         then(collector.circuitBreakerConfig(id)).isNull();
-        final MoatConfig config = new MoatConfig(id, null);
+        final MoatConfig config = new MoatConfig(id);
 
         final MoatCluster cluster0 = new MoatClusterImpl(Collections.singletonList(
                 new CircuitBreakerMoat(config, CircuitBreakerConfig.ofDefault(),
@@ -75,7 +67,7 @@ class RealTimeConfigCollectorTest {
         Map<ResourceId, MoatCluster> clusters = new HashMap<>();
         when(cluster.getAll()).thenReturn(clusters);
         then(collector.concurrentLimitConfig(id)).isNull();
-        final MoatConfig config = new MoatConfig(id, null);
+        final MoatConfig config = new MoatConfig(id);
 
         final MoatCluster cluster0 = new MoatClusterImpl(Collections.singletonList(
                 new ConcurrentLimitMoat(config, ConcurrentLimitConfig.ofDefault(),
@@ -98,7 +90,7 @@ class RealTimeConfigCollectorTest {
         Map<ResourceId, MoatCluster> clusters = new HashMap<>();
         when(cluster.getAll()).thenReturn(clusters);
         then(collector.rateLimitConfig(id)).isNull();
-        final MoatConfig config = new MoatConfig(id, null);
+        final MoatConfig config = new MoatConfig(id);
 
         final MoatCluster cluster0 = new MoatClusterImpl(Collections.singletonList(
                 new RateLimitMoat(config, RateLimitConfig.ofDefault(),
@@ -121,7 +113,7 @@ class RealTimeConfigCollectorTest {
         Map<ResourceId, MoatCluster> clusters = new HashMap<>();
         when(cluster.getAll()).thenReturn(clusters);
         then(collector.config(id)).isNull();
-        final MoatConfig config = new MoatConfig(id, null);
+        final MoatConfig config = new MoatConfig(id);
 
         final List<Moat<?>> moats = new ArrayList<>(3);
         moats.add(new CircuitBreakerMoat(config, CircuitBreakerConfig.ofDefault(),
@@ -154,7 +146,7 @@ class RealTimeConfigCollectorTest {
         Map<ResourceId, MoatCluster> clusters = new HashMap<>();
         when(cluster.getAll()).thenReturn(clusters);
         then(collector.circuitBreakerConfigs()).isEmpty();
-        final MoatConfig config = new MoatConfig(id0, null);
+        final MoatConfig config = new MoatConfig(id0);
 
         final MoatCluster cluster0 = new MoatClusterImpl(Collections.singletonList(
                 new CircuitBreakerMoat(config, CircuitBreakerConfig.ofDefault(),
@@ -187,7 +179,7 @@ class RealTimeConfigCollectorTest {
         Map<ResourceId, MoatCluster> clusters = new HashMap<>();
         when(cluster.getAll()).thenReturn(clusters);
         then(collector.concurrentLimitConfigs()).isEmpty();
-        final MoatConfig config = new MoatConfig(id0, null);
+        final MoatConfig config = new MoatConfig(id0);
 
         final MoatCluster cluster0 = new MoatClusterImpl(Collections.singletonList(
                 new ConcurrentLimitMoat(config, ConcurrentLimitConfig.ofDefault(),
@@ -220,7 +212,7 @@ class RealTimeConfigCollectorTest {
         Map<ResourceId, MoatCluster> clusters = new HashMap<>();
         when(cluster.getAll()).thenReturn(clusters);
         then(collector.rateLimitConfigs()).isEmpty();
-        final MoatConfig config = new MoatConfig(id0, null);
+        final MoatConfig config = new MoatConfig(id0);
 
         final MoatCluster cluster0 = new MoatClusterImpl(Collections.singletonList(
                 new RateLimitMoat(config, RateLimitConfig.ofDefault(),
@@ -253,7 +245,7 @@ class RealTimeConfigCollectorTest {
         Map<ResourceId, MoatCluster> clusters = new HashMap<>();
         when(cluster.getAll()).thenReturn(clusters);
         then(collector.configs()).isEmpty();
-        final MoatConfig config = new MoatConfig(id0, null);
+        final MoatConfig config = new MoatConfig(id0);
 
         final List<Moat<?>> moats0 = new ArrayList<>(3);
         moats0.add(new CircuitBreakerMoat(config, CircuitBreakerConfig.ofDefault(),

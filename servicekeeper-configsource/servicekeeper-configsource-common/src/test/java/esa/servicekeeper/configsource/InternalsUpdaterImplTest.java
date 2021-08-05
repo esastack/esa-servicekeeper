@@ -18,20 +18,11 @@ package esa.servicekeeper.configsource;
 import esa.servicekeeper.configsource.utils.RandomUtils;
 import esa.servicekeeper.core.common.GroupResourceId;
 import esa.servicekeeper.core.common.ResourceId;
-import esa.servicekeeper.core.config.CircuitBreakerConfig;
-import esa.servicekeeper.core.config.ConcurrentLimitConfig;
-import esa.servicekeeper.core.config.RateLimitConfig;
-import esa.servicekeeper.core.config.RetryConfig;
-import esa.servicekeeper.core.config.ServiceKeeperConfig;
+import esa.servicekeeper.core.config.*;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.configsource.ExternalGroupConfig;
 import esa.servicekeeper.core.configsource.GroupConfigSource;
-import esa.servicekeeper.core.factory.FallbackHandlerFactoryImpl;
-import esa.servicekeeper.core.factory.LimitableMoatFactoryContext;
-import esa.servicekeeper.core.factory.MoatClusterFactory;
-import esa.servicekeeper.core.factory.MoatClusterFactoryImpl;
-import esa.servicekeeper.core.factory.PredicateStrategyFactoryImpl;
-import esa.servicekeeper.core.factory.SateTransitionProcessorFactoryImpl;
+import esa.servicekeeper.core.factory.*;
 import esa.servicekeeper.core.internal.GlobalConfig;
 import esa.servicekeeper.core.internal.ImmutableConfigs;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
@@ -45,11 +36,7 @@ import esa.servicekeeper.core.moats.ratelimit.RateLimitMoat;
 import esa.servicekeeper.core.retry.RetryOperations;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
@@ -84,7 +71,7 @@ class InternalsUpdaterImplTest {
         then(cluster.get(resourceId)).isNull();
 
         // Case 2: Original moatChain is not null.
-        factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .circuitBreakerConfig(CircuitBreakerConfig.ofDefault()).build(), null);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(1);
         updater.update(resourceId, config1);
@@ -96,7 +83,7 @@ class InternalsUpdaterImplTest {
         final ResourceId resourceId = ResourceId.from("testUpdateRateLimitMoat");
         then(cluster.get(resourceId)).isNull();
 
-        factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .rateLimiterConfig(RateLimitConfig.ofDefault()).build(), null);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(1);
 
@@ -118,7 +105,7 @@ class InternalsUpdaterImplTest {
         then(cluster.get(resourceId)).isNull();
         final ExternalConfig externalConfig = new ExternalConfig();
         externalConfig.setLimitForPeriod(limitForPeriod);
-        factory.getOrCreate(resourceId, () -> null, () -> null, () -> externalConfig);
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> null, () -> externalConfig);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(1);
         updater.update(resourceId, null);
         then(cluster.get(resourceId).getAll().get(0).config()).isEqualTo(RateLimitConfig.ofDefault());
@@ -131,7 +118,7 @@ class InternalsUpdaterImplTest {
 
         final ExternalConfig config = new ExternalConfig();
         config.setLimitForPeriod(RandomUtils.randomInt(200));
-        factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .circuitBreakerConfig(CircuitBreakerConfig.ofDefault()).build(), () -> config);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(2);
 
@@ -151,7 +138,7 @@ class InternalsUpdaterImplTest {
         then(cluster.get(resourceId)).isNull();
 
         // Case 2: Original moatChain is not null.
-        factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .circuitBreakerConfig(CircuitBreakerConfig.ofDefault()).build(), null);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(1);
         updater.update(resourceId, config1);
@@ -163,7 +150,7 @@ class InternalsUpdaterImplTest {
         final ResourceId resourceId = ResourceId.from("testUpdateConcurrentLimit");
         then(cluster.get(resourceId)).isNull();
 
-        factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault()).build(), null);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(1);
 
@@ -185,7 +172,7 @@ class InternalsUpdaterImplTest {
         then(cluster.get(resourceId)).isNull();
         final ExternalConfig externalConfig = new ExternalConfig();
         externalConfig.setMaxConcurrentLimit(maxConcurrentLimit);
-        factory.getOrCreate(resourceId, () -> null, () -> null, () -> externalConfig);
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> null, () -> externalConfig);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(1);
         updater.update(resourceId, null);
         then(cluster.get(resourceId).getAll().get(0).config()).isEqualTo(ConcurrentLimitConfig.ofDefault());
@@ -198,7 +185,7 @@ class InternalsUpdaterImplTest {
 
         final ExternalConfig config = new ExternalConfig();
         config.setMaxConcurrentLimit(RandomUtils.randomInt(200));
-        factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .circuitBreakerConfig(CircuitBreakerConfig.ofDefault()).build(), () -> config);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(2);
 
@@ -218,7 +205,7 @@ class InternalsUpdaterImplTest {
         then(cluster.get(resourceId)).isNull();
 
         // Case 2: Original moatChain is not null.
-        factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .rateLimiterConfig(RateLimitConfig.ofDefault()).build(), null);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(1);
         updater.update(resourceId, config1);
@@ -230,7 +217,7 @@ class InternalsUpdaterImplTest {
         final ResourceId resourceId = ResourceId.from("testUpdateCircuitBreaker");
         then(cluster.get(resourceId)).isNull();
 
-        factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .circuitBreakerConfig(CircuitBreakerConfig.ofDefault()).build(), null);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(1);
 
@@ -252,7 +239,7 @@ class InternalsUpdaterImplTest {
         then(cluster.get(resourceId)).isNull();
         final ExternalConfig externalConfig = new ExternalConfig();
         externalConfig.setFailureRateThreshold(failureRateThreshold);
-        factory.getOrCreate(resourceId, () -> null, () -> null, () -> externalConfig);
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> null, () -> externalConfig);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(1);
         updater.update(resourceId, null);
         then(cluster.get(resourceId).getAll().get(0).config()).isEqualTo(CircuitBreakerConfig.ofDefault());
@@ -265,7 +252,7 @@ class InternalsUpdaterImplTest {
 
         final ExternalConfig config = new ExternalConfig();
         config.setFailureRateThreshold(RandomUtils.randomFloat(200));
-        factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .rateLimiterConfig(RateLimitConfig.ofDefault()).build(), () -> config);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(2);
 
@@ -286,7 +273,7 @@ class InternalsUpdaterImplTest {
         then(cluster.get(resourceId)).isNull();
 
         // Case 2: Original moatChain is not null.
-        factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .rateLimiterConfig(RateLimitConfig.ofDefault()).build(), null);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(1);
         updater.update(resourceId, config1);
@@ -299,7 +286,7 @@ class InternalsUpdaterImplTest {
         final ResourceId resourceId = ResourceId.from("testUpdateRetry");
         then(cluster.get(resourceId)).isNull();
 
-        factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .retryConfig(RetryConfig.ofDefault()).build(), null);
         then(cluster.get(resourceId)).isNotNull();
         then(cluster.get(resourceId).getAll().size()).isEqualTo(0);
@@ -323,7 +310,7 @@ class InternalsUpdaterImplTest {
         then(cluster.get(resourceId)).isNull();
         final ExternalConfig externalConfig = new ExternalConfig();
         externalConfig.setMaxAttempts(RandomUtils.randomInt(100));
-        factory.getOrCreate(resourceId, () -> null, () -> null, () -> externalConfig);
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> null, () -> externalConfig);
         then(cluster.get(resourceId)).isNotNull();
         updater.update(resourceId, null);
         then(cluster.get(resourceId)).isNull();
@@ -336,7 +323,7 @@ class InternalsUpdaterImplTest {
 
         final ExternalConfig config = new ExternalConfig();
         config.setMaxAttempts(RandomUtils.randomInt(200));
-        factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .rateLimiterConfig(RateLimitConfig.ofDefault()).build(), () -> config);
         then(cluster.get(resourceId).getAll().size()).isEqualTo(1);
         then(((RetryableMoatCluster) cluster.get(resourceId)).retryExecutor()).isNotNull();
@@ -356,7 +343,7 @@ class InternalsUpdaterImplTest {
         final ExternalConfig externalConfig = new ExternalConfig();
         externalConfig.setPredicateStrategy(PredicateBySpendTime.class);
         externalConfig.setMaxSpendTimeMs(originalMaxSpendTimeMs);
-        factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .circuitBreakerConfig(CircuitBreakerConfig.ofDefault()).build(), () -> externalConfig);
         CircuitBreakerMoat circuitBreakerMoat = ((CircuitBreakerMoat) cluster.get(resourceId).getAll().get(0));
         then(((PredicateBySpendTime) circuitBreakerMoat.getPredicate()).getMaxSpendTimeMs())
@@ -378,9 +365,9 @@ class InternalsUpdaterImplTest {
         final GroupResourceId groupId = GroupResourceId.from("testUpdateGroupConfig1");
         final ExternalConfig externalConfig = new ExternalConfig();
         externalConfig.setMaxConcurrentLimit(RandomUtils.randomInt(300));
-        factory.getOrCreate(ResourceId.from("abc"), () -> null, () -> null, () -> externalConfig);
-        factory.getOrCreate(ResourceId.from("def"), () -> null, () -> null, () -> externalConfig);
-        factory.getOrCreate(ResourceId.from("xyz"), () -> null, () -> null, () -> externalConfig);
+        factory.getOrCreateOfMethod(ResourceId.from("abc"), () -> null, () -> null, () -> externalConfig);
+        factory.getOrCreateOfMethod(ResourceId.from("def"), () -> null, () -> null, () -> externalConfig);
+        factory.getOrCreateOfMethod(ResourceId.from("xyz"), () -> null, () -> null, () -> externalConfig);
         then(cluster.get(ResourceId.from("abc")).getAll().size()).isEqualTo(1);
         then(cluster.get(ResourceId.from("def")).getAll().size()).isEqualTo(1);
         then(cluster.get(ResourceId.from("xyz")).getAll().size()).isEqualTo(1);

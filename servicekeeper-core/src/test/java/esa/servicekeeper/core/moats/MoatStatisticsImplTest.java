@@ -22,7 +22,6 @@ import esa.servicekeeper.core.config.CircuitBreakerConfig;
 import esa.servicekeeper.core.config.ConcurrentLimitConfig;
 import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.config.RateLimitConfig;
-import esa.servicekeeper.core.fallback.FallbackToValue;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByException;
 import esa.servicekeeper.core.moats.concurrentlimit.ConcurrentLimitMoat;
@@ -34,9 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static esa.servicekeeper.core.moats.MoatType.CIRCUIT_BREAKER;
-import static esa.servicekeeper.core.moats.MoatType.CONCURRENT_LIMIT;
-import static esa.servicekeeper.core.moats.MoatType.RATE_LIMIT;
+import static esa.servicekeeper.core.moats.MoatType.*;
 import static org.assertj.core.api.BDDAssertions.then;
 
 class MoatStatisticsImplTest {
@@ -47,7 +44,7 @@ class MoatStatisticsImplTest {
 
         final ResourceId methodId = ResourceId.from("testConstruct0");
         final List<Moat<?>> moats = new ArrayList<>(3);
-        final MoatConfig config = new MoatConfig(methodId, new FallbackToValue("String"));
+        final MoatConfig config = new MoatConfig(methodId);
         CircuitBreakerMoat circuitBreakerMoat = new CircuitBreakerMoat(config,
                 CircuitBreakerConfig.ofDefault(), null, new PredicateByException());
         moats.add(circuitBreakerMoat);
@@ -81,7 +78,7 @@ class MoatStatisticsImplTest {
         final ArgResourceId argId = new ArgResourceId(methodId, argName, "foo");
 
         final List<Moat<?>> moats = new ArrayList<>(3);
-        final MoatConfig config = new MoatConfig(argId, new FallbackToValue("String"));
+        final MoatConfig config = new MoatConfig(argId);
         CircuitBreakerMoat circuitBreakerMoat = new CircuitBreakerMoat(config,
                 CircuitBreakerConfig.ofDefault(), null, new PredicateByException());
         moats.add(circuitBreakerMoat);
@@ -121,8 +118,7 @@ class MoatStatisticsImplTest {
             final MoatCluster cluster = new MoatClusterImpl(null, Collections.singletonList(statistics));
 
             clusters[i] = cluster;
-            final MoatConfig config = new MoatConfig(new ArgResourceId(methodId, argName, "foo" + i),
-                    new FallbackToValue("String"));
+            final MoatConfig config = new MoatConfig(new ArgResourceId(methodId, argName, "foo" + i));
             CircuitBreakerMoat circuitBreakerMoat = new CircuitBreakerMoat(config,
                     CircuitBreakerConfig.ofDefault(), null,
                     new PredicateByException());
@@ -188,8 +184,7 @@ class MoatStatisticsImplTest {
                 final MoatCluster cluster = new MoatClusterImpl(null, Collections.singletonList(statistics));
 
                 clusters[index] = cluster;
-                final MoatConfig config = new MoatConfig(new ArgResourceId(methodId, argName, "foo" + index),
-                        new FallbackToValue("String"));
+                final MoatConfig config = new MoatConfig(new ArgResourceId(methodId, argName, "foo" + index));
                 CircuitBreakerMoat circuitBreakerMoat = new CircuitBreakerMoat(config,
                         CircuitBreakerConfig.ofDefault(), null,
                         new PredicateByException());

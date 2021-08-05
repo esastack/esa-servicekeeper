@@ -61,7 +61,7 @@ class SyncExecutableTest {
                 ConcurrentLimitConfig.builder().threshold(maxConcurrentLimit).build(), null,
                 Collections.emptyList());
         List<Moat<?>> moats = Collections.singletonList(concurrentLimitMoat);
-        SyncExecutionChain chain = new SyncExecutionChainImpl(moats);
+        SyncExecutionChain chain = new SyncExecutionChainImpl(moats, null);
 
         final CountDownLatch latch = new CountDownLatch(maxConcurrentLimit * 2);
         final AtomicInteger concurrentOverFlowCount = new AtomicInteger(0);
@@ -91,7 +91,7 @@ class SyncExecutableTest {
         List<Moat<?>> moats = Collections.singletonList(new RateLimitMoat(getConfig(name),
                 RateLimitConfig.builder().limitForPeriod(limitForPeriod).build(), null,
                 Collections.emptyList()));
-        SyncExecutionChain chain = new SyncExecutionChainImpl(moats);
+        SyncExecutionChain chain = new SyncExecutionChainImpl(moats, null);
         final AtomicInteger rateLimitOverFlowCount = new AtomicInteger(0);
 
         for (int i = 0; i < limitForPeriod * 2; i++) {
@@ -115,7 +115,7 @@ class SyncExecutableTest {
         final String name = "testExecutableTriggerCircuitBreaker";
         List<Moat<?>> moats = Collections.singletonList(new CircuitBreakerMoat(getConfig(name),
                 CircuitBreakerConfig.ofDefault(), null, new PredicateByException()));
-        SyncExecutionChain chain = new SyncExecutionChainImpl(moats);
+        SyncExecutionChain chain = new SyncExecutionChainImpl(moats, null);
         for (int i = 0; i < 100; i++) {
             try {
                 chain.execute(new SyncContext(name), null, executable);
@@ -138,7 +138,7 @@ class SyncExecutableTest {
         List<Moat<?>> moats = Collections.singletonList(new CircuitBreakerMoat(getConfig(name),
                 CircuitBreakerConfig.builder().ringBufferSizeInClosedState(3).build(),
                 null, new PredicateBySpendTime(2)));
-        SyncExecutionChain chain = new SyncExecutionChainImpl(moats);
+        SyncExecutionChain chain = new SyncExecutionChainImpl(moats, null);
         for (int i = 0; i < 3; i++) {
             try {
                 chain.execute(new SyncContext(name), null, executable);
@@ -151,6 +151,6 @@ class SyncExecutableTest {
     }
 
     private MoatConfig getConfig(String name) {
-        return new MoatConfig(ResourceId.from(name), null);
+        return new MoatConfig(ResourceId.from(name));
     }
 }

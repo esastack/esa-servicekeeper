@@ -75,7 +75,6 @@ public class CompositeServiceKeeperEntry extends DefaultServiceKeeperEntry imple
                     return asyncInvoke(aliasName, method, delegate, asyncResultHandler, args);
                 }
             }
-
         }
         return syncInvoke(aliasName, method, delegate, args);
     }

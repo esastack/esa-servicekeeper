@@ -21,17 +21,15 @@ import esa.servicekeeper.core.common.OriginalInvocation;
 import esa.servicekeeper.core.common.ResourceId;
 import esa.servicekeeper.core.config.ServiceKeeperConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
-import esa.servicekeeper.core.executionchain.AbstractExecutionChain;
-import esa.servicekeeper.core.executionchain.AsyncExecutionChainImpl;
-import esa.servicekeeper.core.executionchain.Context;
-import esa.servicekeeper.core.executionchain.ExecutionChain;
-import esa.servicekeeper.core.executionchain.RetryableExecutionChain;
-import esa.servicekeeper.core.executionchain.SyncExecutionChainImpl;
+import esa.servicekeeper.core.executionchain.*;
 import esa.servicekeeper.core.factory.MoatClusterFactory;
 import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.internal.GlobalConfig;
 import esa.servicekeeper.core.internal.ImmutableConfigs;
-import esa.servicekeeper.core.moats.*;
+import esa.servicekeeper.core.moats.ArgMoatCluster;
+import esa.servicekeeper.core.moats.Moat;
+import esa.servicekeeper.core.moats.MoatCluster;
+import esa.servicekeeper.core.moats.RetryableMoatCluster;
 import esa.servicekeeper.core.retry.RetryableExecutor;
 import esa.servicekeeper.core.utils.GenericTypeUtils;
 import esa.servicekeeper.core.utils.LogUtils;
@@ -301,5 +299,4 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
         return executor == null ? new SyncExecutionChainImpl(moats, fallbackHandler) :
                 new RetryableExecutionChain(moats, fallbackHandler, executor);
     }
-
 }
