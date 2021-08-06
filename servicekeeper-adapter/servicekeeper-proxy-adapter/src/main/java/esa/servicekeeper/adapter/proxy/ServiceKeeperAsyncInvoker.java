@@ -38,12 +38,11 @@ public final class ServiceKeeperAsyncInvoker {
     /**
      * Try to get permission to access the given {@link String} resourceId, and the {@link RequestHandle} will be
      * returned. If the {@link RequestHandle#isAllowed()} is true, you can do your business invocation continuously,
-     * otherwise you can get the reason of not allowed or fallback result by {@link RequestHandle#getNotAllowedCause()}
-     * or {@link RequestHandle#getFallbackResult()}. Normally, if the fallback fails, you also can get the reason by
-     * {@link RequestHandle#getFallbackFailsCause()}. Last but most importantly, you must callback the
-     * {@link RequestHandle#endWithSuccess()} or {@link RequestHandle#endWithResult(Object)} explicitly when the
-     * invocation ends successfully. Otherwise, you must callback the {@link RequestHandle#endWithError(Throwable)}
-     * to end the current {@link RequestHandle}.
+     * otherwise you can get the reason of not allowed to fallback result by {@link RequestHandle#getNotAllowedCause()}
+     * and {@link RequestHandle#fallback(Throwable)} ()}. Last but most importantly, you must callback the
+     * {@link RequestHandle#endWithSuccess()} or {@link RequestHandle#endWithResult(Object)} ()} explicitly when the
+     * execution is successful.Otherwise, you must callback the {@link RequestHandle#endWithError(Throwable)} or
+     * {@link RequestHandle#fallback(Throwable)} ()} to end the current {@link RequestHandle}.
      * <p>
      * eg:
      *
@@ -56,14 +55,10 @@ public final class ServiceKeeperAsyncInvoker {
      *                  doSomething();
      *                  handle.endWithSuccess();      // endWithResult(Object) is also allowed.
      *              } catch(Throwable throwable) {
-     *                  handle.endWithError(throwable);
+     *                  handle.fallback(throwable);  //or handle.endWithError(throwable)
      *              }
      *          } else {
-     *              if (handle.isFallbackSucceed()) {
-     *                  return handle.getFallbackResult();
-     *              } else {
-     *                  throw handle.getFallbackFailsCause();
-     *              }
+     *              handle.fallback(throwable);     //or ServiceKeeperAsyncInvoker.handleWhenNotAllowed(requestHandle)
      *          }
      *     }
      * </pre>
