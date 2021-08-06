@@ -58,7 +58,8 @@ public final class ServiceKeeperAsyncInvoker {
      *                  handle.fallback(throwable);  //or handle.endWithError(throwable)
      *              }
      *          } else {
-     *              handle.fallback(throwable);     //or ServiceKeeperAsyncInvoker.handleWhenNotAllowed(requestHandle)
+     *              handle.fallback(handle.getNotAllowedCause());
+     *              //or ServiceKeeperAsyncInvoker.handleWhenNotAllowed(requestHandle)
      *          }
      *     }
      * </pre>
