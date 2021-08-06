@@ -56,6 +56,7 @@ public class FallbackToValue implements FallbackHandler<String> {
     @Override
     public String toString() {
         return "FallbackToValue{" + "value='" + value + '\'' +
+                ", alsoApplyToBizException=" + alsoApplyToBizException +
                 '}';
     }
 }

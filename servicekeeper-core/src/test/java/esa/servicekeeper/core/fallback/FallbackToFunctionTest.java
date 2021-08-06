@@ -77,7 +77,9 @@ class FallbackToFunctionTest {
                 " FallbackMethod{method=method4, isStatic=false, causeAtFirst=false, matchFullArgs=false}," +
                 " FallbackMethod{method=method1, isStatic=false, causeAtFirst=true, matchFullArgs=false}," +
                 " FallbackMethod{method=method6, isStatic=false, causeAtFirst=true, matchFullArgs=false}," +
-                " FallbackMethod{method=method5, isStatic=false, causeAtFirst=true, matchFullArgs=false}]}");
+                " FallbackMethod{method=method5, isStatic=false, causeAtFirst=true, matchFullArgs=false}]" +
+                ", alsoApplyToBizException=false" +
+                "}");
 
         final Set<FallbackMethod> methods1 = new HashSet<>(3);
         methods1.add(new FallbackMethod(Foo.class.getDeclaredMethod("method0",

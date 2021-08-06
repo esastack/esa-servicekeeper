@@ -56,6 +56,7 @@ public class FallbackToException implements FallbackHandler<Object> {
     @Override
     public String toString() {
         return "FallbackToException{" + "ex=" + ex +
+                ", alsoApplyToBizException=" + alsoApplyToBizException +
                 '}';
     }
 }

@@ -16,12 +16,7 @@
 package esa.servicekeeper.core.fallback;
 
 import esa.commons.StringUtils;
-import esa.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
-import esa.servicekeeper.core.exception.ConcurrentOverFlowException;
-import esa.servicekeeper.core.exception.RateLimitOverflowException;
-import esa.servicekeeper.core.exception.ServiceKeeperException;
-import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
-import esa.servicekeeper.core.exception.ServiceRetryException;
+import esa.servicekeeper.core.exception.*;
 import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.utils.LogUtils;
 import org.slf4j.Logger;
@@ -137,8 +132,10 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
 
     @Override
     public String toString() {
-        return "FallbackToFunction{" + "obj=" + (obj == null ? "null" : obj.getClass().getName()) +
+        return "FallbackToFunction{" +
+                "obj=" + (obj == null ? "null" : obj.getClass().getName()) +
                 ", fallbackMethods=" + fallbackMethods +
+                ", alsoApplyToBizException=" + alsoApplyToBizException +
                 '}';
     }
 

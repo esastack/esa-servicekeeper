@@ -138,14 +138,15 @@ class SyncExecutableTest {
         List<Moat<?>> moats = Collections.singletonList(new CircuitBreakerMoat(getConfig(name),
                 CircuitBreakerConfig.builder().ringBufferSizeInClosedState(3).build(),
                 null, new PredicateBySpendTime(2)));
-        SyncExecutionChain chain = new SyncExecutionChainImpl(moats, null);
         for (int i = 0; i < 3; i++) {
             try {
+                SyncExecutionChain chain = new SyncExecutionChainImpl(moats, null);
                 chain.execute(new SyncContext(name), null, executable);
             } catch (Throwable throwable) {
                 // Do nothing
             }
         }
+        SyncExecutionChain chain = new SyncExecutionChainImpl(moats, null);
         assertThrows(CircuitBreakerNotPermittedException.class,
                 () -> chain.execute(new SyncContext(name), null, executable));
     }

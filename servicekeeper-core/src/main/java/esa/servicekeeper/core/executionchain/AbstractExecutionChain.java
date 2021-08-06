@@ -56,11 +56,12 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
     public RequestHandle tryToExecute(Context ctx) {
         try {
             doTryToExecute(ctx);
+            recordStart(ctx);
         } catch (ServiceKeeperNotPermittedException e) {
             return RequestHandleImpl.createNotAllowHandle(this,
                     ctx, fallbackHandler, e);
         }
-        recordStart(ctx);
+
         return RequestHandleImpl.createAllowHandle(this,
                 ctx, fallbackHandler);
     }

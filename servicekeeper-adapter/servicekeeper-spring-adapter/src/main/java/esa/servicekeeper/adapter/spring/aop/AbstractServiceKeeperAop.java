@@ -17,11 +17,7 @@ package esa.servicekeeper.adapter.spring.aop;
 
 import esa.servicekeeper.core.Bootstrap;
 import esa.servicekeeper.core.BootstrapContext;
-import esa.servicekeeper.core.annotation.CircuitBreaker;
-import esa.servicekeeper.core.annotation.ConcurrentLimiter;
-import esa.servicekeeper.core.annotation.EnableServiceKeeper;
-import esa.servicekeeper.core.annotation.RateLimiter;
-import esa.servicekeeper.core.annotation.Retryable;
+import esa.servicekeeper.core.annotation.*;
 import esa.servicekeeper.core.asynchandle.AsyncResultHandler;
 import esa.servicekeeper.core.common.OriginalInvocation;
 import esa.servicekeeper.core.exception.ServiceKeeperWrapException;
@@ -81,6 +77,10 @@ public abstract class AbstractServiceKeeperAop implements Ordered, InitializingB
 
     @Pointcut("@annotation(esa.servicekeeper.core.annotation.Retryable)")
     protected void retry() {
+    }
+
+    @Pointcut("@annotation(esa.servicekeeper.core.annotation.Fallback)")
+    protected void fallback() {
     }
 
     @Pointcut("@annotation(esa.servicekeeper.core.annotation.Group)")

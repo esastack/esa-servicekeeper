@@ -98,12 +98,13 @@ public class FallbackConfig implements Serializable {
         return Objects.equals(methodName, that.methodName) &&
                 Objects.equals(targetClass, that.targetClass) &&
                 Objects.equals(specifiedValue, that.specifiedValue) &&
-                Objects.equals(specifiedException, that.specifiedException);
+                Objects.equals(specifiedException, that.specifiedException) &&
+                Objects.equals(alsoApplyToBizException, that.alsoApplyToBizException);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(methodName, targetClass, specifiedValue, specifiedException);
+        return Objects.hash(methodName, targetClass, specifiedValue, specifiedException, alsoApplyToBizException);
     }
 
     @Override
@@ -137,6 +138,13 @@ public class FallbackConfig implements Serializable {
                 sb.append(", specifiedException=").append(specifiedException);
             }
         }
+
+        if (isFirstOne) {
+            sb.append("alsoApplyToBizException=").append(alsoApplyToBizException);
+        } else {
+            sb.append(", alsoApplyToBizException=").append(alsoApplyToBizException);
+        }
+
         sb.append('}');
         return sb.toString();
     }

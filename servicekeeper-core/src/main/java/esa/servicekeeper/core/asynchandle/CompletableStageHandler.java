@@ -34,10 +34,10 @@ public class CompletableStageHandler<M> implements AsyncResultHandler<Completion
             if (t != null) {
                 try {
                     return (M) requestHandle.fallback(t);
-                } catch (Throwable e) {
-                    //TODO 想办法抛出这个异常
-                    return null;
+                } catch (Throwable th) {
+                    throw new RuntimeException();
                 }
+
             } else {
                 requestHandle.endWithResult(r);
                 return r;

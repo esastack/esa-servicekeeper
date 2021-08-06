@@ -16,22 +16,9 @@
 package esa.servicekeeper.core.utils;
 
 import esa.commons.StringUtils;
-import esa.servicekeeper.core.annotation.Alias;
-import esa.servicekeeper.core.annotation.Backoff;
-import esa.servicekeeper.core.annotation.CircuitBreaker;
-import esa.servicekeeper.core.annotation.ConcurrentLimiter;
-import esa.servicekeeper.core.annotation.Fallback;
-import esa.servicekeeper.core.annotation.Group;
-import esa.servicekeeper.core.annotation.RateLimiter;
-import esa.servicekeeper.core.annotation.Retryable;
+import esa.servicekeeper.core.annotation.*;
 import esa.servicekeeper.core.common.GroupResourceId;
-import esa.servicekeeper.core.config.BackoffConfig;
-import esa.servicekeeper.core.config.CircuitBreakerConfig;
-import esa.servicekeeper.core.config.ConcurrentLimitConfig;
-import esa.servicekeeper.core.config.FallbackConfig;
-import esa.servicekeeper.core.config.RateLimitConfig;
-import esa.servicekeeper.core.config.RetryConfig;
-import esa.servicekeeper.core.config.ServiceKeeperConfig;
+import esa.servicekeeper.core.config.*;
 import esa.servicekeeper.core.entry.CompositeServiceKeeperConfig;
 
 import java.lang.reflect.Method;
@@ -142,7 +129,8 @@ public final class MethodUtils {
         if (fallback != null) {
             FallbackConfig.Builder builder = FallbackConfig.builder()
                     .specifiedException(fallback.fallbackExceptionClass())
-                    .specifiedValue(fallback.fallbackValue());
+                    .specifiedValue(fallback.fallbackValue())
+                    .alsoApplyToBizException(fallback.alsoApplyToBizException());
             if (fallback.fallbackClass() == Void.class && StringUtils.isEmpty(fallback.fallbackMethod())) {
                 fallbackConfig = builder.build();
             } else {
