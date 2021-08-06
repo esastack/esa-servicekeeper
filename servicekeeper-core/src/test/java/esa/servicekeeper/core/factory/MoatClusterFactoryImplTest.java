@@ -25,10 +25,7 @@ import esa.servicekeeper.core.internal.ImmutableConfigs;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
 import esa.servicekeeper.core.internal.impl.CacheMoatClusterImpl;
 import esa.servicekeeper.core.internal.impl.ImmutableConfigsImpl;
-import esa.servicekeeper.core.moats.MethodMoatCluster;
-import esa.servicekeeper.core.moats.MoatCluster;
-import esa.servicekeeper.core.moats.MoatClusterImpl;
-import esa.servicekeeper.core.moats.RetryableMoatCluster;
+import esa.servicekeeper.core.moats.*;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateBySpendTime;
 import esa.servicekeeper.core.utils.RandomUtils;
 import org.junit.jupiter.api.Test;
@@ -115,12 +112,12 @@ class MoatClusterFactoryImplTest {
 
     @Test
     void testArgsMoats0() {
-        final MethodMoatCluster cluster0 = factory.getOrCreateOfMethod(ResourceId.from("testArgsMoats0"), null,
+        final RetryableMoatCluster cluster0 = factory.getOrCreateOfMethod(ResourceId.from("testArgsMoats0"), null,
                 () -> ServiceKeeperConfig.builder().fallbackConfig(
                         FallbackConfig.builder().specifiedValue("ABC").build()).build(), null);
-        then(cluster0).isNull();
+        then(cluster0.fallbackHandler().getType()).isEqualTo(FallbackHandler.FallbackType.FALLBACK_TO_VALUE);
 
-        final MoatCluster cluster = factory.getOrCreateOfArg(new
+        final ArgMoatCluster cluster = factory.getOrCreateOfArg(new
                         ArgResourceId(ResourceId.from("testArgsMoats0"), "a", "b"),
                 null,
                 () -> ServiceKeeperConfig.builder().rateLimiterConfig(RateLimitConfig.ofDefault())
@@ -130,7 +127,6 @@ class MoatClusterFactoryImplTest {
                         .build(), null);
         then(cluster).isNotNull();
         then(cluster.getAll().size()).isEqualTo(3);
-        then(cluster0.fallbackHandler().getType()).isEqualTo(FallbackHandler.FallbackType.FALLBACK_TO_VALUE);
         then(cluster).isNotInstanceOf(RetryableMoatCluster.class);
     }
 
@@ -140,7 +136,7 @@ class MoatClusterFactoryImplTest {
         config.setFallbackValue("ABC");
         final MethodMoatCluster cluster0 = factory.getOrCreateOfMethod(ResourceId.from("testArgsMoats1"), null,
                 () -> null, () -> config);
-        then(cluster0).isNull();
+        then(cluster0.fallbackHandler().getType()).isEqualTo(FallbackHandler.FallbackType.FALLBACK_TO_VALUE);
 
         final MoatCluster cluster = factory.getOrCreateOfArg(new
                         ArgResourceId(ResourceId.from("testArgsMoats1"), "a", "b"),
@@ -152,7 +148,6 @@ class MoatClusterFactoryImplTest {
                         .build(), null);
         then(cluster).isNotNull();
         then(cluster.getAll().size()).isEqualTo(3);
-        then(cluster0.fallbackHandler().getType()).isEqualTo(FallbackHandler.FallbackType.FALLBACK_TO_VALUE);
         then(cluster).isNotInstanceOf(RetryableMoatCluster.class);
     }
 

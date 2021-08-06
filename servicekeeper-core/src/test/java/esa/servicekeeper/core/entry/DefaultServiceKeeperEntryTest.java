@@ -30,6 +30,8 @@ import esa.servicekeeper.core.factory.MoatClusterFactoryImpl;
 import esa.servicekeeper.core.internal.GlobalConfig;
 import esa.servicekeeper.core.internal.ImmutableConfigs;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
+import esa.servicekeeper.core.moats.ArgMoatCluster;
+import esa.servicekeeper.core.moats.ArgMoatClusterImpl;
 import esa.servicekeeper.core.moats.Moat;
 import esa.servicekeeper.core.moats.RetryableMoatCluster;
 import esa.servicekeeper.core.moats.concurrentlimit.ConcurrentLimitMoat;
@@ -199,16 +201,12 @@ class DefaultServiceKeeperEntryTest {
                 new MoatConfig(argId), ConcurrentLimitConfig.ofDefault(),
                 null, null));
 
-        final RetryableExecutor retryable1 = new RetryableExecutor(new RetryOperationsImpl(argId,
-                null, BackOffPolicy.newInstance(RetryConfig.ofDefault().getBackoffConfig()),
-                RetryablePredicate.newInstance(RetryConfig.ofDefault()), RetryConfig.ofDefault(),
-                null));
+        final ArgMoatCluster argMoatCluster = new ArgMoatClusterImpl(moats1, null);
 
         // With args:   sync    ----> moats and retryable
         when(cluster.get(ResourceId.from(name))).thenReturn(new RetryableMoatCluster(moats0, null, null,
                 null));
-        when(cluster.get(argId)).thenReturn(new RetryableMoatCluster(moats1, null, null,
-                retryable1));
+        when(cluster.get(argId)).thenReturn(argMoatCluster);
 
         then(entry.buildExecutionChain(name, null, null, false, "LiMing"))
                 .isInstanceOf(SyncExecutionChainImpl.class);
@@ -216,7 +214,7 @@ class DefaultServiceKeeperEntryTest {
         // Only args:   sync    ----> retryable is null
         when(cluster.get(ResourceId.from(name))).thenReturn(new RetryableMoatCluster(moats0, null, null,
                 null));
-        when(cluster.get(argId)).thenReturn(new RetryableMoatCluster(moats1, null, null, null));
+        when(cluster.get(argId)).thenReturn(argMoatCluster);
 
         then(entry.buildExecutionChain(name, null, null, false, "LiMing"))
                 .isInstanceOf(SyncExecutionChainImpl.class);
@@ -224,7 +222,7 @@ class DefaultServiceKeeperEntryTest {
         // Only args:   sync    ----> retryable and moats are all null
         when(cluster.get(ResourceId.from(name))).thenReturn(new RetryableMoatCluster(moats0, null, null,
                 null));
-        when(cluster.get(argId)).thenReturn(new RetryableMoatCluster(null, null, null, null));
+        when(cluster.get(argId)).thenReturn(new ArgMoatClusterImpl(null, null));
 
         then(entry.buildExecutionChain(name, null, null, false, "LiMing"))
                 .isInstanceOf(SyncExecutionChainImpl.class);
@@ -232,8 +230,7 @@ class DefaultServiceKeeperEntryTest {
         // Only args:   sync    ----> moats is empty
         when(cluster.get(ResourceId.from(name))).thenReturn(new RetryableMoatCluster(null, null, null,
                 null));
-        when(cluster.get(argId)).thenReturn(new RetryableMoatCluster(Collections.emptyList(), null, null,
-                null));
+        when(cluster.get(argId)).thenReturn(new ArgMoatClusterImpl(Collections.emptyList(), null));
 
         then(entry.buildExecutionChain(name, null, null, false, "LiMing"))
                 .isNull();
@@ -242,8 +239,7 @@ class DefaultServiceKeeperEntryTest {
         // Only args:   async    ----> moats and retryable
         when(cluster.get(ResourceId.from(name))).thenReturn(new RetryableMoatCluster(moats0, null, null,
                 retryable0));
-        when(cluster.get(argId)).thenReturn(new RetryableMoatCluster(moats1, null, null,
-                retryable1));
+        when(cluster.get(argId)).thenReturn(argMoatCluster);
 
         then(entry.buildExecutionChain(name, null, null, true, "LiMing"))
                 .isInstanceOf(AsyncExecutionChainImpl.class);
@@ -251,7 +247,7 @@ class DefaultServiceKeeperEntryTest {
         // Only args:   async    ----> retryable is null
         when(cluster.get(ResourceId.from(name))).thenReturn(new RetryableMoatCluster(moats0, null, null,
                 null));
-        when(cluster.get(argId)).thenReturn(new RetryableMoatCluster(moats1, null, null, null));
+        when(cluster.get(argId)).thenReturn(argMoatCluster);
 
         then(entry.buildExecutionChain(name, null, null, true, "LiMing"))
                 .isInstanceOf(AsyncExecutionChainImpl.class);
@@ -259,7 +255,7 @@ class DefaultServiceKeeperEntryTest {
         // Only args:   async    ----> retryable and moats are all null
         when(cluster.get(ResourceId.from(name))).thenReturn(new RetryableMoatCluster(moats0, null, null,
                 null));
-        when(cluster.get(argId)).thenReturn(new RetryableMoatCluster(null, null, null, null));
+        when(cluster.get(argId)).thenReturn(new ArgMoatClusterImpl(null, null));
 
         then(entry.buildExecutionChain(name, null, null, true, "LiMing"))
                 .isInstanceOf(AsyncExecutionChainImpl.class);
@@ -267,8 +263,7 @@ class DefaultServiceKeeperEntryTest {
         // Only args:   async    ----> moats is empty
         when(cluster.get(ResourceId.from(name))).thenReturn(new RetryableMoatCluster(null, null, null,
                 null));
-        when(cluster.get(argId)).thenReturn(new RetryableMoatCluster(Collections.emptyList(), null, null,
-                null));
+        when(cluster.get(argId)).thenReturn(new ArgMoatClusterImpl(Collections.emptyList(), null));
 
         then(entry.buildExecutionChain(name, null, null, true, "LiMing"))
                 .isNull();
@@ -306,14 +301,10 @@ class DefaultServiceKeeperEntryTest {
                 new MoatConfig(argId), ConcurrentLimitConfig.ofDefault(),
                 null, null));
 
-        final RetryableExecutor retryable1 = new RetryableExecutor(new RetryOperationsImpl(argId,
-                null, BackOffPolicy.newInstance(RetryConfig.ofDefault().getBackoffConfig()),
-                RetryablePredicate.newInstance(RetryConfig.ofDefault()), RetryConfig.ofDefault(),
-                null));
+        final ArgMoatCluster argMoatCluster = new ArgMoatClusterImpl(moats1, null);
         when(cluster.get(ResourceId.from(name))).thenReturn(new RetryableMoatCluster(null, null, null,
                 null));
-        when(cluster.get(argId)).thenReturn(new RetryableMoatCluster(moats1, null, null,
-                retryable1));
+        when(cluster.get(argId)).thenReturn(argMoatCluster);
         then(entry.buildExecutionChain(name, null, null, false, "LiMing"))
                 .isInstanceOf(SyncExecutionChainImpl.class);
         config.updateArgLevelEnable(false);
@@ -327,8 +318,7 @@ class DefaultServiceKeeperEntryTest {
         // when retry is disabled
         when(cluster.get(ResourceId.from(name))).thenReturn(new RetryableMoatCluster(moats0, null, null,
                 retryable0));
-        when(cluster.get(argId)).thenReturn(new RetryableMoatCluster(moats1, null, null,
-                retryable1));
+        when(cluster.get(argId)).thenReturn(argMoatCluster);
         then(entry.buildExecutionChain(name, null, null, false, "LiMing"))
                 .isInstanceOf(RetryableExecutionChain.class);
         config.updateRetryEnable(false);

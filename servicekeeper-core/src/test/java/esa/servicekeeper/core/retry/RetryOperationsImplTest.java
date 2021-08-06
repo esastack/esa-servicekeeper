@@ -32,6 +32,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -94,11 +95,10 @@ class RetryOperationsImplTest {
 
         final RetryContext context0 = buildContext();
         final FakeService service = new FakeService();
-        operations.execute(context0, () -> {
+        assertThrows(ServiceRetryException.class, () -> operations.execute(context0, () -> {
             service.doIncrement0();
             return null;
-        });
-
+        }));
         then(service.index0.get()).isEqualTo(3);
 
         final RetryMetrics metrics0 = operations.getMetrics();

@@ -143,7 +143,7 @@ class CircuitBreakerMoatTest {
             assertDoesNotThrow(() -> breakerMoat1.tryThrough(ctx1));
             breakerMoat1.exit(ctx1);
         }
-        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat1.tryThrough(ctx1));
+        assertDoesNotThrow(() -> breakerMoat1.tryThrough(ctx1));
     }
 
     @Test

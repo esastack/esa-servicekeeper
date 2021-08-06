@@ -150,7 +150,7 @@ class CompletableStageHandlerTest {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new CompletableStageHandler<>());
             } catch (Throwable throwable) {
-                fail();
+                fail(throwable);
             }
         }
 
@@ -165,7 +165,7 @@ class CompletableStageHandlerTest {
             } catch (CircuitBreakerNotPermittedException ex) {
                 circuitBreakerNotPermittedCount++;
             } catch (Throwable throwable) {
-                fail();
+                fail(throwable);
             }
         }
         then(circuitBreakerNotPermittedCount).isEqualTo(ringBufferSizeInCloseState);

@@ -60,6 +60,7 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
             return RequestHandleImpl.createNotAllowHandle(this,
                     ctx, fallbackHandler, e);
         }
+        recordStart(ctx);
         return RequestHandleImpl.createAllowHandle(this,
                 ctx, fallbackHandler);
     }
@@ -70,11 +71,11 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
                               Executable<R> executable, AsyncResultHandler handler) throws Throwable {
         RequestHandle requestHandle = tryToExecute(ctx);
         if (!requestHandle.isAllowed()) {
+            endAndClean(ctx);
             return (R) requestHandle.fallback(requestHandle.getNotAllowedCause());
         }
 
         try {
-            recordStartTime();
             R result = doExecute(ctx, invocation, executable, true);
             // Note: If the original call execute successfully, clean the internal later.
             return (R) handler.handle(result, requestHandle);
@@ -94,8 +95,6 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
         }
 
         try {
-            recordStartTime();
-            beforeExecute(ctx);
             R result = doExecute(ctx, invocation, executable, false);
             ctx.setResult(result);
             requestHandle.endWithResult(result);
@@ -115,17 +114,11 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
         }
 
         try {
-            recordStartTime();
             doExecute(ctx, invocation, runnable, false);
             requestHandle.endWithSuccess();
         } catch (Throwable throwable) {
             requestHandle.fallback(throwable);
         }
-    }
-
-    private void beforeExecute(Context ctx) {
-        tryToExecute(ctx);
-        recordStartTime();
     }
 
     @Override
@@ -157,7 +150,7 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
         }
     }
 
-    private void endAndClean(Context ctx) {
+    public void endAndClean(Context ctx) {
         //Note: If the ctx has already end, current end will be ignored.
         if (getEndTime() <= 0L) {
             recordEndTime();
@@ -199,6 +192,11 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
     protected <R> R doExecute(Context context, Supplier<OriginalInvocation> originalInvocation,
                               Executable<R> executable, boolean isAsync) throws Throwable {
         return executable.execute();
+    }
+
+    private void recordStart(Context ctx) {
+        ctx.setStart(true);
+        recordStartTime();
     }
 
     /**

@@ -259,7 +259,7 @@ class AsyncExecutionChainTest {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new CompletableStageHandler<>());
             } catch (Throwable throwable) {
-                fail();
+                fail(throwable);
             }
         }
         latch.await();
@@ -268,7 +268,7 @@ class AsyncExecutionChainTest {
         TimeUnit.MILLISECONDS.sleep(20L);
         int circuitBreakerNotPermittedCount = 0;
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, new FallbackToValue(fallbackValue, false));
             try {
                 final Object result = chain.asyncExecute(new AsyncContext(name), null,
                         executable, new CompletableStageHandler<>());
@@ -276,7 +276,7 @@ class AsyncExecutionChainTest {
                     circuitBreakerNotPermittedCount++;
                 }
             } catch (Throwable throwable) {
-                fail();
+                fail(throwable);
             }
         }
         then(circuitBreakerNotPermittedCount).isLessThanOrEqualTo(ringBufferSizeInClosedState);

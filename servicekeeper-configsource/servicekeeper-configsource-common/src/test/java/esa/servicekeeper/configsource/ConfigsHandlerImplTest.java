@@ -20,22 +20,13 @@ import esa.servicekeeper.configsource.cache.ConfigCacheImp;
 import esa.servicekeeper.core.common.ArgResourceId;
 import esa.servicekeeper.core.common.GroupResourceId;
 import esa.servicekeeper.core.common.ResourceId;
-import esa.servicekeeper.core.config.CircuitBreakerConfig;
-import esa.servicekeeper.core.config.ConcurrentLimitConfig;
-import esa.servicekeeper.core.config.RateLimitConfig;
-import esa.servicekeeper.core.config.RetryConfig;
-import esa.servicekeeper.core.config.ServiceKeeperConfig;
+import esa.servicekeeper.core.config.*;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.configsource.ExternalGroupConfig;
 import esa.servicekeeper.core.configsource.GroupConfigSourceImpl;
 import esa.servicekeeper.core.configsource.MoatLimitConfigSourceImpl;
 import esa.servicekeeper.core.entry.CompositeServiceKeeperConfig;
-import esa.servicekeeper.core.factory.FallbackHandlerFactoryImpl;
-import esa.servicekeeper.core.factory.LimitableMoatFactoryContext;
-import esa.servicekeeper.core.factory.MoatClusterFactory;
-import esa.servicekeeper.core.factory.MoatClusterFactoryImpl;
-import esa.servicekeeper.core.factory.PredicateStrategyFactoryImpl;
-import esa.servicekeeper.core.factory.SateTransitionProcessorFactoryImpl;
+import esa.servicekeeper.core.factory.*;
 import esa.servicekeeper.core.internal.GlobalConfig;
 import esa.servicekeeper.core.internal.ImmutableConfigs;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
@@ -44,11 +35,7 @@ import esa.servicekeeper.core.internal.impl.CacheMoatClusterImpl;
 import esa.servicekeeper.core.internal.impl.ImmutableConfigsImpl;
 import esa.servicekeeper.core.internal.impl.MoatCreationLimitImpl;
 import esa.servicekeeper.core.internal.impl.OverLimitMoatHandler;
-import esa.servicekeeper.core.moats.Moat;
-import esa.servicekeeper.core.moats.MoatCluster;
-import esa.servicekeeper.core.moats.MoatStatisticsImpl;
-import esa.servicekeeper.core.moats.MoatType;
-import esa.servicekeeper.core.moats.RetryableMoatCluster;
+import esa.servicekeeper.core.moats.*;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
 import esa.servicekeeper.core.moats.concurrentlimit.ConcurrentLimitMoat;
 import esa.servicekeeper.core.moats.ratelimit.RateLimitMoat;
@@ -62,18 +49,11 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Supplier;
 
-import static esa.servicekeeper.core.moats.MoatType.CIRCUIT_BREAKER;
-import static esa.servicekeeper.core.moats.MoatType.CONCURRENT_LIMIT;
-import static esa.servicekeeper.core.moats.MoatType.RATE_LIMIT;
-import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.CLOSED;
-import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.FORCED_DISABLED;
-import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.FORCED_OPEN;
+import static esa.servicekeeper.core.moats.MoatType.*;
+import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.*;
 import static esa.servicekeeper.core.utils.BeanUtils.newAs;
 import static esa.servicekeeper.core.utils.ClassCastUtils.cast;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
+import static java.util.Collections.*;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -109,7 +89,7 @@ class ConfigsHandlerImplTest {
     @Test
     void testUpdateConfig() {
         final ResourceId resourceId = ResourceId.from("testUpdateConfig");
-        final MoatCluster cluster0 = factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        final MoatCluster cluster0 = factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .retryConfig(RetryConfig.ofDefault())
                 .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault())
                 .rateLimiterConfig(RateLimitConfig.ofDefault())
@@ -246,15 +226,15 @@ class ConfigsHandlerImplTest {
     @Test
     void testUpdateMatchAllConfig() {
         final ResourceId resourceId = ResourceId.from("testUpdateMatchAllConfig");
-        final ResourceId argId = new ArgResourceId(resourceId, "arg0", "value1");
+        final ArgResourceId argId = new ArgResourceId(resourceId, "arg0", "value1");
 
         final ExternalConfig config = new ExternalConfig();
         config.setLimitForPeriod(Integer.MAX_VALUE);
         config.setFailureRateThreshold(50.0f);
         config.setMaxConcurrentLimit(Integer.MAX_VALUE);
 
-        final MoatCluster cluster0 = factory.getOrCreate(argId, () -> null, () -> null, () -> config);
-        final MoatCluster cluster1 = factory.getOrCreate(new ArgResourceId(resourceId,
+        final MoatCluster cluster0 = factory.getOrCreateOfArg(argId, () -> null, () -> null, () -> config);
+        final MoatCluster cluster1 = factory.getOrCreateOfArg(new ArgResourceId(resourceId,
                 "arg0", "value2"), () -> null, () -> null, () -> config);
 
         then(cluster0.getAll().size()).isEqualTo(3);
@@ -315,7 +295,7 @@ class ConfigsHandlerImplTest {
         configs.putIfAbsent(new ArgResourceId(resourceId,
                 "arg0", "value2"), config);
         handler.update(configs);
-        then(factory.getOrCreate(argId, () -> null, () -> null, () -> null)).isNull();
+        then(factory.getOrCreateOfArg(argId, () -> null, () -> null, () -> null)).isNull();
 
         then(cluster1.getAll().size()).isEqualTo(3);
     }
@@ -324,7 +304,7 @@ class ConfigsHandlerImplTest {
     void testAddConfig() {
         final ResourceId resourceId = ResourceId.from("testAddConfig");
         then(cluster.get(resourceId)).isNull();
-        final MoatCluster cluster0 = factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        final MoatCluster cluster0 = factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault()).build(), () -> null);
         then(cluster0.getAll().size()).isEqualTo(1);
         then(cluster0).isInstanceOf(RetryableMoatCluster.class);
@@ -352,10 +332,10 @@ class ConfigsHandlerImplTest {
         config.setLimitForPeriod(100);
         cache.updateConfigs(singletonMap(resourceId, config));
 
-        final MoatCluster cluster0 = factory.getOrCreate(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
+        final RetryableMoatCluster cluster0 = factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
                 .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault()).build(), () -> config);
         then(cluster0.getAll().size()).isEqualTo(3);
-        then(((RetryableMoatCluster) cluster0).retryExecutor().getOperations()
+        then(cluster0.retryExecutor().getOperations()
                 .getConfig().getMaxAttempts()).isEqualTo(5);
 
         handler.update(emptyMap());
@@ -383,9 +363,9 @@ class ConfigsHandlerImplTest {
                         .rateLimiterConfig(RateLimitConfig.ofDefault())
                         .circuitBreakerConfig(CircuitBreakerConfig.ofDefault())
                         .retryConfig(RetryConfig.ofDefault()).build();
-        factory.getOrCreate(id0, () -> null, immutable, () -> null);
-        factory.getOrCreate(id1, () -> null, immutable, () -> null);
-        factory.getOrCreate(id2, () -> null, immutable, () -> null);
+        factory.getOrCreateOfMethod(id0, () -> null, immutable, () -> null);
+        factory.getOrCreateOfMethod(id1, () -> null, immutable, () -> null);
+        factory.getOrCreateOfMethod(id2, () -> null, immutable, () -> null);
 
         then(cluster.get(id0).getAll().size()).isEqualTo(3);
         then(cluster.get(id1).getAll().size()).isEqualTo(3);
@@ -493,9 +473,9 @@ class ConfigsHandlerImplTest {
 
         Supplier<ServiceKeeperConfig> immutable =
                 () -> ServiceKeeperConfig.builder().concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault()).build();
-        factory.getOrCreate(id0, () -> null, immutable, () -> null);
-        factory.getOrCreate(id1, () -> null, immutable, () -> null);
-        factory.getOrCreate(id2, () -> null, immutable, () -> null);
+        factory.getOrCreateOfMethod(id0, () -> null, immutable, () -> null);
+        factory.getOrCreateOfMethod(id1, () -> null, immutable, () -> null);
+        factory.getOrCreateOfMethod(id2, () -> null, immutable, () -> null);
 
         then(cluster.get(id0).getAll().size()).isEqualTo(1);
         then(cluster.get(id1).getAll().size()).isEqualTo(1);
@@ -526,9 +506,9 @@ class ConfigsHandlerImplTest {
 
         Supplier<ServiceKeeperConfig> immutable =
                 () -> ServiceKeeperConfig.builder().concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault()).build();
-        factory.getOrCreate(id0, () -> null, immutable, () -> null);
-        factory.getOrCreate(id1, () -> null, immutable, () -> null);
-        factory.getOrCreate(id2, () -> null, immutable, () -> null);
+        factory.getOrCreateOfMethod(id0, () -> null, immutable, () -> null);
+        factory.getOrCreateOfMethod(id1, () -> null, immutable, () -> null);
+        factory.getOrCreateOfMethod(id2, () -> null, immutable, () -> null);
 
         then(cluster.get(id0).getAll().size()).isEqualTo(1);
         then(cluster.get(id1).getAll().size()).isEqualTo(1);

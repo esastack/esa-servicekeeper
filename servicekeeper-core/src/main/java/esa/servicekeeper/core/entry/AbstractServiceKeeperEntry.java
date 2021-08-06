@@ -282,6 +282,12 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
             }
         }
 
+        if (fallbackHandler == null &&
+                executor == null &&
+                moats.isEmpty()) {
+            return null;
+        }
+
         // Async invocation
         if (isAsync) {
             return moats.isEmpty() ? null : new AsyncExecutionChainImpl(moats, fallbackHandler);

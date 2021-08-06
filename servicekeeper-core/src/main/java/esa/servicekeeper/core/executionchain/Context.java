@@ -26,6 +26,7 @@ public abstract class Context implements Serializable {
 
     private final String resourceId;
     private final transient Object[] args;
+    private boolean start = false;
 
     private ServiceKeeperNotPermittedException throughFailsCause;
 
@@ -95,4 +96,12 @@ public abstract class Context implements Serializable {
      * @param spendTimeMs spendTimeMs
      */
     abstract void setSpendTimeMs(long spendTimeMs);
+
+    public boolean isStart() {
+        return start;
+    }
+
+    public void setStart(boolean start) {
+        this.start = start;
+    }
 }

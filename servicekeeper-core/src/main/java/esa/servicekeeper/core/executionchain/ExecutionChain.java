@@ -16,7 +16,6 @@
 package esa.servicekeeper.core.executionchain;
 
 import esa.servicekeeper.core.asynchandle.RequestHandle;
-import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.moats.Moat;
 
 /**
@@ -63,4 +62,6 @@ public interface ExecutionChain {
      * @param throwable throwable
      */
     void endWithError(Context ctx, Throwable throwable);
+
+    void endAndClean(Context ctx);
 }

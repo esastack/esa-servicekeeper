@@ -20,12 +20,7 @@ import esa.servicekeeper.core.common.ResourceId;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.configsource.GroupConfigSourceImpl;
 import esa.servicekeeper.core.configsource.MoatLimitConfigSourceImpl;
-import esa.servicekeeper.core.factory.FallbackHandlerFactoryImpl;
-import esa.servicekeeper.core.factory.LimitableMoatFactoryContext;
-import esa.servicekeeper.core.factory.MoatClusterFactory;
-import esa.servicekeeper.core.factory.MoatClusterFactoryImpl;
-import esa.servicekeeper.core.factory.PredicateStrategyFactoryImpl;
-import esa.servicekeeper.core.factory.SateTransitionProcessorFactoryImpl;
+import esa.servicekeeper.core.factory.*;
 import esa.servicekeeper.core.internal.GlobalConfig;
 import esa.servicekeeper.core.internal.ImmutableConfigs;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
@@ -34,11 +29,7 @@ import esa.servicekeeper.core.internal.impl.CacheMoatClusterImpl;
 import esa.servicekeeper.core.internal.impl.ImmutableConfigsImpl;
 import esa.servicekeeper.core.internal.impl.MoatCreationLimitImpl;
 import esa.servicekeeper.core.internal.impl.OverLimitMoatHandler;
-import esa.servicekeeper.core.moats.Moat;
-import esa.servicekeeper.core.moats.MoatCluster;
-import esa.servicekeeper.core.moats.MoatStatisticsImpl;
-import esa.servicekeeper.core.moats.MoatType;
-import esa.servicekeeper.core.moats.RetryableMoatCluster;
+import esa.servicekeeper.core.moats.*;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
 import esa.servicekeeper.core.moats.concurrentlimit.ConcurrentLimitMoat;
 import esa.servicekeeper.core.moats.ratelimit.RateLimitMoat;
@@ -47,13 +38,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static esa.servicekeeper.core.moats.MoatType.CIRCUIT_BREAKER;
-import static esa.servicekeeper.core.moats.MoatType.CONCURRENT_LIMIT;
-import static esa.servicekeeper.core.moats.MoatType.RATE_LIMIT;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
+import static esa.servicekeeper.core.moats.MoatType.*;
+import static java.util.Collections.*;
 import static org.assertj.core.api.BDDAssertions.then;
 
 class RegexConfigsHandlerTest {
@@ -118,7 +104,7 @@ class RegexConfigsHandlerTest {
 
         for (int i = 0; i < 10; i++) {
             then(cache.configOf(ResourceId.from("testRemoveRegex" + i))).isEqualTo(config);
-            factory.getOrCreate(ResourceId.from("testRemoveRegex" + i), () -> null, () -> null, () -> config);
+            factory.getOrCreateOfMethod(ResourceId.from("testRemoveRegex" + i), () -> null, () -> null, () -> config);
         }
         then(cluster.getAll().size()).isEqualTo(10);
 
@@ -141,7 +127,7 @@ class RegexConfigsHandlerTest {
 
         for (int i = 0; i < 10; i++) {
             then(cache.configOf(ResourceId.from("testUpdateRegex" + i))).isEqualTo(config);
-            factory.getOrCreate(ResourceId.from("testUpdateRegex" + i), () -> null, () -> null, () -> config);
+            factory.getOrCreateOfMethod(ResourceId.from("testUpdateRegex" + i), () -> null, () -> null, () -> config);
         }
         then(cluster.getAll().size()).isEqualTo(10);
 

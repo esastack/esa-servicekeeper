@@ -24,12 +24,7 @@ import esa.servicekeeper.core.common.ResourceId;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.configsource.GroupConfigSource;
 import esa.servicekeeper.core.configsource.MoatLimitConfigSourceImpl;
-import esa.servicekeeper.core.factory.FallbackHandlerFactoryImpl;
-import esa.servicekeeper.core.factory.LimitableMoatFactoryContext;
-import esa.servicekeeper.core.factory.MoatClusterFactory;
-import esa.servicekeeper.core.factory.MoatClusterFactoryImpl;
-import esa.servicekeeper.core.factory.PredicateStrategyFactoryImpl;
-import esa.servicekeeper.core.factory.SateTransitionProcessorFactoryImpl;
+import esa.servicekeeper.core.factory.*;
 import esa.servicekeeper.core.internal.GlobalConfig;
 import esa.servicekeeper.core.internal.ImmutableConfigs;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
@@ -47,9 +42,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-import static esa.servicekeeper.core.moats.MoatType.CIRCUIT_BREAKER;
-import static esa.servicekeeper.core.moats.MoatType.CONCURRENT_LIMIT;
-import static esa.servicekeeper.core.moats.MoatType.RATE_LIMIT;
+import static esa.servicekeeper.core.moats.MoatType.*;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -105,7 +98,7 @@ class InternalConfigsHandlerTest {
     void testUpdateMaxSizeLimits() {
         // It's not permitted to create when max size LIMIT is null
         for (int i = 0; i < 200; i++) {
-            FACTORY.getOrCreate(new ArgResourceId(ResourceId.from("testUpdateMaxSizeLimits"), "arg0", i),
+            FACTORY.getOrCreateOfArg(new ArgResourceId(ResourceId.from("testUpdateMaxSizeLimits"), "arg0", i),
                     () -> null, () -> null, () -> null);
         }
         then(CLUSTER.getAll().size()).isEqualTo(0);
@@ -115,7 +108,7 @@ class InternalConfigsHandlerTest {
         config.setLimitForPeriod(100);
         config.setMaxConcurrentLimit(20);
         for (int i = 0; i < 200; i++) {
-            FACTORY.getOrCreate(new ArgResourceId(ResourceId.from("testUpdateMaxSizeLimits"), "arg0", i),
+            FACTORY.getOrCreateOfArg(new ArgResourceId(ResourceId.from("testUpdateMaxSizeLimits"), "arg0", i),
                     () -> null, () -> null, () -> config);
         }
         then(CLUSTER.getAll().size()).isEqualTo(101);
@@ -131,7 +124,7 @@ class InternalConfigsHandlerTest {
         HANDLER.updateMaxSizeLimits(maxSizeLimits);
 
         for (int i = 0; i < 200; i++) {
-            FACTORY.getOrCreate(new ArgResourceId(ResourceId.from("testUpdateMaxSizeLimits"), "arg0", i),
+            FACTORY.getOrCreateOfArg(new ArgResourceId(ResourceId.from("testUpdateMaxSizeLimits"), "arg0", i),
                     () -> null, () -> null, () -> config);
         }
         then(CLUSTER.getAll().size()).isEqualTo(200);

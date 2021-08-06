@@ -45,7 +45,7 @@ public class FallbackHandlerContextFactoryImpl extends FallbackHandlerFactoryImp
                 logger.debug("Got fallback exception: {} from application context successfully",
                         exception.getName());
             }
-            return new FallbackToException(bean);
+            return new FallbackToException(bean, false);
         }
 
         if (logger.isDebugEnabled()) {
