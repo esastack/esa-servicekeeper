@@ -211,6 +211,17 @@ public enum ExternalConfigName {
     },
 
     /**
+     * fallbackExceptionClass
+     */
+    ALSO_APPLY_TO_BIZ_EXCEPTION("alsoApplyToBizException") {
+        @Override
+        public void applyConfigValue(ExternalConfig config, String value) {
+            config.setAlsoApplyToBizException(
+                    Boolean.valueOf(value));
+        }
+    },
+
+    /**
      * includeExceptions
      */
     RETRY_INCLUDE_EXCEPTIONS("includeExceptions") {
