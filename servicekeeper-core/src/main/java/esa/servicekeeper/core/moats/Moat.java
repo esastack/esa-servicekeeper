@@ -18,7 +18,6 @@ package esa.servicekeeper.core.moats;
 import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.executionchain.Context;
-import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.utils.Ordered;
 
 /**
@@ -39,7 +38,6 @@ public interface Moat<T> extends Ordered {
      * Try to through the component.
      *
      * @param ctx ctx
-     * @return whether through successfully.
      */
     void tryThrough(Context ctx) throws ServiceKeeperNotPermittedException;
 

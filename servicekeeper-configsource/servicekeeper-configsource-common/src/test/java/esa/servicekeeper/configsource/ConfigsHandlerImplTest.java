@@ -89,11 +89,12 @@ class ConfigsHandlerImplTest {
     @Test
     void testUpdateConfig() {
         final ResourceId resourceId = ResourceId.from("testUpdateConfig");
-        final MoatCluster cluster0 = factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
-                .retryConfig(RetryConfig.ofDefault())
-                .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault())
-                .rateLimiterConfig(RateLimitConfig.ofDefault())
-                .circuitBreakerConfig(CircuitBreakerConfig.ofDefault()).build(), () -> null);
+        final RetryableMoatCluster cluster0 = factory.getOrCreateOfMethod(resourceId, () -> null,
+                () -> ServiceKeeperConfig.builder()
+                        .retryConfig(RetryConfig.ofDefault())
+                        .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault())
+                        .rateLimiterConfig(RateLimitConfig.ofDefault())
+                        .circuitBreakerConfig(CircuitBreakerConfig.ofDefault()).build(), () -> null);
         then(cluster0.getAll().size()).isEqualTo(3);
         then(cluster0).isInstanceOf(RetryableMoatCluster.class);
 
@@ -146,7 +147,7 @@ class ConfigsHandlerImplTest {
         then(moat2.config().getLimitForPeriod()).isEqualTo(100);
         then(moat2.config().getLimitRefreshPeriod()).isEqualTo(Duration.ofSeconds(3L));
 
-        RetryOperations operations = ((RetryableMoatCluster) cluster0).retryExecutor().getOperations();
+        RetryOperations operations = cluster0.retryExecutor().getOperations();
         then(operations.getConfig().getMaxAttempts()).isEqualTo(5);
         then(operations.getConfig().getIncludeExceptions())
                 .isEqualTo(cast(new Class[]{IllegalArgumentException.class}));
@@ -304,8 +305,9 @@ class ConfigsHandlerImplTest {
     void testAddConfig() {
         final ResourceId resourceId = ResourceId.from("testAddConfig");
         then(cluster.get(resourceId)).isNull();
-        final MoatCluster cluster0 = factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
-                .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault()).build(), () -> null);
+        final RetryableMoatCluster cluster0 = factory.getOrCreateOfMethod(resourceId, () -> null,
+                () -> ServiceKeeperConfig.builder()
+                        .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault()).build(), () -> null);
         then(cluster0.getAll().size()).isEqualTo(1);
         then(cluster0).isInstanceOf(RetryableMoatCluster.class);
 
@@ -316,7 +318,7 @@ class ConfigsHandlerImplTest {
 
         handler.update(singletonMap(resourceId, config));
         then(cluster0.getAll().size()).isEqualTo(3);
-        then(((RetryableMoatCluster) cluster0).retryExecutor().getOperations()
+        then(cluster0.retryExecutor().getOperations()
                 .getConfig().getMaxAttempts()).isEqualTo(5);
         then(cache.configs().size()).isEqualTo(1);
     }
@@ -332,8 +334,9 @@ class ConfigsHandlerImplTest {
         config.setLimitForPeriod(100);
         cache.updateConfigs(singletonMap(resourceId, config));
 
-        final RetryableMoatCluster cluster0 = factory.getOrCreateOfMethod(resourceId, () -> null, () -> ServiceKeeperConfig.builder()
-                .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault()).build(), () -> config);
+        final RetryableMoatCluster cluster0 = factory.getOrCreateOfMethod(resourceId, () -> null,
+                () -> ServiceKeeperConfig.builder()
+                        .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault()).build(), () -> config);
         then(cluster0.getAll().size()).isEqualTo(3);
         then(cluster0.retryExecutor().getOperations()
                 .getConfig().getMaxAttempts()).isEqualTo(5);

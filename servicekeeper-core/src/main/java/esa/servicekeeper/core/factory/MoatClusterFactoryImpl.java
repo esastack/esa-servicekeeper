@@ -67,7 +67,8 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
     }
 
     @Override
-    public RetryableMoatCluster getOrCreateOfMethod(ResourceId resourceId, Supplier<OriginalInvocation> originalInvocation,
+    public RetryableMoatCluster getOrCreateOfMethod(ResourceId resourceId,
+                                                    Supplier<OriginalInvocation> originalInvocation,
                                                     Supplier<ServiceKeeperConfig> immutableConfig,
                                                     Supplier<ExternalConfig> externalConfig) {
         return (RetryableMoatCluster) getOrCreate(resourceId, originalInvocation, immutableConfig, externalConfig);

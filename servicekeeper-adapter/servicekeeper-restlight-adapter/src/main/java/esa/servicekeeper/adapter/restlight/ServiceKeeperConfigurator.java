@@ -19,7 +19,6 @@ import esa.servicekeeper.adapter.spring.aop.DefaultServiceKeeperAop;
 import esa.servicekeeper.core.asynchandle.AsyncResultHandler;
 import esa.servicekeeper.core.asynchandle.CompletableStageHandler;
 import esa.servicekeeper.ext.factory.spring.utils.SpringContextUtils;
-import esa.servicekeeper.ext.nettyfuture.NettyFutureHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,12 +34,6 @@ public class ServiceKeeperConfigurator {
     @ConditionalOnMissingBean(CompletableStageHandler.class)
     public AsyncResultHandler<?> completableStageHandler() {
         return new CompletableStageHandler<>();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(NettyFutureHandler.class)
-    public AsyncResultHandler<?> nettyFutureHandler() {
-        return new NettyFutureHandler<>();
     }
 
     @Bean

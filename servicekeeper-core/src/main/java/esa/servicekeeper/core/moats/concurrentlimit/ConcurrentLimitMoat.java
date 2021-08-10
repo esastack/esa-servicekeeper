@@ -26,11 +26,7 @@ import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.listener.FondConfigListener;
 import esa.servicekeeper.core.metrics.ConcurrentLimitMetrics;
-import esa.servicekeeper.core.moats.AbstractMoat;
-import esa.servicekeeper.core.moats.LifeCycleSupport;
-import esa.servicekeeper.core.moats.MoatEventImpl;
-import esa.servicekeeper.core.moats.MoatEventProcessor;
-import esa.servicekeeper.core.moats.MoatType;
+import esa.servicekeeper.core.moats.*;
 import esa.servicekeeper.core.utils.LogUtils;
 import esa.servicekeeper.core.utils.TimerLogger;
 import org.slf4j.Logger;
@@ -95,18 +91,21 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
     private ServiceKeeperNotPermittedException notPermittedException(Context ctx) {
         final int maxConcurrentLimit = limiter.metrics().threshold();
         final int currentCallCount = limiter.metrics().currentCallCount();
-        return new ConcurrentOverFlowException(StringUtils.concat("The maxConcurrentLimit of ",
-                limiter.name(), ": " + maxConcurrentLimit), ctx, new ConcurrentLimitMetrics() {
-            @Override
-            public int threshold() {
-                return maxConcurrentLimit;
-            }
+        return new ConcurrentOverFlowException(
+                StringUtils.concat("The maxConcurrentLimit of ",
+                        limiter.name(), ": " + maxConcurrentLimit), ctx,
+                new ConcurrentLimitMetrics() {
+                    @Override
+                    public int threshold() {
+                        return maxConcurrentLimit;
+                    }
 
-            @Override
-            public int currentCallCount() {
-                return currentCallCount;
-            }
-        });
+                    @Override
+                    public int currentCallCount() {
+                        return currentCallCount;
+                    }
+                }
+        );
     }
 
     @Override

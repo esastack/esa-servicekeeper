@@ -76,8 +76,9 @@ class CompletableStageHandlerTest {
         final int maxConcurrentLimit = 1;
 
         AtomicInteger times = new AtomicInteger(0);
-        final Supplier<List<Moat<?>>> moatsSupplier = () -> Collections.singletonList(new ConcurrentLimitMoat(new MoatConfig(
-                ResourceId.from(name + times.incrementAndGet())),
+        final Supplier<List<Moat<?>>> moatsSupplier = () -> Collections.singletonList(new ConcurrentLimitMoat(
+                new MoatConfig(
+                        ResourceId.from(name + times.incrementAndGet())),
                 ConcurrentLimitConfig.builder().threshold(maxConcurrentLimit).build(), null,
                 Collections.emptyList()));
 
@@ -194,10 +195,11 @@ class CompletableStageHandlerTest {
             return "ABC";
         });
 
-        Supplier<List<Moat<?>>> moatsSupplier = () -> Collections.singletonList(new CircuitBreakerMoat(getConfig(name + System.currentTimeMillis()),
-                CircuitBreakerConfig.builder().ringBufferSizeInClosedState(ringBufferSizeInClosedState).build(),
-                CircuitBreakerConfig.ofDefault(),
-                new PredicateBySpendTime(3L)));
+        Supplier<List<Moat<?>>> moatsSupplier = () -> Collections.singletonList(
+                new CircuitBreakerMoat(getConfig(name + System.currentTimeMillis()),
+                        CircuitBreakerConfig.builder().ringBufferSizeInClosedState(ringBufferSizeInClosedState).build(),
+                        CircuitBreakerConfig.ofDefault(),
+                        new PredicateBySpendTime(3L)));
 
         // dont,t use fallback and not apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, false,

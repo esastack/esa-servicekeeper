@@ -28,7 +28,8 @@ public class RetryableExecutionChain extends SyncExecutionChainImpl {
 
     private final RetryableExecutor executor;
 
-    public RetryableExecutionChain(List<Moat<?>> moats, FallbackHandler<?> fallbackHandler, RetryableExecutor executor) {
+    public RetryableExecutionChain(List<Moat<?>> moats,
+                                   FallbackHandler<?> fallbackHandler, RetryableExecutor executor) {
         super(moats, fallbackHandler);
         Checks.checkNotNull(executor, "executor");
         this.executor = executor;

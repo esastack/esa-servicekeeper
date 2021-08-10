@@ -23,7 +23,8 @@ public class MethodMoatClusterImpl extends MoatClusterImpl implements MethodMoat
 
     private final FallbackHandler<?> fallbackHandler;
 
-    public MethodMoatClusterImpl(List<Moat<?>> moats, List<MoatClusterListener> listeners, FallbackHandler<?> fallbackHandler) {
+    public MethodMoatClusterImpl(List<Moat<?>> moats, List<MoatClusterListener> listeners,
+                                 FallbackHandler<?> fallbackHandler) {
         super(moats, listeners);
         this.fallbackHandler = fallbackHandler;
     }

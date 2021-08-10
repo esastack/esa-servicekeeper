@@ -83,10 +83,11 @@ class ListenableFutureHandlerTest {
         final int maxConcurrentLimit = 1;
 
         AtomicInteger times = new AtomicInteger(0);
-        final Supplier<List<Moat<?>>> moatsSupplier = () -> Collections.singletonList(new ConcurrentLimitMoat(new MoatConfig(
-                ResourceId.from(name + times.incrementAndGet())),
-                ConcurrentLimitConfig.builder().threshold(maxConcurrentLimit).build(), null,
-                Collections.emptyList()));
+        final Supplier<List<Moat<?>>> moatsSupplier = () -> Collections.singletonList(
+                new ConcurrentLimitMoat(new MoatConfig(
+                        ResourceId.from(name + times.incrementAndGet())),
+                        ConcurrentLimitConfig.builder().threshold(maxConcurrentLimit).build(), null,
+                        Collections.emptyList()));
 
         final Executable<ListenableFuture<String>> executable = () -> executorService.submit(() -> {
             try {
@@ -201,10 +202,11 @@ class ListenableFutureHandlerTest {
             return "ABC";
         });
 
-        Supplier<List<Moat<?>>> moatsSupplier = () -> Collections.singletonList(new CircuitBreakerMoat(getConfig(name + System.currentTimeMillis()),
-                CircuitBreakerConfig.builder().ringBufferSizeInClosedState(ringBufferSizeInClosedState).build(),
-                CircuitBreakerConfig.ofDefault(),
-                new PredicateBySpendTime(3L)));
+        Supplier<List<Moat<?>>> moatsSupplier = () -> Collections.singletonList(
+                new CircuitBreakerMoat(getConfig(name + System.currentTimeMillis()),
+                        CircuitBreakerConfig.builder().ringBufferSizeInClosedState(ringBufferSizeInClosedState).build(),
+                        CircuitBreakerConfig.ofDefault(),
+                        new PredicateBySpendTime(3L)));
 
         // dont,t use fallback and not apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, false,

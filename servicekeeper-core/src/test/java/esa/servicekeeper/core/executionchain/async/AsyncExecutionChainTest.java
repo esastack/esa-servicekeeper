@@ -159,7 +159,8 @@ class AsyncExecutionChainTest {
                 new MoatConfig(ResourceId.from(name)),
                 RateLimitConfig.builder().limitForPeriod(limitForPeriod).build(), null,
                 Collections.emptyList()));
-        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, new FallbackToException(fallbackException, false));
+        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats,
+                new FallbackToException(fallbackException, false));
 
         final AtomicInteger fallbackCount = new AtomicInteger(0);
         final AtomicInteger normalCount = new AtomicInteger(0);
@@ -254,7 +255,8 @@ class AsyncExecutionChainTest {
                 CircuitBreakerConfig.builder().ringBufferSizeInClosedState(ringBufferSizeInClosedState).build(),
                 CircuitBreakerConfig.ofDefault(), new PredicateByException()));
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, new FallbackToValue(fallbackValue, false));
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats,
+                    new FallbackToValue(fallbackValue, false));
             try {
                 chain.asyncExecute(new AsyncContext(name), null,
                         executable, new CompletableStageHandler<>());
@@ -268,7 +270,8 @@ class AsyncExecutionChainTest {
         TimeUnit.MILLISECONDS.sleep(20L);
         int circuitBreakerNotPermittedCount = 0;
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, new FallbackToValue(fallbackValue, false));
+            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats,
+                    new FallbackToValue(fallbackValue, false));
             try {
                 final Object result = chain.asyncExecute(new AsyncContext(name), null,
                         executable, new CompletableStageHandler<>());

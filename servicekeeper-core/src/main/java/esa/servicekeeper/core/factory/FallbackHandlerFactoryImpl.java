@@ -20,12 +20,7 @@ import esa.servicekeeper.core.common.OriginalInvocation;
 import esa.servicekeeper.core.config.FallbackConfig;
 import esa.servicekeeper.core.exception.FallbackFailsException;
 import esa.servicekeeper.core.exception.ServiceKeeperException;
-import esa.servicekeeper.core.fallback.FallbackHandler;
-import esa.servicekeeper.core.fallback.FallbackHandlerConfig;
-import esa.servicekeeper.core.fallback.FallbackMethod;
-import esa.servicekeeper.core.fallback.FallbackToException;
-import esa.servicekeeper.core.fallback.FallbackToFunction;
-import esa.servicekeeper.core.fallback.FallbackToValue;
+import esa.servicekeeper.core.fallback.*;
 import esa.servicekeeper.core.utils.LogUtils;
 import org.slf4j.Logger;
 
@@ -141,7 +136,8 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
             return null;
         }
 
-        FallbackToException fallback = new FallbackToException((Exception) getOrNewInstance(exception), config.isAlsoApplyToBizException());
+        FallbackToException fallback = new FallbackToException((Exception) getOrNewInstance(exception),
+                config.isAlsoApplyToBizException());
         logger.info("Created fallback exception handler successfully, config: {}", config);
         return fallback;
     }

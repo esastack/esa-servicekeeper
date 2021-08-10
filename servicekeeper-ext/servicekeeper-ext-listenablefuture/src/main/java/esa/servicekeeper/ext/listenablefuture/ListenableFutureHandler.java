@@ -55,8 +55,7 @@ public class ListenableFutureHandler<M> implements AsyncResultHandler<Listenable
                         requestHandle.endWithResult(v);
                         future.set(v);
                     }
-                }
-                , directExecutor());
+                }, directExecutor());
 
         return future;
     }

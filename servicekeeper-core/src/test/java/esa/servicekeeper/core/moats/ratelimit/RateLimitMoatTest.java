@@ -125,7 +125,9 @@ class RateLimitMoatTest {
         ExternalConfig config = new ExternalConfig();
         config.setLimitForPeriod(limitForPeriod);
 
-        final RateLimitMoat limitMoat = new RateLimitMoat(new MoatConfig(ResourceId.from("updateWithFondConfig")), limitConfig,
+        final RateLimitMoat limitMoat = new RateLimitMoat(
+                new MoatConfig(ResourceId.from("updateWithFondConfig")),
+                limitConfig,
                 RateLimitConfig.builder()
                         .limitRefreshPeriod(Duration.ofMillis(200L)).build(), Collections.emptyList());
         limitMoat.updateWithNewestConfig(limitMoat.getFond(config));

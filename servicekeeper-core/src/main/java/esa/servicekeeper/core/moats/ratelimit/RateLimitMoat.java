@@ -26,11 +26,7 @@ import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.listener.FondConfigListener;
 import esa.servicekeeper.core.metrics.RateLimitMetrics;
-import esa.servicekeeper.core.moats.AbstractMoat;
-import esa.servicekeeper.core.moats.LifeCycleSupport;
-import esa.servicekeeper.core.moats.MoatEventImpl;
-import esa.servicekeeper.core.moats.MoatEventProcessor;
-import esa.servicekeeper.core.moats.MoatType;
+import esa.servicekeeper.core.moats.*;
 import esa.servicekeeper.core.utils.LogUtils;
 import esa.servicekeeper.core.utils.TimerLogger;
 import org.slf4j.Logger;
@@ -98,17 +94,18 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
 
     private ServiceKeeperNotPermittedException notPermittedException(Context ctx) {
         return new RateLimitOverflowException(StringUtils.concat("The limitForPeriod of rateLimiter ",
-                limiter.name(), ": " + limiter.config().getLimitForPeriod()), ctx, new RateLimitMetrics() {
-            @Override
-            public int numberOfWaitingThreads() {
-                return limiter.metrics().numberOfWaitingThreads();
-            }
+                limiter.name(), ": " + limiter.config().getLimitForPeriod()), ctx,
+                new RateLimitMetrics() {
+                    @Override
+                    public int numberOfWaitingThreads() {
+                        return limiter.metrics().numberOfWaitingThreads();
+                    }
 
-            @Override
-            public int availablePermissions() {
-                return limiter.metrics().availablePermissions();
-            }
-        });
+                    @Override
+                    public int availablePermissions() {
+                        return limiter.metrics().availablePermissions();
+                    }
+                });
     }
 
     @Override
