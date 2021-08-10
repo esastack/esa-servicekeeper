@@ -34,7 +34,6 @@ public class ListenableFutureHandler<M> implements AsyncResultHandler<Listenable
     @SuppressWarnings("unchecked")
     @Override
     public ListenableFuture<M> handle0(ListenableFuture<M> returnValue, RequestHandle requestHandle) {
-
         SettableFuture<M> future = SettableFuture.create();
         returnValue.addListener(
                 () -> {

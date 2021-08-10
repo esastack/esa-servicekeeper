@@ -20,15 +20,13 @@ import esa.servicekeeper.core.config.CircuitBreakerConfig;
 import esa.servicekeeper.core.config.ConcurrentLimitConfig;
 import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.config.RateLimitConfig;
-import esa.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
-import esa.servicekeeper.core.exception.RateLimitOverflowException;
+import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.executionchain.AsyncContext;
 import esa.servicekeeper.core.executionchain.AsyncExecutionChain;
 import esa.servicekeeper.core.executionchain.AsyncExecutionChainImpl;
 import esa.servicekeeper.core.executionchain.Executable;
 import esa.servicekeeper.core.fallback.FallbackMethod;
 import esa.servicekeeper.core.fallback.FallbackToFunction;
-import esa.servicekeeper.core.fallback.FallbackToValue;
 import esa.servicekeeper.core.moats.Moat;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByException;
@@ -40,246 +38,310 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CompletableStageHandlerTest {
 
+    private static final String fallbackValue = "XYZ";
+
     @Test
-    void testWhenHandleNull() {
-        final String fallbackValue = "XYZ";
+    void testWhenHandleNull() throws Throwable {
         final String name = "testWhenHandleNull";
         final List<Moat<?>> moats = Collections.singletonList(new ConcurrentLimitMoat(
                 new MoatConfig(ResourceId.from(name)),
                 ConcurrentLimitConfig.ofDefault(), null,
                 Collections.emptyList()));
-        final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats,
-                new FallbackToValue(fallbackValue, false));
+        final Executable<CompletionStage<String>> executable = () -> null;
 
+        final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats,
+                null);
         final CompletableStageHandler<?> handler = new CompletableStageHandler<>();
-        assertThrows(IllegalStateException.class,
-                () -> handler.handle(null, RequestHandleImpl.createAllowHandle(chain, new AsyncContext(name), null)));
+        AsyncContext context = new AsyncContext(name);
+        assertNull(chain.asyncExecute(context, null, executable, handler));
+
+        assertTrue(context.getSpendTimeMs() >= 0);
+        assertNull(context.getResult());
+        assertNull(context.getBizException());
     }
 
     @Test
     void testConcurrentLimit() throws Throwable {
-        final String fallbackValue = "XYZ";
         final String name = "testConcurrentLimit";
         final int maxConcurrentLimit = 1;
-        final List<Moat<?>> moats = Collections.singletonList(new ConcurrentLimitMoat(new MoatConfig(
-                ResourceId.from(name)),
+
+        AtomicInteger times = new AtomicInteger(0);
+        final Supplier<List<Moat<?>>> moatsSupplier = () -> Collections.singletonList(new ConcurrentLimitMoat(new MoatConfig(
+                ResourceId.from(name + times.incrementAndGet())),
                 ConcurrentLimitConfig.builder().threshold(maxConcurrentLimit).build(), null,
                 Collections.emptyList()));
-        final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, new FallbackToValue(fallbackValue, false));
 
-        final CountDownLatch latch = new CountDownLatch(maxConcurrentLimit);
-
-        final Executable<CompletableFuture<String>> executable = () -> CompletableFuture.supplyAsync(() -> {
+        final Executable<CompletionStage<String>> executable = () -> CompletableFuture.supplyAsync(() -> {
             try {
-                TimeUnit.MILLISECONDS.sleep(3L);
+                TimeUnit.MILLISECONDS.sleep(10L);
             } catch (Exception ex) {
                 // Do nothing
-            } finally {
-                latch.countDown();
             }
-
             return "ABC";
         });
 
-        final AtomicInteger fallbackCount = new AtomicInteger(0);
-        final AtomicInteger normalCount = new AtomicInteger(0);
-        for (int i = 0; i < maxConcurrentLimit * 2; i++) {
-            Object result = chain.asyncExecute(new AsyncContext(name), null,
-                    executable, new CompletableStageHandler<>());
-            if (result.equals(fallbackValue)) {
-                fallbackCount.incrementAndGet();
-            } else {
-                normalCount.incrementAndGet();
-            }
-        }
+        // dont,t use fallback and not apply to BizException
+        testAsyncExecute(executable, moatsSupplier, false, false,
+                maxConcurrentLimit * 2, maxConcurrentLimit, maxConcurrentLimit, 0,
+                0, true);
 
-        latch.await();
-        then(fallbackCount.get()).isEqualTo(maxConcurrentLimit);
-        then(normalCount.get()).isEqualTo(maxConcurrentLimit);
+        // dont,t use fallback but apply to BizException
+        testAsyncExecute(executable, moatsSupplier, false, true,
+                maxConcurrentLimit * 2, maxConcurrentLimit, maxConcurrentLimit, 0,
+                0, true);
+
+        // use fallback but not apply to BizException
+        testAsyncExecute(executable, moatsSupplier, true, false,
+                maxConcurrentLimit * 2, maxConcurrentLimit, 0, maxConcurrentLimit,
+                0, true);
+
+        // use fallback and apply to BizException
+        testAsyncExecute(executable, moatsSupplier, true, true,
+                maxConcurrentLimit * 2, maxConcurrentLimit, 0, maxConcurrentLimit,
+                0, true);
     }
 
     @Test
-    void testRateLimit() {
-        final Executable<CompletableFuture<String>> executable = () -> CompletableFuture.supplyAsync(() -> "Hello");
+    void testRateLimit() throws Throwable {
+        final Executable<CompletionStage<String>> executable = () -> CompletableFuture.supplyAsync(() -> "Hello");
 
         final String name = "testRateLimit";
         final int limitForPeriod = 1;
-        final List<Moat<?>> moats = Collections.singletonList(new RateLimitMoat(getConfig(name),
+        AtomicInteger times = new AtomicInteger(0);
+        final Supplier<List<Moat<?>>> moatsSupplier = () -> Collections.singletonList(new RateLimitMoat(
+                getConfig(name + times.incrementAndGet()),
                 RateLimitConfig.builder().limitForPeriod(limitForPeriod).build(), null,
                 Collections.emptyList()));
-        final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
-        final AtomicInteger rateLimitOverFlowCount = new AtomicInteger(0);
 
-        for (int i = 0; i < limitForPeriod * 2; i++) {
-            try {
-                chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler<>());
-            } catch (RateLimitOverflowException ex) {
-                rateLimitOverFlowCount.incrementAndGet();
-            } catch (Throwable throwable) {
-                fail();
-            }
-        }
-        then(rateLimitOverFlowCount.get()).isEqualTo(limitForPeriod);
+        // dont,t use fallback and not apply to BizException
+        testAsyncExecute(executable, moatsSupplier, false, false,
+                limitForPeriod * 2, limitForPeriod, limitForPeriod, 0,
+                0, false);
+
+        // dont,t use fallback but apply to BizException
+        testAsyncExecute(executable, moatsSupplier, false, true,
+                limitForPeriod * 2, limitForPeriod, limitForPeriod, 0,
+                0, false);
+
+        // use fallback but not apply to BizException
+        testAsyncExecute(executable, moatsSupplier, true, false,
+                limitForPeriod * 2, limitForPeriod, 0, limitForPeriod,
+                0, false);
+
+        // use fallback and apply to BizException
+        testAsyncExecute(executable, moatsSupplier, true, true,
+                limitForPeriod * 2, limitForPeriod, 0, limitForPeriod,
+                0, false);
     }
 
     @Test
-    void testCircuitBreaker0() throws InterruptedException {
+    void testCircuitBreaker0() throws Throwable {
         final String name = "testCircuitBreaker0";
 
-        final int ringBufferSizeInCloseState = 2;
-        final Executable<CompletableFuture<String>> executable = () -> CompletableFuture.supplyAsync(() -> {
+        final int ringBufferSizeInClosedState = 2;
+        final Executable<CompletionStage<String>> executable = () -> CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException();
         });
 
-        final List<Moat<?>> moats = Collections.singletonList(new CircuitBreakerMoat(getConfig(name),
-                CircuitBreakerConfig.builder().ringBufferSizeInClosedState(ringBufferSizeInCloseState).build(),
+        AtomicInteger times = new AtomicInteger(0);
+        final Supplier<List<Moat<?>>> moatsSupplier = () -> Collections.singletonList(new CircuitBreakerMoat(
+                getConfig(name + times.incrementAndGet()),
+                CircuitBreakerConfig.builder().ringBufferSizeInClosedState(ringBufferSizeInClosedState).build(),
                 CircuitBreakerConfig.ofDefault(),
                 new PredicateByException()));
-        for (int i = 0; i < ringBufferSizeInCloseState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
-            try {
-                chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler<>());
-            } catch (Throwable throwable) {
-                fail(throwable);
-            }
-        }
 
-        // Wait until all CompletableFuture completed
-        TimeUnit.MILLISECONDS.sleep(500L);
-        int circuitBreakerNotPermittedCount = 0;
-        for (int i = 0; i < ringBufferSizeInCloseState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
-            try {
-                chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler<>());
-            } catch (CircuitBreakerNotPermittedException ex) {
-                circuitBreakerNotPermittedCount++;
-            } catch (Throwable throwable) {
-                fail(throwable);
-            }
-        }
-        then(circuitBreakerNotPermittedCount).isEqualTo(ringBufferSizeInCloseState);
+        // dont,t use fallback and not apply to BizException
+        testAsyncExecute(executable, moatsSupplier, false, false,
+                ringBufferSizeInClosedState * 2, 0, ringBufferSizeInClosedState, 0,
+                ringBufferSizeInClosedState, false);
+
+        // dont,t use fallback but apply to BizException
+        testAsyncExecute(executable, moatsSupplier, false, true,
+                ringBufferSizeInClosedState * 2, 0, ringBufferSizeInClosedState, 0,
+                ringBufferSizeInClosedState, false);
+
+        // use fallback but not apply to BizException
+        testAsyncExecute(executable, moatsSupplier, true, false,
+                ringBufferSizeInClosedState * 2, 0, 0, ringBufferSizeInClosedState,
+                ringBufferSizeInClosedState, false);
+
+        // use fallback and apply to BizException
+        testAsyncExecute(executable, moatsSupplier, true, true,
+                ringBufferSizeInClosedState * 2, 0, 0, 2 * ringBufferSizeInClosedState,
+                0, false);
     }
 
     @Test
-    void testCircuitBreaker1() throws InterruptedException {
+    void testCircuitBreaker1() throws Throwable {
         final String name = "testCircuitBreaker1";
-
         final int ringBufferSizeInClosedState = 2;
-        final CountDownLatch latch = new CountDownLatch(ringBufferSizeInClosedState);
-
-        final Executable<CompletableFuture<String>> executable = () -> CompletableFuture.supplyAsync(() -> {
+        final Executable<CompletionStage<String>> executable = () -> CompletableFuture.supplyAsync(() -> {
             try {
                 TimeUnit.MILLISECONDS.sleep(30L);
             } catch (Exception ex) {
                 // Do nothing
-            } finally {
-                latch.countDown();
             }
             return "ABC";
         });
 
-        List<Moat<?>> moats = Collections.singletonList(new CircuitBreakerMoat(getConfig(name),
+        Supplier<List<Moat<?>>> moatsSupplier = () -> Collections.singletonList(new CircuitBreakerMoat(getConfig(name + System.currentTimeMillis()),
                 CircuitBreakerConfig.builder().ringBufferSizeInClosedState(ringBufferSizeInClosedState).build(),
                 CircuitBreakerConfig.ofDefault(),
                 new PredicateBySpendTime(3L)));
-        for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
-            try {
-                chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler<>());
-            } catch (Throwable throwable) {
-                fail();
-            }
-        }
-        latch.await();
 
-        // Wait until all CompletableFuture completed
-        TimeUnit.MILLISECONDS.sleep(500L);
-        int circuitBreakerNotPermittedCount = 0;
-        for (int i = 0; i < ringBufferSizeInClosedState; i++) {
-            final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
-            try {
-                chain.asyncExecute(new AsyncContext(name), null,
-                        executable, new CompletableStageHandler<>());
-            } catch (CircuitBreakerNotPermittedException ex) {
-                circuitBreakerNotPermittedCount++;
-            } catch (Throwable throwable) {
-                fail();
-            }
-        }
-        then(circuitBreakerNotPermittedCount).isEqualTo(ringBufferSizeInClosedState);
+        // dont,t use fallback and not apply to BizException
+        testAsyncExecute(executable, moatsSupplier, false, false,
+                ringBufferSizeInClosedState * 2, ringBufferSizeInClosedState, ringBufferSizeInClosedState, 0,
+                0, false);
+
+        // dont,t use fallback but apply to BizException
+        testAsyncExecute(executable, moatsSupplier, false, true,
+                ringBufferSizeInClosedState * 2, ringBufferSizeInClosedState, ringBufferSizeInClosedState, 0,
+                0, false);
+
+        // use fallback but not apply to BizException
+        testAsyncExecute(executable, moatsSupplier, true, false,
+                ringBufferSizeInClosedState * 2, ringBufferSizeInClosedState, 0, ringBufferSizeInClosedState,
+                0, false);
+
+        // use fallback and apply to BizException
+        testAsyncExecute(executable, moatsSupplier, true, true,
+                ringBufferSizeInClosedState * 2, ringBufferSizeInClosedState, 0, ringBufferSizeInClosedState,
+                0, false);
+
     }
 
     @Test
-    void testBizException() throws Throwable {
-        final String fallbackValue = "XYZ";
-        final String name = "testConcurrentLimit";
-        final int maxPassRequest = 5;
-        final int maxRequestCount = 8;
-        List<Moat<?>> moats = new ArrayList<>();
-        final Set<FallbackMethod> methods = new HashSet<>(1);
-        methods.add(new FallbackMethod(FallbackToString.class.getDeclaredMethod("doFallback")));
-        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, new FallbackToFunction<>(
-                new FallbackToString(fallbackValue), methods, true));
-
-        CountDownLatch passRequestLatch = new CountDownLatch(maxPassRequest);
-        CountDownLatch requestCountLatch = new CountDownLatch(maxRequestCount);
+    void testOnlyFallback() throws Throwable {
+        final int maxPassRequestCount = 5;
+        Supplier<List<Moat<?>>> moatsSupplier = ArrayList::new;
+        final AtomicInteger passRequestCount = new AtomicInteger(0);
         final Executable<CompletionStage<String>> executable = () -> CompletableFuture.supplyAsync(() -> {
-            try {
-                if (passRequestLatch.getCount() <= 0) {
-                    throw new RuntimeException("need fallback");
-                }
-            } finally {
-                requestCountLatch.countDown();
+            if (passRequestCount.incrementAndGet() > maxPassRequestCount) {
+                throw new RuntimeException("error");
             }
-
-            passRequestLatch.countDown();
             return "ABC";
         });
+        final int maxRequestCount = 10;
+        // dont,t use fallback and not apply to BizException
+        testAsyncExecute(executable, moatsSupplier, false, false,
+                maxRequestCount, maxPassRequestCount, 0, 0,
+                maxRequestCount - maxPassRequestCount, false);
 
-        final AtomicInteger fallbackCount = new AtomicInteger(0);
-        final AtomicInteger normalCount = new AtomicInteger(0);
+        // dont,t use fallback but apply to BizException
+        passRequestCount.set(0);
+        testAsyncExecute(executable, moatsSupplier, false, true,
+                maxRequestCount, maxPassRequestCount, 0, 0,
+                maxRequestCount - maxPassRequestCount, false);
+
+        // use fallback but not apply to BizException
+        passRequestCount.set(0);
+        testAsyncExecute(executable, moatsSupplier, true, false,
+                maxRequestCount, maxPassRequestCount, 0, 0,
+                maxRequestCount - maxPassRequestCount, false);
+
+        // use fallback and apply to BizException
+        passRequestCount.set(0);
+        testAsyncExecute(executable, moatsSupplier, true, true,
+                maxRequestCount, maxPassRequestCount, 0, maxRequestCount - maxPassRequestCount,
+                0, false);
+    }
+
+    void testAsyncExecute(Executable<CompletionStage<String>> executable,
+                          Supplier<List<Moat<?>>> moatsSupplier,
+                          boolean useFallback,
+                          boolean alsoApplyToBizException,
+                          int maxRequestCount,
+                          int expectSuccessRequestsCount,
+                          int expectNotPermitRequestsCount,
+                          int expectFallbacksCount,
+                          int expectBizExceptionsCount,
+                          boolean isConcurrent) throws Throwable {
+        AsyncExecutionChain chain;
+        if (useFallback) {
+            chain = new AsyncExecutionChainImpl(moatsSupplier.get(),
+                    createFallbackToFunction(fallbackValue, alsoApplyToBizException));
+        } else {
+            chain = new AsyncExecutionChainImpl(moatsSupplier.get(), null);
+        }
+
+        AtomicInteger fallbackCount = new AtomicInteger(0);
+        AtomicInteger successRequestsCount = new AtomicInteger(0);
+        AtomicInteger bizExceptionsCount = new AtomicInteger(0);
+        int notPermitRequestsCount = 0;
+
+        List<CompletionStage<String>> concurrentResultList = null;
+        if (isConcurrent) {
+            concurrentResultList = new ArrayList<>();
+        }
         for (int i = 0; i < maxRequestCount; i++) {
-            CompletionStage<String> result = chain.asyncExecute(new AsyncContext(name), null,
-                    executable, new CompletableStageHandler<>());
-            String value = result.toCompletableFuture().get();
-            if (value.equals(fallbackValue)) {
-                fallbackCount.incrementAndGet();
-            } else {
-                normalCount.incrementAndGet();
+            try {
+                CompletionStage<String> result = chain.asyncExecute(new AsyncContext("testAsyncExecute"), null,
+                        executable, new CompletableStageHandler<>());
+                if (isConcurrent) {
+                    concurrentResultList.add(result);
+                } else {
+                    countByResult(result, successRequestsCount, fallbackCount, bizExceptionsCount);
+                }
+            } catch (ServiceKeeperNotPermittedException e) {
+                notPermitRequestsCount++;
             }
         }
 
-        requestCountLatch.await();
-        then(normalCount.get()).isEqualTo(maxPassRequest);
-        then(fallbackCount.get()).isEqualTo(maxRequestCount - maxPassRequest);
+        if (isConcurrent) {
+            for (CompletionStage<String> result : concurrentResultList) {
+                countByResult(result, successRequestsCount, fallbackCount, bizExceptionsCount);
+            }
+        }
+
+        then(successRequestsCount.get()).isEqualTo(expectSuccessRequestsCount);
+        then(fallbackCount.get()).isEqualTo(expectFallbacksCount);
+        then(notPermitRequestsCount).isEqualTo(expectNotPermitRequestsCount);
+        then(bizExceptionsCount.get()).isEqualTo(expectBizExceptionsCount);
+    }
+
+    private void countByResult(CompletionStage<String> result, AtomicInteger successRequestsCount,
+                               AtomicInteger fallbackCount, AtomicInteger bizExceptionsCount) {
+        try {
+            if (fallbackValue.equals(result.toCompletableFuture().get())) {
+                fallbackCount.incrementAndGet();
+            } else {
+                successRequestsCount.incrementAndGet();
+            }
+        } catch (Throwable bizException) {
+            bizExceptionsCount.incrementAndGet();
+        }
     }
 
     private MoatConfig getConfig(String name) {
         return new MoatConfig(ResourceId.from(name));
     }
 
-    private static class FallbackToString {
-        private final String fallbackValue;
+    private <T> FallbackToFunction<T> createFallbackToFunction(T fallbackValue, boolean alsoApplyToBizException)
+            throws Throwable {
+        final Set<FallbackMethod> methods = new HashSet<>(1);
+        methods.add(new FallbackMethod(FallbackFunction.class.getDeclaredMethod("doFallback")));
+        return new FallbackToFunction<>(new FallbackFunction<>(fallbackValue), methods, alsoApplyToBizException);
+    }
 
-        public FallbackToString(String fallbackValue) {
+    private static class FallbackFunction<T> {
+        private final T fallbackValue;
+
+        public FallbackFunction(T fallbackValue) {
             this.fallbackValue = fallbackValue;
         }
 
-        private CompletionStage<String> doFallback() {
+        private CompletionStage<T> doFallback() {
             return CompletableFuture.completedFuture(fallbackValue);
         }
     }
