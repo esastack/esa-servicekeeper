@@ -16,6 +16,8 @@
 package esa.servicekeeper.ext.listenablefuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
+import esa.commons.Checks;
 import esa.servicekeeper.core.asynchandle.AsyncResultHandler;
 import esa.servicekeeper.core.asynchandle.RequestHandle;
 
@@ -29,25 +31,47 @@ public class ListenableFutureHandler<M> implements AsyncResultHandler<Listenable
         return ListenableFuture.class.isAssignableFrom(returnType);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public ListenableFuture<M> handle0(ListenableFuture<M> returnValue, RequestHandle requestHandle) {
-        returnValue.addListener(() -> {
-            Object v = null;
-            Throwable t = null;
-            try {
-                v = getDone(returnValue);
-            } catch (Throwable th) {
-                t = th;
-            }
 
-            if (t != null) {
-                requestHandle.endWithError(t);
-            } else {
-                requestHandle.endWithResult(v);
-            }
-        }, directExecutor());
+        SettableFuture<M> future = SettableFuture.create();
+        returnValue.addListener(
+                () -> {
+                    M v = null;
+                    Throwable t = null;
+                    try {
+                        v = getDone(returnValue);
+                    } catch (Throwable th) {
+                        t = th;
+                    }
 
-        return returnValue;
+                    if (t != null) {
+                        try {
+                            processFallback(future, (ListenableFuture<M>) (requestHandle.fallback(t)));
+                        } catch (Throwable th) {
+                            future.setException(th);
+                        }
+                    } else {
+                        requestHandle.endWithResult(v);
+                        future.set(v);
+                    }
+                }
+                , directExecutor());
+
+        return future;
+    }
+
+    private void processFallback(SettableFuture<M> resultFuture, ListenableFuture<M> fallbackValue) {
+        Checks.checkNotNull(fallbackValue, "fallbackValue");
+        fallbackValue.addListener(() -> {
+                    try {
+                        resultFuture.set(getDone(fallbackValue));
+                    } catch (Throwable th) {
+                        resultFuture.setException(th);
+                    }
+                }, directExecutor()
+        );
     }
 
     @Override

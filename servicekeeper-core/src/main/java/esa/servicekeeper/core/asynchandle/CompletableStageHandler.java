@@ -15,6 +15,9 @@
  */
 package esa.servicekeeper.core.asynchandle;
 
+import esa.commons.Checks;
+
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
@@ -30,17 +33,29 @@ public class CompletableStageHandler<M> implements AsyncResultHandler<Completion
     @Override
     @SuppressWarnings("unchecked")
     public CompletionStage<M> handle0(CompletionStage<M> returnValue, RequestHandle requestHandle) {
-        return returnValue.handle((r, t) -> {
+        final CompletableFuture<M> future = new CompletableFuture<>();
+        returnValue.whenComplete((r, t) -> {
             if (t != null) {
                 try {
-                    return (M) requestHandle.fallback(t);
+                    processFallback(future, (CompletionStage<M>) (requestHandle.fallback(t)));
                 } catch (Throwable th) {
-                    throw new RuntimeException();
+                    future.completeExceptionally(th);
                 }
-
             } else {
                 requestHandle.endWithResult(r);
-                return r;
+                future.complete(r);
+            }
+        });
+        return future;
+    }
+
+    private void processFallback(CompletableFuture<M> resultFuture, CompletionStage<M> fallbackValue) {
+        Checks.checkNotNull(fallbackValue, "fallbackValue");
+        fallbackValue.whenComplete((fr, th) -> {
+            if (th == null) {
+                resultFuture.complete(fr);
+            } else {
+                resultFuture.completeExceptionally(th);
             }
         });
     }

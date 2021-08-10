@@ -31,7 +31,6 @@
     <modules>
         <module>servicekeeper-ext-factory</module>
         <module>servicekeeper-ext-listenablefuture</module>
-        <module>servicekeeper-ext-nettyfuture</module>
     </modules>
 
     <dependencies>

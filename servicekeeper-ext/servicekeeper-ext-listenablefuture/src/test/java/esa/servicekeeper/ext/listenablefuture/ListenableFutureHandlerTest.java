@@ -15,6 +15,7 @@
  */
 package esa.servicekeeper.ext.listenablefuture;
 
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -29,6 +30,8 @@ import esa.servicekeeper.core.executionchain.AsyncContext;
 import esa.servicekeeper.core.executionchain.AsyncExecutionChain;
 import esa.servicekeeper.core.executionchain.AsyncExecutionChainImpl;
 import esa.servicekeeper.core.executionchain.Executable;
+import esa.servicekeeper.core.fallback.FallbackMethod;
+import esa.servicekeeper.core.fallback.FallbackToFunction;
 import esa.servicekeeper.core.fallback.FallbackToValue;
 import esa.servicekeeper.core.moats.Moat;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
@@ -38,8 +41,7 @@ import esa.servicekeeper.core.moats.concurrentlimit.ConcurrentLimitMoat;
 import esa.servicekeeper.core.moats.ratelimit.RateLimitMoat;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -208,8 +210,66 @@ class ListenableFutureHandlerTest {
         then(circuitBreakerNotPermittedCount).isEqualTo(ringBufferSizeInClosedState);
     }
 
+    @Test
+    void testBizException() throws Throwable {
+        final String fallbackValue = "XYZ";
+        final String name = "testConcurrentLimit";
+        final int maxPassRequest = 5;
+        final int maxRequestCount = 12;
+        List<Moat<?>> moats = new ArrayList<>();
+        final Set<FallbackMethod> methods = new HashSet<>(1);
+        methods.add(new FallbackMethod(FallbackToString.class.getDeclaredMethod("doFallback")));
+        AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, new FallbackToFunction<>(
+                new FallbackToString(fallbackValue), methods, true));
+
+        CountDownLatch passRequestLatch = new CountDownLatch(maxPassRequest);
+        CountDownLatch requestCountLatch = new CountDownLatch(maxRequestCount);
+        Executable<ListenableFuture<String>> executable = () -> executorService.submit(() -> {
+            try {
+                if (passRequestLatch.getCount() <= 0) {
+                    throw new RuntimeException("need fallback");
+                }
+            } finally {
+                requestCountLatch.countDown();
+            }
+
+            passRequestLatch.countDown();
+            return "ABC";
+        });
+
+        final AtomicInteger fallbackCount = new AtomicInteger(0);
+        final AtomicInteger normalCount = new AtomicInteger(0);
+        for (int i = 0; i < maxRequestCount; i++) {
+            ListenableFuture<String> result = chain.asyncExecute(new AsyncContext(name), null,
+                    executable, new ListenableFutureHandler<>());
+            String value = result.get();
+            if (value.equals(fallbackValue)) {
+                fallbackCount.incrementAndGet();
+            } else {
+                normalCount.incrementAndGet();
+            }
+        }
+
+        requestCountLatch.await();
+        then(normalCount.get()).isEqualTo(maxPassRequest);
+        then(fallbackCount.get()).isEqualTo(maxRequestCount - maxPassRequest);
+    }
+
+
     private MoatConfig getConfig(String name) {
         return new MoatConfig(ResourceId.from(name));
+    }
+
+    private static class FallbackToString {
+        private final String fallbackValue;
+
+        public FallbackToString(String fallbackValue) {
+            this.fallbackValue = fallbackValue;
+        }
+
+        private ListenableFuture<String> doFallback() {
+            return Futures.immediateFuture(fallbackValue);
+        }
     }
 }
 

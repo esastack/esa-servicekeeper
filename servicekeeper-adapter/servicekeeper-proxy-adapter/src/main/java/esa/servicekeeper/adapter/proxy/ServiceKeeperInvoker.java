@@ -25,7 +25,6 @@ import esa.servicekeeper.core.asynchandle.AsyncResultHandler;
 import esa.servicekeeper.core.asynchandle.RequestHandle;
 import esa.servicekeeper.core.common.OriginalInvocation;
 import esa.servicekeeper.core.entry.CompositeServiceKeeperConfig;
-import esa.servicekeeper.core.utils.RequestHandleUtils;
 
 import java.lang.reflect.Method;
 import java.util.List;
