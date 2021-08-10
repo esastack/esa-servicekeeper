@@ -235,7 +235,6 @@ class DefaultServiceKeeperEntryTest {
         then(entry.buildExecutionChain(name, null, null, false, "LiMing"))
                 .isNull();
 
-
         // Only args:   async    ----> moats and retryable
         when(cluster.get(ResourceId.from(name))).thenReturn(new RetryableMoatCluster(moats0, null, null,
                 retryable0));
@@ -313,7 +312,6 @@ class DefaultServiceKeeperEntryTest {
 
         // Do recover
         config.updateArgLevelEnable(true);
-
 
         // when retry is disabled
         when(cluster.get(ResourceId.from(name))).thenReturn(new RetryableMoatCluster(moats0, null, null,

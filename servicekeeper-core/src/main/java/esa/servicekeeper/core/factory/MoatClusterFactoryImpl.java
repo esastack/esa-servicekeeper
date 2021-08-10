@@ -215,7 +215,6 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
                     combinedConfig, immutableConfig);
         }
 
-
     }
 
     private List<Moat<?>> createMoats(final ResourceId resourceId, OriginalInvocation invocation,
@@ -271,7 +270,6 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
         return moats;
     }
 
-
     private ArgMoatCluster createArgMoatCluster(List<Moat<?>> moats) {
         if (moats == null || moats.isEmpty()) {
             return null;
@@ -320,7 +318,6 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
         }
         return null;
     }
-
 
     /**
      * Try to update fallback config with method's name and declaringClass

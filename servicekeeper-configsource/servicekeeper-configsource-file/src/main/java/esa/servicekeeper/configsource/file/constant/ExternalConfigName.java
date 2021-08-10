@@ -211,7 +211,7 @@ public enum ExternalConfigName {
     },
 
     /**
-     * fallbackExceptionClass
+     * alsoApplyToBizException
      */
     ALSO_APPLY_TO_BIZ_EXCEPTION("alsoApplyToBizException") {
         @Override

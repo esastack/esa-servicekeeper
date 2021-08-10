@@ -17,12 +17,7 @@ package esa.servicekeeper.core.annotation;
 
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -51,7 +46,7 @@ public @interface Fallback {
     String fallbackValue() default "";
 
     /**
-     * Whether to catch business exceptions.
+     * Whether also apply to business exceptions.
      * - true: business exceptions will also cause a fallback.
      * - false: only the internal exception of serviceKeeper
      * will cause a fallback

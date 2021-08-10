@@ -21,7 +21,6 @@ import esa.servicekeeper.core.common.ResourceId;
 import esa.servicekeeper.core.config.ServiceKeeperConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.moats.ArgMoatCluster;
-import esa.servicekeeper.core.moats.MethodMoatCluster;
 import esa.servicekeeper.core.moats.MoatCluster;
 import esa.servicekeeper.core.moats.RetryableMoatCluster;
 
