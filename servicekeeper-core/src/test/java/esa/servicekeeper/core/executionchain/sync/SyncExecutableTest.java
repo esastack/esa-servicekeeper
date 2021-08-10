@@ -48,8 +48,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class SyncExecutableTest {
 
-    private static final String fallbackValue = "fallbackValue";
-
     @Test
     void testExecutableTriggerConcurrentLimit() throws InterruptedException {
         final Executable<String> executable = () -> {
