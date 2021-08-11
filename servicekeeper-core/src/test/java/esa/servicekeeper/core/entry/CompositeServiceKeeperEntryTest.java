@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -176,7 +177,7 @@ class CompositeServiceKeeperEntryTest {
     void testTryAsyncExecute() {
         final RequestHandle handle0 = entry.tryAsyncExecute("abc", null,
                 new OriginalInvocation(CompletableFuture.class, new Class[0]), new Object[0]);
-        then(handle0.isAllowed()).isTrue();
+        assertNull(handle0.getNotAllowedCause());
     }
 
     private static class HelloService {

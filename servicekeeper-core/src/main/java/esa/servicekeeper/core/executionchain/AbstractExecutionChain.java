@@ -71,9 +71,10 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
     public <R> R asyncExecute(AsyncContext ctx, Supplier<OriginalInvocation> invocation,
                               Executable<R> executable, AsyncResultHandler handler) throws Throwable {
         RequestHandle requestHandle = tryToExecute(ctx);
-        if (!requestHandle.isAllowed()) {
+        Throwable notAllowCause = requestHandle.getNotAllowedCause();
+        if (notAllowCause != null) {
             endAndClean(ctx);
-            return (R) requestHandle.fallback(requestHandle.getNotAllowedCause());
+            return (R) requestHandle.fallback(notAllowCause);
         }
 
         try {
@@ -91,8 +92,9 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
     public <R> R execute(Context ctx, Supplier<OriginalInvocation> invocation,
                          Executable<R> executable) throws Throwable {
         RequestHandle requestHandle = tryToExecute(ctx);
-        if (!requestHandle.isAllowed()) {
-            return (R) requestHandle.fallback(requestHandle.getNotAllowedCause());
+        Throwable notAllowCause = requestHandle.getNotAllowedCause();
+        if (notAllowCause != null) {
+            return (R) requestHandle.fallback(notAllowCause);
         }
 
         try {
@@ -109,8 +111,9 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
     public void execute(Context ctx, Supplier<OriginalInvocation> invocation,
                         Runnable runnable) throws Throwable {
         RequestHandle requestHandle = tryToExecute(ctx);
-        if (!requestHandle.isAllowed()) {
-            requestHandle.fallback(requestHandle.getNotAllowedCause());
+        Throwable notAllowCause = requestHandle.getNotAllowedCause();
+        if (notAllowCause != null) {
+            requestHandle.fallback(notAllowCause);
             return;
         }
 

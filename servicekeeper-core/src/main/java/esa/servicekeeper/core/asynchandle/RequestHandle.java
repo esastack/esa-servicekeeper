@@ -28,18 +28,11 @@ public interface RequestHandle {
     IllegalStateException ILLEGAL_FALLBACK_EXCEPTION =
             new IllegalStateException("The request is allowed, so the fallback doesn't take effect!");
 
-    IllegalStateException ILLEGAL_GET_NOT_ALLOWED_CAUSE_EXCEPTION =
-            new IllegalStateException("The request is allowed, so the not allowed reason doesn't exist!");
-
     RequestHandle DEFAULT_PASS_WITHOUT_OBSTACLE = new RequestHandle() {
-        @Override
-        public boolean isAllowed() {
-            return true;
-        }
 
         @Override
         public ServiceKeeperNotPermittedException getNotAllowedCause() {
-            throw ILLEGAL_GET_NOT_ALLOWED_CAUSE_EXCEPTION;
+            return null;
         }
 
         @Override
@@ -62,15 +55,7 @@ public interface RequestHandle {
             // Do nothing
         }
 
-
     };
-
-    /**
-     * Whether the request is allowed.
-     *
-     * @return true or false
-     */
-    boolean isAllowed();
 
     /**
      * Try to get the reason of the request is not allowed.

@@ -31,16 +31,15 @@ public class RequestHandleImpl implements RequestHandle {
     private final Context ctx;
     private final AtomicReference<AsyncExecutionChain> executionChain;
     private final FallbackHandler<?> fallbackHandler;
-    private final boolean isAllow;
     private final ServiceKeeperNotPermittedException notAllowCause;
 
-    private RequestHandleImpl(AsyncExecutionChain executionChain, Context ctx,
-                              FallbackHandler<?> fallbackHandler, boolean isAllow,
+    private RequestHandleImpl(AsyncExecutionChain executionChain,
+                              Context ctx,
+                              FallbackHandler<?> fallbackHandler,
                               ServiceKeeperNotPermittedException notAllowCause) {
         this.executionChain = new AtomicReference<>(executionChain);
         this.ctx = ctx;
         this.fallbackHandler = fallbackHandler;
-        this.isAllow = isAllow;
         this.notAllowCause = notAllowCause;
     }
 
@@ -52,11 +51,6 @@ public class RequestHandleImpl implements RequestHandle {
         } else {
             chain.endWithSuccess(ctx);
         }
-    }
-
-    @Override
-    public boolean isAllowed() {
-        return isAllow;
     }
 
     @Override
@@ -108,14 +102,16 @@ public class RequestHandleImpl implements RequestHandle {
         return ctx;
     }
 
-    public static RequestHandleImpl createAllowHandle(AsyncExecutionChain executionChain, Context ctx,
+    public static RequestHandleImpl createAllowHandle(AsyncExecutionChain executionChain,
+                                                      Context ctx,
                                                       FallbackHandler<?> fallbackHandler) {
-        return new RequestHandleImpl(executionChain, ctx, fallbackHandler, true, null);
+        return new RequestHandleImpl(executionChain, ctx, fallbackHandler, null);
     }
 
-    public static RequestHandleImpl createNotAllowHandle(AsyncExecutionChain executionChain, Context ctx,
+    public static RequestHandleImpl createNotAllowHandle(AsyncExecutionChain executionChain,
+                                                         Context ctx,
                                                          FallbackHandler<?> fallbackHandler,
                                                          ServiceKeeperNotPermittedException notAllowCause) {
-        return new RequestHandleImpl(executionChain, ctx, fallbackHandler, false, notAllowCause);
+        return new RequestHandleImpl(executionChain, ctx, fallbackHandler, notAllowCause);
     }
 }

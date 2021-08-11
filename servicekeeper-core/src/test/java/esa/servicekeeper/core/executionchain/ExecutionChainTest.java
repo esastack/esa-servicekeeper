@@ -41,8 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.CLOSED;
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.OPEN;
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ExecutionChainTest {
 
@@ -63,8 +62,9 @@ class ExecutionChainTest {
             new Thread(() -> {
                 Context ctx = new AsyncContext(name);
                 RequestHandle requestHandle = chain.tryToExecute(ctx);
-                if (!requestHandle.isAllowed()) {
-                    if (requestHandle.getNotAllowedCause() instanceof ConcurrentOverFlowException) {
+                Throwable notAllowCause = requestHandle.getNotAllowedCause();
+                if (notAllowCause != null) {
+                    if (notAllowCause instanceof ConcurrentOverFlowException) {
                         concurrentOverFlowCount.incrementAndGet();
                     } else {
                         fail();
@@ -102,8 +102,9 @@ class ExecutionChainTest {
             new Thread(() -> {
                 Context ctx = new AsyncContext(name);
                 RequestHandle requestHandle = chain.tryToExecute(ctx);
-                if (!requestHandle.isAllowed()) {
-                    if (requestHandle.getNotAllowedCause() instanceof ConcurrentOverFlowException) {
+                Throwable notAllowCause = requestHandle.getNotAllowedCause();
+                if (notAllowCause != null) {
+                    if (notAllowCause instanceof ConcurrentOverFlowException) {
                         concurrentOverFlowCount.incrementAndGet();
                     } else {
                         fail();
@@ -131,10 +132,11 @@ class ExecutionChainTest {
         for (int i = 0; i < cycleCount; i++) {
             Context ctx = new AsyncContext(name);
             final RequestHandle requestHandle = chain.tryToExecute(ctx);
-            if (requestHandle.isAllowed()) {
+            Throwable notAllowCause = requestHandle.getNotAllowedCause();
+            if (notAllowCause == null) {
                 continue;
             }
-            if (requestHandle.getNotAllowedCause() instanceof RateLimitOverflowException) {
+            if (notAllowCause instanceof RateLimitOverflowException) {
                 rateLimitOverFlowCount.incrementAndGet();
             } else {
                 fail();
@@ -165,10 +167,11 @@ class ExecutionChainTest {
         for (int i = 0; i < cycleCount; i++) {
             Context ctx = new AsyncContext(name);
             final RequestHandle requestHandle = chain.tryToExecute(ctx);
-            if (requestHandle.isAllowed()) {
+            Throwable notAllowCause = requestHandle.getNotAllowedCause();
+            if (notAllowCause == null) {
                 continue;
             }
-            if (requestHandle.getNotAllowedCause() instanceof RateLimitOverflowException) {
+            if (notAllowCause instanceof RateLimitOverflowException) {
                 rateLimitOverFlowCount.incrementAndGet();
             } else {
                 fail();
@@ -189,7 +192,8 @@ class ExecutionChainTest {
         ExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         for (int i = 0; i < 100; i++) {
             RequestHandle requestHandle = chain.tryToExecute(new AsyncContext(name));
-            then(requestHandle.isAllowed()).isTrue();
+            Throwable notAllowCause = requestHandle.getNotAllowedCause();
+            assertNull(notAllowCause);
             then(circuitBreakerMoat.getCircuitBreaker().getState()).isEqualTo(CLOSED);
             requestHandle.endWithError(new RuntimeException());
         }
@@ -215,7 +219,7 @@ class ExecutionChainTest {
         ExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         for (int i = 0; i < 100; i++) {
             RequestHandle requestHandle = chain.tryToExecute(new AsyncContext(name));
-            then(requestHandle.isAllowed()).isTrue();
+            assertNull(requestHandle.getNotAllowedCause());
             then(circuitBreakerMoat.getCircuitBreaker().getState()).isEqualTo(CLOSED);
             requestHandle.endWithError(new RuntimeException());
         }
