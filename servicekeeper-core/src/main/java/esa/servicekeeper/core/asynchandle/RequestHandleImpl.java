@@ -19,6 +19,7 @@ import esa.commons.Checks;
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.executionchain.AsyncExecutionChain;
 import esa.servicekeeper.core.executionchain.Context;
+import esa.servicekeeper.core.executionchain.ExecutionChain;
 import esa.servicekeeper.core.fallback.FallbackHandler;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -29,11 +30,11 @@ public class RequestHandleImpl implements RequestHandle {
             new IllegalStateException("The request has ended!");
 
     private final Context ctx;
-    private final AtomicReference<AsyncExecutionChain> executionChain;
+    private final AtomicReference<ExecutionChain> executionChain;
     private final FallbackHandler<?> fallbackHandler;
     private final ServiceKeeperNotPermittedException notAllowCause;
 
-    private RequestHandleImpl(AsyncExecutionChain executionChain,
+    private RequestHandleImpl(ExecutionChain executionChain,
                               Context ctx,
                               FallbackHandler<?> fallbackHandler,
                               ServiceKeeperNotPermittedException notAllowCause) {
@@ -45,12 +46,8 @@ public class RequestHandleImpl implements RequestHandle {
 
     @Override
     public void endWithSuccess() {
-        AsyncExecutionChain chain = executionChain.getAndUpdate((pre) -> null);
-        if (chain == null) {
-            throw REPEAT_END_EXCEPTION;
-        } else {
-            chain.endWithSuccess(ctx);
-        }
+        ExecutionChain chain = tryGetExecutionChain();
+        chain.endWithSuccess(ctx);
     }
 
     @Override
@@ -60,23 +57,15 @@ public class RequestHandleImpl implements RequestHandle {
 
     @Override
     public void endWithResult(final Object result) {
-        AsyncExecutionChain chain = executionChain.getAndUpdate((pre) -> null);
-        if (chain == null) {
-            throw REPEAT_END_EXCEPTION;
-        } else {
-            chain.endWithResult(ctx, result);
-        }
+        ExecutionChain chain = tryGetExecutionChain();
+        chain.endWithResult(ctx, result);
     }
 
     public void endWithError(final Throwable throwable) {
         Checks.checkNotNull(throwable, "throwable");
 
-        AsyncExecutionChain chain = executionChain.getAndUpdate((pre) -> null);
-        if (chain == null) {
-            throw REPEAT_END_EXCEPTION;
-        } else {
-            chain.endWithError(ctx, throwable);
-        }
+        ExecutionChain chain = tryGetExecutionChain();
+        chain.endWithError(ctx, throwable);
     }
 
     @Override
@@ -85,14 +74,14 @@ public class RequestHandleImpl implements RequestHandle {
         if (ctx.isStart()) {
             endWithError(cause);
         } else {
-            executionChain.get().endAndClean(ctx);
+            ExecutionChain chain = tryGetExecutionChain();
+            chain.endAndClean(ctx);
         }
         if (fallbackHandler == null) {
             throw cause;
         }
         if ((cause instanceof ServiceKeeperNotPermittedException)
-                || fallbackHandler.alsoApplyToBizException()
-        ) {
+                || fallbackHandler.alsoApplyToBizException()) {
             return fallbackHandler.handle(ctx);
         }
         throw cause;
@@ -113,5 +102,13 @@ public class RequestHandleImpl implements RequestHandle {
                                                          FallbackHandler<?> fallbackHandler,
                                                          ServiceKeeperNotPermittedException notAllowCause) {
         return new RequestHandleImpl(executionChain, ctx, fallbackHandler, notAllowCause);
+    }
+
+    private ExecutionChain tryGetExecutionChain() {
+        ExecutionChain chain = executionChain.getAndUpdate((pre) -> null);
+        if (chain == null) {
+            throw REPEAT_END_EXCEPTION;
+        }
+        return chain;
     }
 }
