@@ -118,6 +118,7 @@
         <aspectj.verion>1.9.6</aspectj.verion>
         <slf4j.version>1.7.30</slf4j.version>
         <esa-commons.version>0.1.0</esa-commons.version>
+        <esa-commons-build.version>0.1.0</esa-commons-build.version>
         <awaitility.version>4.0.1</awaitility.version>
         <junit.version>5.7.1</junit.version>
         <assertj.version>3.19.0</assertj.version>
@@ -385,7 +386,7 @@
                         <id>check-style</id>
                         <configuration>
                             <skip>false</skip>
-                            <configLocation>esa/commons/checkstyle.xml</configLocation>
+                            <configLocation>io/esastack/commons/checkstyle.xml</configLocation>
                             <encoding>${encoding}</encoding>
                             <consoleOutput>true</consoleOutput>
                             <logViolationsToConsole>true</logViolationsToConsole>
@@ -412,7 +413,7 @@
                     <dependency>
                         <groupId>io.esastack</groupId>
                         <artifactId>commons-build</artifactId>
-                        <version>${esa-commons.version}</version>
+                        <version>${esa-commons-build.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
