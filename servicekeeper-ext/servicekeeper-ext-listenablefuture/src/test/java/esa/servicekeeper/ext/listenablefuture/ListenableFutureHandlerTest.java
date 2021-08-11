@@ -266,16 +266,16 @@ class ListenableFutureHandlerTest {
                 0, false);
     }
 
-    void testAsyncExecute(Executable<ListenableFuture<String>> executable,
-                          Supplier<List<Moat<?>>> moatsSupplier,
-                          boolean useFallback,
-                          boolean alsoApplyToBizException,
-                          int maxRequestCount,
-                          int expectSuccessRequestsCount,
-                          int expectNotPermitRequestsCount,
-                          int expectFallbacksCount,
-                          int expectBizExceptionsCount,
-                          boolean isConcurrent) throws Throwable {
+    private void testAsyncExecute(Executable<ListenableFuture<String>> executable,
+                                  Supplier<List<Moat<?>>> moatsSupplier,
+                                  boolean useFallback,
+                                  boolean alsoApplyToBizException,
+                                  int maxRequestCount,
+                                  int expectSuccessRequestsCount,
+                                  int expectNotPermitRequestsCount,
+                                  int expectFallbacksCount,
+                                  int expectBizExceptionsCount,
+                                  boolean isConcurrent) throws Throwable {
         AsyncExecutionChain chain;
         if (useFallback) {
             chain = new AsyncExecutionChainImpl(moatsSupplier.get(),
