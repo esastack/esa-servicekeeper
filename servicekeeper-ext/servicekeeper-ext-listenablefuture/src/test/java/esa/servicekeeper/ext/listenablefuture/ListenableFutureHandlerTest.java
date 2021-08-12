@@ -284,7 +284,7 @@ class ListenableFutureHandlerTest {
             chain = new AsyncExecutionChainImpl(moatsSupplier.get(), null);
         }
 
-        AtomicInteger fallbackCount = new AtomicInteger(0);
+        AtomicInteger fallbackTimesCount = new AtomicInteger(0);
         AtomicInteger successRequestsCount = new AtomicInteger(0);
         AtomicInteger bizExceptionsCount = new AtomicInteger(0);
         int notPermitRequestsCount = 0;
@@ -300,7 +300,7 @@ class ListenableFutureHandlerTest {
                 if (isConcurrent) {
                     concurrentResultList.add(result);
                 } else {
-                    countByResult(result, successRequestsCount, fallbackCount, bizExceptionsCount);
+                    countByResult(result, successRequestsCount, fallbackTimesCount, bizExceptionsCount);
                 }
             } catch (ServiceKeeperNotPermittedException e) {
                 notPermitRequestsCount++;
@@ -309,21 +309,21 @@ class ListenableFutureHandlerTest {
 
         if (isConcurrent) {
             for (ListenableFuture<String> result : concurrentResultList) {
-                countByResult(result, successRequestsCount, fallbackCount, bizExceptionsCount);
+                countByResult(result, successRequestsCount, fallbackTimesCount, bizExceptionsCount);
             }
         }
 
         then(successRequestsCount.get()).isEqualTo(expectSuccessRequestsCount);
-        then(fallbackCount.get()).isEqualTo(expectFallbacksCount);
+        then(fallbackTimesCount.get()).isEqualTo(expectFallbacksCount);
         then(notPermitRequestsCount).isEqualTo(expectNotPermitRequestsCount);
         then(bizExceptionsCount.get()).isEqualTo(expectBizExceptionsCount);
     }
 
     private void countByResult(ListenableFuture<String> result, AtomicInteger successRequestsCount,
-                               AtomicInteger fallbackCount, AtomicInteger bizExceptionsCount) {
+                               AtomicInteger fallbackTimesCount, AtomicInteger bizExceptionsCount) {
         try {
             if (fallbackValue.equals(result.get())) {
-                fallbackCount.incrementAndGet();
+                fallbackTimesCount.incrementAndGet();
             } else {
                 successRequestsCount.incrementAndGet();
             }

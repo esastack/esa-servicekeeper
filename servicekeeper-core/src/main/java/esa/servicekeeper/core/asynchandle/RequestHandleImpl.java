@@ -61,6 +61,7 @@ public class RequestHandleImpl implements RequestHandle {
         chain.endWithResult(ctx, result);
     }
 
+    @Override
     public void endWithError(final Throwable throwable) {
         Checks.checkNotNull(throwable, "throwable");
 

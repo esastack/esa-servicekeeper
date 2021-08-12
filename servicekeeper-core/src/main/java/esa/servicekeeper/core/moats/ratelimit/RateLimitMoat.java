@@ -92,22 +92,6 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
         // Do nothing
     }
 
-    private ServiceKeeperNotPermittedException notPermittedException(Context ctx) {
-        return new RateLimitOverflowException(StringUtils.concat("The limitForPeriod of rateLimiter ",
-                limiter.name(), ": " + limiter.config().getLimitForPeriod()), ctx,
-                new RateLimitMetrics() {
-                    @Override
-                    public int numberOfWaitingThreads() {
-                        return limiter.metrics().numberOfWaitingThreads();
-                    }
-
-                    @Override
-                    public int availablePermissions() {
-                        return limiter.metrics().availablePermissions();
-                    }
-                });
-    }
-
     @Override
     public RateLimitConfig config() {
         return this.rateLimiter().config();
@@ -175,11 +159,6 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
         return "RateLimitMoat-" + limiter.name();
     }
 
-    @Override
-    protected String name() {
-        return limiter.name();
-    }
-
     /**
      * Get rateLimiter of current moat.
      *
@@ -187,6 +166,27 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
      */
     public RateLimiter rateLimiter() {
         return limiter;
+    }
+
+    @Override
+    protected String name() {
+        return limiter.name();
+    }
+
+    private ServiceKeeperNotPermittedException notPermittedException(Context ctx) {
+        return new RateLimitOverflowException(StringUtils.concat("The limitForPeriod of rateLimiter ",
+                limiter.name(), ": " + limiter.config().getLimitForPeriod()), ctx,
+                new RateLimitMetrics() {
+                    @Override
+                    public int numberOfWaitingThreads() {
+                        return limiter.metrics().numberOfWaitingThreads();
+                    }
+
+                    @Override
+                    public int availablePermissions() {
+                        return limiter.metrics().availablePermissions();
+                    }
+                });
     }
 
     private void preDestroy() {

@@ -88,26 +88,6 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
         limiter.release();
     }
 
-    private ServiceKeeperNotPermittedException notPermittedException(Context ctx) {
-        final int maxConcurrentLimit = limiter.metrics().threshold();
-        final int currentCallCount = limiter.metrics().currentCallCount();
-        return new ConcurrentOverFlowException(
-                StringUtils.concat("The maxConcurrentLimit of ",
-                        limiter.name(), ": " + maxConcurrentLimit), ctx,
-                new ConcurrentLimitMetrics() {
-                    @Override
-                    public int threshold() {
-                        return maxConcurrentLimit;
-                    }
-
-                    @Override
-                    public int currentCallCount() {
-                        return currentCallCount;
-                    }
-                }
-        );
-    }
-
     @Override
     public ConcurrentLimitConfig config() {
         int threshold = this.limiter.metrics().threshold();
@@ -175,11 +155,6 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
         return MoatType.CONCURRENT_LIMIT;
     }
 
-    @Override
-    protected String name() {
-        return limiter.name();
-    }
-
     /**
      * Get concurrentLimiter of current moat
      *
@@ -187,6 +162,31 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
      */
     public ConcurrentLimiter getConcurrentLimiter() {
         return limiter;
+    }
+
+    @Override
+    protected String name() {
+        return limiter.name();
+    }
+
+    private ServiceKeeperNotPermittedException notPermittedException(Context ctx) {
+        final int maxConcurrentLimit = limiter.metrics().threshold();
+        final int currentCallCount = limiter.metrics().currentCallCount();
+        return new ConcurrentOverFlowException(
+                StringUtils.concat("The maxConcurrentLimit of ",
+                        limiter.name(), ": " + maxConcurrentLimit), ctx,
+                new ConcurrentLimitMetrics() {
+                    @Override
+                    public int threshold() {
+                        return maxConcurrentLimit;
+                    }
+
+                    @Override
+                    public int currentCallCount() {
+                        return currentCallCount;
+                    }
+                }
+        );
     }
 
     private void preDestroy() {

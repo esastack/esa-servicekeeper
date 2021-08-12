@@ -51,23 +51,12 @@ public abstract class Context implements Serializable {
         return throughFailsCause;
     }
 
-    void setThroughFailsCause(ServiceKeeperNotPermittedException throughFailsCause) {
-        this.throughFailsCause = throughFailsCause;
-    }
-
     /**
      * Get bizException
      *
      * @return bizException
      */
     public abstract Throwable getBizException();
-
-    /**
-     * Set bizException
-     *
-     * @param bizException bizException
-     */
-    abstract void setBizException(Throwable bizException);
 
     /**
      * Get result
@@ -77,25 +66,11 @@ public abstract class Context implements Serializable {
     public abstract Object getResult();
 
     /**
-     * Set result
-     *
-     * @param result result
-     */
-    abstract void setResult(Object result);
-
-    /**
      * Get spendTimeMs of original method's execution.
      *
      * @return maxSpendTimeMs
      */
     public abstract long getSpendTimeMs();
-
-    /**
-     * Get spendTimeMs
-     *
-     * @param spendTimeMs spendTimeMs
-     */
-    abstract void setSpendTimeMs(long spendTimeMs);
 
     public boolean isStart() {
         return start;
@@ -104,4 +79,29 @@ public abstract class Context implements Serializable {
     public void setStart(boolean start) {
         this.start = start;
     }
+
+    void setThroughFailsCause(ServiceKeeperNotPermittedException throughFailsCause) {
+        this.throughFailsCause = throughFailsCause;
+    }
+
+    /**
+     * Get spendTimeMs
+     *
+     * @param spendTimeMs spendTimeMs
+     */
+    abstract void setSpendTimeMs(long spendTimeMs);
+
+    /**
+     * Set result
+     *
+     * @param result result
+     */
+    abstract void setResult(Object result);
+
+    /**
+     * Set bizException
+     *
+     * @param bizException bizException
+     */
+    abstract void setBizException(Throwable bizException);
 }

@@ -60,6 +60,11 @@ public class ListenableFutureHandler<M> implements AsyncResultHandler<Listenable
         return future;
     }
 
+    @Override
+    public String toString() {
+        return "ListenableFutureHandler";
+    }
+
     private void processFallback(SettableFuture<M> resultFuture, ListenableFuture<M> fallbackValue) {
         Checks.checkNotNull(fallbackValue, "fallbackValue");
         fallbackValue.addListener(() -> {
@@ -72,8 +77,4 @@ public class ListenableFutureHandler<M> implements AsyncResultHandler<Listenable
         );
     }
 
-    @Override
-    public String toString() {
-        return "ListenableFutureHandler";
-    }
 }

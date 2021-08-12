@@ -26,11 +26,7 @@ import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.listener.FondConfigListener;
 import esa.servicekeeper.core.metrics.CircuitBreakerMetrics;
-import esa.servicekeeper.core.moats.AbstractMoat;
-import esa.servicekeeper.core.moats.LifeCycleSupport;
-import esa.servicekeeper.core.moats.MoatEventImpl;
-import esa.servicekeeper.core.moats.MoatEventProcessor;
-import esa.servicekeeper.core.moats.MoatType;
+import esa.servicekeeper.core.moats.*;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateConfigFilling;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateStrategy;
 import esa.servicekeeper.core.utils.LogUtils;
@@ -115,48 +111,6 @@ public class CircuitBreakerMoat extends AbstractMoat<CircuitBreakerConfig>
         } else {
             breaker.get().onFailure();
         }
-    }
-
-    private ServiceKeeperNotPermittedException notPermittedException(Context ctx) {
-        final CircuitBreaker breaker = this.breaker.get();
-        return new CircuitBreakerNotPermittedException(StringUtils.concat("Current state of" +
-                " circuitBreaker ", breaker.name(), ": ", breaker.getState().toString()), ctx,
-                new CircuitBreakerMetrics() {
-                    @Override
-                    public float failureRateThreshold() {
-                        return breaker.metrics().failureRateThreshold();
-                    }
-
-                    @Override
-                    public int numberOfBufferedCalls() {
-                        return breaker.metrics().numberOfBufferedCalls();
-                    }
-
-                    @Override
-                    public int numberOfFailedCalls() {
-                        return breaker.metrics().numberOfFailedCalls();
-                    }
-
-                    @Override
-                    public long numberOfNotPermittedCalls() {
-                        return breaker.metrics().numberOfNotPermittedCalls();
-                    }
-
-                    @Override
-                    public int maxNumberOfBufferedCalls() {
-                        return breaker.metrics().maxNumberOfBufferedCalls();
-                    }
-
-                    @Override
-                    public int numberOfSuccessfulCalls() {
-                        return breaker.metrics().numberOfSuccessfulCalls();
-                    }
-
-                    @Override
-                    public CircuitBreaker.State state() {
-                        return breaker.getState();
-                    }
-                });
     }
 
     @Override
@@ -308,6 +262,48 @@ public class CircuitBreakerMoat extends AbstractMoat<CircuitBreakerConfig>
      */
     public CircuitBreaker getCircuitBreaker() {
         return breaker.get();
+    }
+
+    private ServiceKeeperNotPermittedException notPermittedException(Context ctx) {
+        final CircuitBreaker breaker = this.breaker.get();
+        return new CircuitBreakerNotPermittedException(StringUtils.concat("Current state of" +
+                " circuitBreaker ", breaker.name(), ": ", breaker.getState().toString()), ctx,
+                new CircuitBreakerMetrics() {
+                    @Override
+                    public float failureRateThreshold() {
+                        return breaker.metrics().failureRateThreshold();
+                    }
+
+                    @Override
+                    public int numberOfBufferedCalls() {
+                        return breaker.metrics().numberOfBufferedCalls();
+                    }
+
+                    @Override
+                    public int numberOfFailedCalls() {
+                        return breaker.metrics().numberOfFailedCalls();
+                    }
+
+                    @Override
+                    public long numberOfNotPermittedCalls() {
+                        return breaker.metrics().numberOfNotPermittedCalls();
+                    }
+
+                    @Override
+                    public int maxNumberOfBufferedCalls() {
+                        return breaker.metrics().maxNumberOfBufferedCalls();
+                    }
+
+                    @Override
+                    public int numberOfSuccessfulCalls() {
+                        return breaker.metrics().numberOfSuccessfulCalls();
+                    }
+
+                    @Override
+                    public CircuitBreaker.State state() {
+                        return breaker.getState();
+                    }
+                });
     }
 
     private void preDestroy() {

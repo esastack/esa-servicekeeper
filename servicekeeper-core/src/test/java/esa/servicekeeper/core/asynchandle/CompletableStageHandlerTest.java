@@ -91,12 +91,12 @@ class CompletableStageHandlerTest {
             return "ABC";
         });
 
-        // dont,t use fallback and not apply to BizException
+        // don't use fallback and not apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, false,
                 maxConcurrentLimit * 2, maxConcurrentLimit, maxConcurrentLimit, 0,
                 0, true);
 
-        // dont,t use fallback but apply to BizException
+        // don't use fallback but apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, true,
                 maxConcurrentLimit * 2, maxConcurrentLimit, maxConcurrentLimit, 0,
                 0, true);
@@ -124,12 +124,12 @@ class CompletableStageHandlerTest {
                 RateLimitConfig.builder().limitForPeriod(limitForPeriod).build(), null,
                 Collections.emptyList()));
 
-        // dont,t use fallback and not apply to BizException
+        // don't use fallback and not apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, false,
                 limitForPeriod * 2, limitForPeriod, limitForPeriod, 0,
                 0, false);
 
-        // dont,t use fallback but apply to BizException
+        // don't use fallback but apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, true,
                 limitForPeriod * 2, limitForPeriod, limitForPeriod, 0,
                 0, false);
@@ -161,12 +161,12 @@ class CompletableStageHandlerTest {
                 CircuitBreakerConfig.ofDefault(),
                 new PredicateByException()));
 
-        // dont,t use fallback and not apply to BizException
+        // don't use fallback and not apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, false,
                 ringBufferSizeInClosedState * 2, 0, ringBufferSizeInClosedState, 0,
                 ringBufferSizeInClosedState, false);
 
-        // dont,t use fallback but apply to BizException
+        // don't use fallback but apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, true,
                 ringBufferSizeInClosedState * 2, 0, ringBufferSizeInClosedState, 0,
                 ringBufferSizeInClosedState, false);
@@ -201,12 +201,12 @@ class CompletableStageHandlerTest {
                         CircuitBreakerConfig.ofDefault(),
                         new PredicateBySpendTime(3L)));
 
-        // dont,t use fallback and not apply to BizException
+        // don't use fallback and not apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, false,
                 ringBufferSizeInClosedState * 2, ringBufferSizeInClosedState, ringBufferSizeInClosedState, 0,
                 0, false);
 
-        // dont,t use fallback but apply to BizException
+        // don't use fallback but apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, true,
                 ringBufferSizeInClosedState * 2, ringBufferSizeInClosedState, ringBufferSizeInClosedState, 0,
                 0, false);
@@ -234,28 +234,28 @@ class CompletableStageHandlerTest {
             }
             return "ABC";
         });
-        final int maxRequestCount = 10;
-        // dont,t use fallback and not apply to BizException
+        final int maxRequestsCount = 10;
+        // don't use fallback and not apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, false,
-                maxRequestCount, maxPassRequestCount, 0, 0,
-                maxRequestCount - maxPassRequestCount, false);
+                maxRequestsCount, maxPassRequestCount, 0, 0,
+                maxRequestsCount - maxPassRequestCount, false);
 
-        // dont,t use fallback but apply to BizException
+        // don't use fallback but apply to BizException
         passRequestCount.set(0);
         testAsyncExecute(executable, moatsSupplier, false, true,
-                maxRequestCount, maxPassRequestCount, 0, 0,
-                maxRequestCount - maxPassRequestCount, false);
+                maxRequestsCount, maxPassRequestCount, 0, 0,
+                maxRequestsCount - maxPassRequestCount, false);
 
         // use fallback but not apply to BizException
         passRequestCount.set(0);
         testAsyncExecute(executable, moatsSupplier, true, false,
-                maxRequestCount, maxPassRequestCount, 0, 0,
-                maxRequestCount - maxPassRequestCount, false);
+                maxRequestsCount, maxPassRequestCount, 0, 0,
+                maxRequestsCount - maxPassRequestCount, false);
 
         // use fallback and apply to BizException
         passRequestCount.set(0);
         testAsyncExecute(executable, moatsSupplier, true, true,
-                maxRequestCount, maxPassRequestCount, 0, maxRequestCount - maxPassRequestCount,
+                maxRequestsCount, maxPassRequestCount, 0, maxRequestsCount - maxPassRequestCount,
                 0, false);
     }
 
@@ -263,7 +263,7 @@ class CompletableStageHandlerTest {
                                   Supplier<List<Moat<?>>> moatsSupplier,
                                   boolean useFallback,
                                   boolean alsoApplyToBizException,
-                                  int maxRequestCount,
+                                  int maxRequestsCount,
                                   int expectSuccessRequestsCount,
                                   int expectNotPermitRequestsCount,
                                   int expectFallbacksCount,
@@ -277,7 +277,7 @@ class CompletableStageHandlerTest {
             chain = new AsyncExecutionChainImpl(moatsSupplier.get(), null);
         }
 
-        AtomicInteger fallbackCount = new AtomicInteger(0);
+        AtomicInteger fallbackTimesCount = new AtomicInteger(0);
         AtomicInteger successRequestsCount = new AtomicInteger(0);
         AtomicInteger bizExceptionsCount = new AtomicInteger(0);
         int notPermitRequestsCount = 0;
@@ -286,14 +286,14 @@ class CompletableStageHandlerTest {
         if (isConcurrent) {
             concurrentResultList = new ArrayList<>();
         }
-        for (int i = 0; i < maxRequestCount; i++) {
+        for (int i = 0; i < maxRequestsCount; i++) {
             try {
                 CompletionStage<String> result = chain.asyncExecute(new AsyncContext("testAsyncExecute"), null,
                         executable, new CompletableStageHandler<>());
                 if (isConcurrent) {
                     concurrentResultList.add(result);
                 } else {
-                    countByResult(result, successRequestsCount, fallbackCount, bizExceptionsCount);
+                    countByResult(result, successRequestsCount, fallbackTimesCount, bizExceptionsCount);
                 }
             } catch (ServiceKeeperNotPermittedException e) {
                 notPermitRequestsCount++;
@@ -302,21 +302,21 @@ class CompletableStageHandlerTest {
 
         if (isConcurrent) {
             for (CompletionStage<String> result : concurrentResultList) {
-                countByResult(result, successRequestsCount, fallbackCount, bizExceptionsCount);
+                countByResult(result, successRequestsCount, fallbackTimesCount, bizExceptionsCount);
             }
         }
 
         then(successRequestsCount.get()).isEqualTo(expectSuccessRequestsCount);
-        then(fallbackCount.get()).isEqualTo(expectFallbacksCount);
+        then(fallbackTimesCount.get()).isEqualTo(expectFallbacksCount);
         then(notPermitRequestsCount).isEqualTo(expectNotPermitRequestsCount);
         then(bizExceptionsCount.get()).isEqualTo(expectBizExceptionsCount);
     }
 
     private void countByResult(CompletionStage<String> result, AtomicInteger successRequestsCount,
-                               AtomicInteger fallbackCount, AtomicInteger bizExceptionsCount) {
+                               AtomicInteger fallbackTimesCount, AtomicInteger bizExceptionsCount) {
         try {
             if (fallbackValue.equals(result.toCompletableFuture().get())) {
-                fallbackCount.incrementAndGet();
+                fallbackTimesCount.incrementAndGet();
             } else {
                 successRequestsCount.incrementAndGet();
             }

@@ -49,6 +49,11 @@ public class CompletableStageHandler<M> implements AsyncResultHandler<Completion
         return future;
     }
 
+    @Override
+    public String toString() {
+        return "CompletableStageHandler";
+    }
+
     private void processFallback(CompletableFuture<M> resultFuture, CompletionStage<M> fallbackValue) {
         Checks.checkNotNull(fallbackValue, "fallbackValue");
         fallbackValue.whenComplete((fr, th) -> {
@@ -58,10 +63,5 @@ public class CompletableStageHandler<M> implements AsyncResultHandler<Completion
                 resultFuture.completeExceptionally(th);
             }
         });
-    }
-
-    @Override
-    public String toString() {
-        return "CompletableStageHandler";
     }
 }

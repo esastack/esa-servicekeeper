@@ -101,52 +101,6 @@ public class CompositeServiceKeeperEntry extends DefaultServiceKeeperEntry imple
         return syncCall(resourceId, immutableConfig, originalInvocation, callable, args);
     }
 
-    private Object syncInvoke(String aliasName, Method method, Object delegate, Object... args) throws Throwable {
-        return super.invoke(aliasName, method, delegate, args);
-    }
-
-    private Object asyncInvoke(String aliasName, Method method, Object delegate,
-                               AsyncResultHandler<?> asyncResultHandler, Object... args) throws Throwable {
-        final Supplier<OriginalInvocation> originalInvocation =
-                getOriginalInvocation(method);
-        method.setAccessible(true);
-        final Executable<?> executable = () -> method.invoke(delegate, args);
-        final Supplier<CompositeServiceKeeperConfig> configSupplier = () -> MethodUtils.getCompositeConfig(method);
-
-        final AbstractExecutionChain executionChain =
-                buildExecutionChain(aliasName, getOriginalInvocation(method),
-                        configSupplier, true, args);
-        if (executionChain == null) {
-            return method.invoke(delegate, args);
-        }
-
-        return executionChain.asyncExecute(buildAsyncContext(aliasName, args),
-                originalInvocation, executable,
-                asyncResultHandler);
-    }
-
-    private <T> T syncCall(String resourceId, Supplier<CompositeServiceKeeperConfig> immutableConfig,
-                           Supplier<OriginalInvocation> originalInvocation,
-                           Callable<T> callable, Object[] args) throws Throwable {
-        return super.call(resourceId, immutableConfig, originalInvocation, callable, args);
-    }
-
-    private <T> T asyncCall(String resourceId, Supplier<CompositeServiceKeeperConfig> immutableConfig,
-                            Supplier<OriginalInvocation> originalInvocation,
-                            Callable<T> callable, AsyncResultHandler<?> asyncResultHandler,
-                            Object... args) throws Throwable {
-        final AbstractExecutionChain executionChain =
-                buildExecutionChain(resourceId, originalInvocation,
-                        immutableConfig, true, args);
-        if (executionChain == null) {
-            return callable.call();
-        }
-
-        return executionChain.asyncExecute(buildAsyncContext(resourceId, args),
-                originalInvocation, callable::call,
-                asyncResultHandler);
-    }
-
     @Override
     public RequestHandle tryAsyncExecute(String resourceId, OriginalInvocation originalInvocation,
                                          Object... args) {
@@ -204,5 +158,51 @@ public class CompositeServiceKeeperEntry extends DefaultServiceKeeperEntry imple
         }
 
         return groupConfig;
+    }
+
+    private Object syncInvoke(String aliasName, Method method, Object delegate, Object... args) throws Throwable {
+        return super.invoke(aliasName, method, delegate, args);
+    }
+
+    private Object asyncInvoke(String aliasName, Method method, Object delegate,
+                               AsyncResultHandler<?> asyncResultHandler, Object... args) throws Throwable {
+        final Supplier<OriginalInvocation> originalInvocation =
+                getOriginalInvocation(method);
+        method.setAccessible(true);
+        final Executable<?> executable = () -> method.invoke(delegate, args);
+        final Supplier<CompositeServiceKeeperConfig> configSupplier = () -> MethodUtils.getCompositeConfig(method);
+
+        final AbstractExecutionChain executionChain =
+                buildExecutionChain(aliasName, getOriginalInvocation(method),
+                        configSupplier, true, args);
+        if (executionChain == null) {
+            return method.invoke(delegate, args);
+        }
+
+        return executionChain.asyncExecute(buildAsyncContext(aliasName, args),
+                originalInvocation, executable,
+                asyncResultHandler);
+    }
+
+    private <T> T syncCall(String resourceId, Supplier<CompositeServiceKeeperConfig> immutableConfig,
+                           Supplier<OriginalInvocation> originalInvocation,
+                           Callable<T> callable, Object[] args) throws Throwable {
+        return super.call(resourceId, immutableConfig, originalInvocation, callable, args);
+    }
+
+    private <T> T asyncCall(String resourceId, Supplier<CompositeServiceKeeperConfig> immutableConfig,
+                            Supplier<OriginalInvocation> originalInvocation,
+                            Callable<T> callable, AsyncResultHandler<?> asyncResultHandler,
+                            Object... args) throws Throwable {
+        final AbstractExecutionChain executionChain =
+                buildExecutionChain(resourceId, originalInvocation,
+                        immutableConfig, true, args);
+        if (executionChain == null) {
+            return callable.call();
+        }
+
+        return executionChain.asyncExecute(buildAsyncContext(resourceId, args),
+                originalInvocation, callable::call,
+                asyncResultHandler);
     }
 }

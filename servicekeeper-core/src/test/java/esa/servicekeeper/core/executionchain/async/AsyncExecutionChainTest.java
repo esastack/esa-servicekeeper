@@ -106,20 +106,20 @@ class AsyncExecutionChainTest {
             return "ABC";
         });
 
-        final AtomicInteger fallbackCount = new AtomicInteger(0);
+        final AtomicInteger fallbackTimesCount = new AtomicInteger(0);
         final AtomicInteger normalCount = new AtomicInteger(0);
         for (int i = 0; i < maxConcurrentLimit * 2; i++) {
             Object result = chain.asyncExecute(new AsyncContext(name), null,
                     executable, new CompletableStageHandler<>());
             if (result.equals(fallbackValue)) {
-                fallbackCount.incrementAndGet();
+                fallbackTimesCount.incrementAndGet();
             } else {
                 normalCount.incrementAndGet();
             }
         }
 
         latch.await();
-        then(fallbackCount.get()).isEqualTo(maxConcurrentLimit);
+        then(fallbackTimesCount.get()).isEqualTo(maxConcurrentLimit);
         then(normalCount.get()).isEqualTo(maxConcurrentLimit);
     }
 
@@ -162,7 +162,7 @@ class AsyncExecutionChainTest {
         AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats,
                 new FallbackToException(fallbackException, false));
 
-        final AtomicInteger fallbackCount = new AtomicInteger(0);
+        final AtomicInteger fallbackTimesCount = new AtomicInteger(0);
         final AtomicInteger normalCount = new AtomicInteger(0);
         for (int i = 0; i < limitForPeriod * 2; i++) {
             try {
@@ -174,12 +174,12 @@ class AsyncExecutionChainTest {
             } catch (RateLimitOverflowException ex) {
                 fail();
             } catch (Exception ex) {
-                fallbackCount.incrementAndGet();
+                fallbackTimesCount.incrementAndGet();
             } catch (Throwable throwable) {
                 fail();
             }
         }
-        then(fallbackCount.get()).isEqualTo(limitForPeriod);
+        then(fallbackTimesCount.get()).isEqualTo(limitForPeriod);
         then(normalCount.get()).isEqualTo(limitForPeriod);
     }
 

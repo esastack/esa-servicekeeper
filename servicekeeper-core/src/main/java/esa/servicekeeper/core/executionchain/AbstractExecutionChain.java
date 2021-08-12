@@ -39,19 +39,6 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
         this.fallbackHandler = fallbackHandler;
     }
 
-    private void doTryToExecute(Context ctx) throws ServiceKeeperNotPermittedException {
-        int index = 0;
-        for (int i = 0, size = moats.size(); i < size; i++, index++) {
-            try {
-                moats.get(i).tryThrough(ctx);
-            } catch (ServiceKeeperNotPermittedException e) {
-                setCurrentIndex(i - 1);
-                throw e;
-            }
-        }
-        setCurrentIndex(index - 1);
-    }
-
     @Override
     public RequestHandle tryToExecute(Context ctx) {
         try {
@@ -154,6 +141,7 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
         }
     }
 
+    @Override
     public void endAndClean(Context ctx) {
         //Note: If the ctx has already end, current end will be ignored.
         if (getEndTime() <= 0L) {
@@ -196,11 +184,6 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
     protected <R> R doExecute(Context context, Supplier<OriginalInvocation> originalInvocation,
                               Executable<R> executable, boolean isAsync) throws Throwable {
         return executable.execute();
-    }
-
-    private void recordStart(Context ctx) {
-        ctx.setStart(true);
-        recordStartTime();
     }
 
     /**
@@ -247,5 +230,23 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
      * @param index index
      */
     protected abstract void setCurrentIndex(int index);
+
+    private void recordStart(Context ctx) {
+        ctx.setStart(true);
+        recordStartTime();
+    }
+
+    private void doTryToExecute(Context ctx) throws ServiceKeeperNotPermittedException {
+        int index = 0;
+        for (int i = 0, size = moats.size(); i < size; i++, index++) {
+            try {
+                moats.get(i).tryThrough(ctx);
+            } catch (ServiceKeeperNotPermittedException e) {
+                setCurrentIndex(i - 1);
+                throw e;
+            }
+        }
+        setCurrentIndex(index - 1);
+    }
 }
 
