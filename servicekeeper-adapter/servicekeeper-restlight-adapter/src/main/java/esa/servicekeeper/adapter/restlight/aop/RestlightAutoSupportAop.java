@@ -49,7 +49,7 @@ public class RestlightAutoSupportAop extends AbstractServiceKeeperAop {
     }
 
     @Around("(request() || get0() || post() || put() || delete() || path())" +
-            "&& !(concurrentLimit() || rateLimit() || circuitBreaker() || enableServiceKeeper() || retry() || group())")
+            "&& !(concurrentLimit() || rateLimit() || circuitBreaker() || enableServiceKeeper() || retry() || group() || fallback())")
     public Object doInvoke0(ProceedingJoinPoint pjp) throws Throwable {
         if (logger.isDebugEnabled()) {
             logger.debug("ServiceKeeper's restlight aop is surrounding method: {}",
