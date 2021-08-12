@@ -67,9 +67,9 @@ class RateLimitMoatTest {
                 }));
 
         for (int i = 0; i < limitForPeriod; i++) {
-            assertDoesNotThrow(() -> limitMoat.tryThrough(null));
+            assertDoesNotThrow(() -> limitMoat.enter(null));
         }
-        assertThrows(RateLimitOverflowException.class, () -> limitMoat.tryThrough(null));
+        assertThrows(RateLimitOverflowException.class, () -> limitMoat.enter(null));
         for (int i = 0; i < limitForPeriod; i++) {
             limitMoat.exit(null);
         }
@@ -137,9 +137,9 @@ class RateLimitMoatTest {
         long currentMillis = currentTimeMillis();
         await().until(() -> currentTimeMillis() > currentMillis + 200L);
         for (int i = 0; i < limitForPeriod; i++) {
-            assertDoesNotThrow(() -> limitMoat.tryThrough(null));
+            assertDoesNotThrow(() -> limitMoat.enter(null));
         }
-        assertThrows(RateLimitOverflowException.class, () -> limitMoat.tryThrough(null));
+        assertThrows(RateLimitOverflowException.class, () -> limitMoat.enter(null));
     }
 
     @Test

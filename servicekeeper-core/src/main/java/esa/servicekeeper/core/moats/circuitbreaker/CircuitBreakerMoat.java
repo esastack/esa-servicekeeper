@@ -84,7 +84,7 @@ public class CircuitBreakerMoat extends AbstractMoat<CircuitBreakerConfig>
     }
 
     @Override
-    public void tryThrough(Context ctx) throws ServiceKeeperNotPermittedException {
+    public void enter(Context ctx) throws ServiceKeeperNotPermittedException {
         final CircuitBreaker breaker = this.breaker.get();
         if (!hasProcessors) {
             if (!breaker.isCallPermitted()) {

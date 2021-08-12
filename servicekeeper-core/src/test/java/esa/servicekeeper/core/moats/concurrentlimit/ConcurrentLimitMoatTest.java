@@ -61,13 +61,13 @@ class ConcurrentLimitMoatTest {
                 }));
 
         for (int i = 0; i < maxConcurrentLimit; i++) {
-            assertDoesNotThrow(() -> limitMoat.tryThrough(null));
+            assertDoesNotThrow(() -> limitMoat.enter(null));
         }
-        assertThrows(ConcurrentOverFlowException.class, () -> limitMoat.tryThrough(null));
+        assertThrows(ConcurrentOverFlowException.class, () -> limitMoat.enter(null));
         for (int i = 0; i < maxConcurrentLimit; i++) {
             limitMoat.exit(null);
         }
-        assertDoesNotThrow(() -> limitMoat.tryThrough(null));
+        assertDoesNotThrow(() -> limitMoat.enter(null));
         limitMoat.exit(null);
     }
 
@@ -109,9 +109,9 @@ class ConcurrentLimitMoatTest {
         limitMoat.updateWhenNewestConfigIsNull();
         then(limitMoat.shouldDelete()).isFalse();
         for (int i = 0; i < maxConcurrentLimit; i++) {
-            assertDoesNotThrow(() -> limitMoat.tryThrough(null));
+            assertDoesNotThrow(() -> limitMoat.enter(null));
         }
-        assertThrows(ConcurrentOverFlowException.class, () -> limitMoat.tryThrough(null));
+        assertThrows(ConcurrentOverFlowException.class, () -> limitMoat.enter(null));
         for (int i = 0; i < maxConcurrentLimit; i++) {
             limitMoat.exit(null);
         }
@@ -124,7 +124,7 @@ class ConcurrentLimitMoatTest {
         config.setMaxConcurrentLimit(maxConcurrentLimit);
         limitMoat.updateWithNewestConfig(limitMoat.getFond(config));
         for (int i = 0; i < maxConcurrentLimit; i++) {
-            assertDoesNotThrow(() -> limitMoat.tryThrough(null));
+            assertDoesNotThrow(() -> limitMoat.enter(null));
         }
         for (int i = 0; i < maxConcurrentLimit; i++) {
             limitMoat.exit(null);

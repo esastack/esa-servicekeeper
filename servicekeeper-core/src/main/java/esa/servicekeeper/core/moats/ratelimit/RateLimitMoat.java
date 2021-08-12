@@ -67,7 +67,7 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
     }
 
     @Override
-    public void tryThrough(Context ctx) throws ServiceKeeperNotPermittedException {
+    public void enter(Context ctx) throws ServiceKeeperNotPermittedException {
         Duration maxWaitDuration = Duration.ZERO;
 
         if (!hasProcessors) {

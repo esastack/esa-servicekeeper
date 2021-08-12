@@ -239,7 +239,7 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
         int index = 0;
         for (int i = 0, size = moats.size(); i < size; i++, index++) {
             try {
-                moats.get(i).tryThrough(ctx);
+                moats.get(i).enter(ctx);
             } catch (ServiceKeeperNotPermittedException e) {
                 setCurrentIndex(i - 1);
                 throw e;

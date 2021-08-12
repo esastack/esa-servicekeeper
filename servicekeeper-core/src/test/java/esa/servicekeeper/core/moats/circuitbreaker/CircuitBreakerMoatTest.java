@@ -104,15 +104,15 @@ class CircuitBreakerMoatTest {
 
         when(ctx.getBizException()).thenReturn(new RuntimeException());
         for (int i = 0; i < ringBufferSizeInClosedOpen; i++) {
-            assertDoesNotThrow(() -> breakerMoat0.tryThrough(ctx));
-            assertDoesNotThrow(() -> breakerMoat1.tryThrough(ctx));
+            assertDoesNotThrow(() -> breakerMoat0.enter(ctx));
+            assertDoesNotThrow(() -> breakerMoat1.enter(ctx));
             breakerMoat0.exit(ctx);
             breakerMoat1.exit(ctx);
         }
 
-        assertDoesNotThrow(() -> breakerMoat0.tryThrough(ctx));
+        assertDoesNotThrow(() -> breakerMoat0.enter(ctx));
         assertThrows(CircuitBreakerNotPermittedException.class,
-                () -> breakerMoat1.tryThrough(ctx));
+                () -> breakerMoat1.enter(ctx));
     }
 
     @Test
@@ -129,10 +129,10 @@ class CircuitBreakerMoatTest {
                 .ringBufferSizeInClosedState(ringBufferSizeInClosedOpen).build(),
                 null, predicateStrategy);
         for (int i = 0; i < ringBufferSizeInClosedOpen; i++) {
-            assertDoesNotThrow(() -> breakerMoat0.tryThrough(ctx0));
+            assertDoesNotThrow(() -> breakerMoat0.enter(ctx0));
             breakerMoat0.exit(ctx0);
         }
-        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat0.tryThrough(ctx0));
+        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat0.enter(ctx0));
 
         Context ctx1 = mock(Context.class);
         when(ctx1.getSpendTimeMs()).thenReturn(5L);
@@ -142,10 +142,10 @@ class CircuitBreakerMoatTest {
                 .ringBufferSizeInClosedState(ringBufferSizeInClosedOpen).build(),
                 null, predicateStrategy);
         for (int i = 0; i < ringBufferSizeInClosedOpen; i++) {
-            assertDoesNotThrow(() -> breakerMoat1.tryThrough(ctx1));
+            assertDoesNotThrow(() -> breakerMoat1.enter(ctx1));
             breakerMoat1.exit(ctx1);
         }
-        assertDoesNotThrow(() -> breakerMoat1.tryThrough(ctx1));
+        assertDoesNotThrow(() -> breakerMoat1.enter(ctx1));
     }
 
     @Test
@@ -168,10 +168,10 @@ class CircuitBreakerMoatTest {
 
         for (int i = 0; i < ringBufferSizeInClosedOpen; i++) {
             if (i % 2 == 0) {
-                assertDoesNotThrow(() -> breakerMoat.tryThrough(ctx0));
+                assertDoesNotThrow(() -> breakerMoat.enter(ctx0));
                 breakerMoat.exit(ctx0);
             } else {
-                assertDoesNotThrow(() -> breakerMoat.tryThrough(ctx1));
+                assertDoesNotThrow(() -> breakerMoat.enter(ctx1));
                 breakerMoat.exit(ctx1);
             }
         }
@@ -180,8 +180,8 @@ class CircuitBreakerMoatTest {
         then(breakerMoat.getCircuitBreaker().metrics().numberOfFailedCalls())
                 .isEqualTo(ringBufferSizeInClosedOpen);
         then(breakerMoat.getCircuitBreaker().metrics().numberOfNotPermittedCalls()).isEqualTo(0);
-        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat.tryThrough(ctx0));
-        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat.tryThrough(ctx1));
+        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat.enter(ctx0));
+        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat.enter(ctx1));
     }
 
     @Test
@@ -231,10 +231,10 @@ class CircuitBreakerMoatTest {
         when(ctx.getBizException()).thenReturn(new RuntimeException());
 
         for (int i = 0; i < ringBufferSizeInClosedOpen; i++) {
-            assertDoesNotThrow(() -> breakerMoat.tryThrough(ctx));
+            assertDoesNotThrow(() -> breakerMoat.enter(ctx));
             breakerMoat.exit(ctx);
         }
-        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat.tryThrough(ctx));
+        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat.enter(ctx));
 
         // Immutable config is not null
         final int newRingBufferSizeInClosedOpen = RandomUtils.randomInt(200);
@@ -255,12 +255,12 @@ class CircuitBreakerMoatTest {
         then(breakerMoat1.shouldDelete()).isFalse();
 
         for (int i = 0; i < newRingBufferSizeInClosedOpen; i++) {
-            assertDoesNotThrow(() -> breakerMoat1.tryThrough(ctx));
+            assertDoesNotThrow(() -> breakerMoat1.enter(ctx));
             breakerMoat1.exit(ctx);
             then(breakerMoat1.getCircuitBreaker().metrics().numberOfFailedCalls()).isEqualTo(i + 1);
             then(breakerMoat1.getCircuitBreaker().metrics().numberOfSuccessfulCalls()).isEqualTo(0);
         }
-        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat1.tryThrough(ctx));
+        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat1.enter(ctx));
 
         // Reset the circuit breaker
         breakerMoat1.getCircuitBreaker().reset();

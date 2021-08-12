@@ -44,7 +44,7 @@ public interface MoatEventProcessor extends EventProcessor<MoatEvent>, MoatListe
     }
 
     /**
-     * To execute this method when {@link Moat#tryThrough(Context)} returns true.
+     * To execute this method when {@link Moat#enter(Context)} returns true.
      *
      * @param event event
      */
@@ -53,7 +53,7 @@ public interface MoatEventProcessor extends EventProcessor<MoatEvent>, MoatListe
     }
 
     /**
-     * To execute this method when {@link Moat#tryThrough(Context)} returns false.
+     * To execute this method when {@link Moat#enter(Context)} returns false.
      *
      * @param event event
      */

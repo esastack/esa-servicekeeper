@@ -39,7 +39,7 @@ public interface Moat<T> extends Ordered {
      *
      * @param ctx ctx
      */
-    void tryThrough(Context ctx) throws ServiceKeeperNotPermittedException;
+    void enter(Context ctx) throws ServiceKeeperNotPermittedException;
 
     /**
      * Exit current moat

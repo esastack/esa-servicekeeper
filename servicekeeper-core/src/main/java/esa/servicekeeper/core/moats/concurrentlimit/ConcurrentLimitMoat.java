@@ -65,7 +65,7 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
     }
 
     @Override
-    public void tryThrough(Context ctx) throws ServiceKeeperNotPermittedException {
+    public void enter(Context ctx) throws ServiceKeeperNotPermittedException {
         if (!hasProcessors) {
             if (!limiter.acquirePermission()) {
                 // ***  Note: Mustn't modify the log content which is used for keyword alarms.  **
