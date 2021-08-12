@@ -15,13 +15,7 @@
  */
 package esa.servicekeeper.core.utils;
 
-import esa.servicekeeper.core.config.BackoffConfig;
-import esa.servicekeeper.core.config.CircuitBreakerConfig;
-import esa.servicekeeper.core.config.ConcurrentLimitConfig;
-import esa.servicekeeper.core.config.FallbackConfig;
-import esa.servicekeeper.core.config.RateLimitConfig;
-import esa.servicekeeper.core.config.RetryConfig;
-import esa.servicekeeper.core.config.ServiceKeeperConfig;
+import esa.servicekeeper.core.config.*;
 import esa.servicekeeper.core.configsource.DynamicConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 
@@ -206,6 +200,10 @@ public final class ConfigUtils {
         if (external.getFallbackMethodName() != null) {
             allIsNull = false;
             builder.methodName(external.getFallbackMethodName());
+        }
+        if (external.getAlsoApplyFallbackToBizException() != null) {
+            allIsNull = false;
+            builder.alsoApplyToBizException(external.getAlsoApplyFallbackToBizException());
         }
 
         if (config == null && allIsNull) {

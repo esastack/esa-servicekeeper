@@ -213,10 +213,10 @@ public enum ExternalConfigName {
     /**
      * alsoApplyToBizException
      */
-    ALSO_APPLY_TO_BIZ_EXCEPTION("alsoApplyToBizException") {
+    ALSO_APPLY_FALLBACK_TO_BIZ_EXCEPTION("alsoApplyFallbackToBizException") {
         @Override
         public void applyConfigValue(ExternalConfig config, String value) {
-            config.setAlsoApplyToBizException(
+            config.setAlsoApplyFallbackToBizException(
                     Boolean.valueOf(value));
         }
     },

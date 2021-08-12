@@ -77,7 +77,8 @@ public class ExternalConfigUtils {
         return config != null && (config.getFallbackClass() != null ||
                 config.getFallbackMethodName() != null ||
                 config.getFallbackValue() != null ||
-                config.getFallbackExceptionClass() != null);
+                config.getFallbackExceptionClass() != null ||
+                config.getAlsoApplyFallbackToBizException() != null);
     }
 
 
