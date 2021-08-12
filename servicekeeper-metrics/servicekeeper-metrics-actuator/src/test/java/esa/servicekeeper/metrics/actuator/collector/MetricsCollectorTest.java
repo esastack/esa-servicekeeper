@@ -16,7 +16,11 @@
 package esa.servicekeeper.metrics.actuator.collector;
 
 import esa.servicekeeper.core.common.ResourceId;
-import esa.servicekeeper.core.config.*;
+import esa.servicekeeper.core.config.CircuitBreakerConfig;
+import esa.servicekeeper.core.config.ConcurrentLimitConfig;
+import esa.servicekeeper.core.config.MoatConfig;
+import esa.servicekeeper.core.config.RateLimitConfig;
+import esa.servicekeeper.core.config.RetryConfig;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
 import esa.servicekeeper.core.metrics.Metrics;
 import esa.servicekeeper.core.moats.Moat;
@@ -32,7 +36,12 @@ import esa.servicekeeper.core.retry.internal.impl.ExceptionPredicate;
 import esa.servicekeeper.core.retry.internal.impl.ExponentialBackOffPolicy;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.Mockito.mock;

@@ -18,11 +18,20 @@ package esa.servicekeeper.configsource;
 import esa.servicekeeper.configsource.utils.RandomUtils;
 import esa.servicekeeper.core.common.GroupResourceId;
 import esa.servicekeeper.core.common.ResourceId;
-import esa.servicekeeper.core.config.*;
+import esa.servicekeeper.core.config.CircuitBreakerConfig;
+import esa.servicekeeper.core.config.ConcurrentLimitConfig;
+import esa.servicekeeper.core.config.RateLimitConfig;
+import esa.servicekeeper.core.config.RetryConfig;
+import esa.servicekeeper.core.config.ServiceKeeperConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.configsource.ExternalGroupConfig;
 import esa.servicekeeper.core.configsource.GroupConfigSource;
-import esa.servicekeeper.core.factory.*;
+import esa.servicekeeper.core.factory.FallbackHandlerFactoryImpl;
+import esa.servicekeeper.core.factory.LimitableMoatFactoryContext;
+import esa.servicekeeper.core.factory.MoatClusterFactory;
+import esa.servicekeeper.core.factory.MoatClusterFactoryImpl;
+import esa.servicekeeper.core.factory.PredicateStrategyFactoryImpl;
+import esa.servicekeeper.core.factory.SateTransitionProcessorFactoryImpl;
 import esa.servicekeeper.core.internal.GlobalConfig;
 import esa.servicekeeper.core.internal.ImmutableConfigs;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
@@ -36,7 +45,11 @@ import esa.servicekeeper.core.moats.ratelimit.RateLimitMoat;
 import esa.servicekeeper.core.retry.RetryOperations;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.BDDAssertions.then;
 

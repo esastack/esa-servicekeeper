@@ -41,7 +41,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.CLOSED;
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.OPEN;
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class ExecutionChainTest {
 

@@ -16,7 +16,11 @@
 package esa.servicekeeper.core.moats;
 
 import esa.servicekeeper.core.common.ResourceId;
-import esa.servicekeeper.core.config.*;
+import esa.servicekeeper.core.config.CircuitBreakerConfig;
+import esa.servicekeeper.core.config.ConcurrentLimitConfig;
+import esa.servicekeeper.core.config.MoatConfig;
+import esa.servicekeeper.core.config.RateLimitConfig;
+import esa.servicekeeper.core.config.ServiceKeeperConfig;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByException;
 import esa.servicekeeper.core.moats.concurrentlimit.ConcurrentLimitMoat;
@@ -29,7 +33,9 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
-import static esa.servicekeeper.core.moats.MoatType.*;
+import static esa.servicekeeper.core.moats.MoatType.CIRCUIT_BREAKER;
+import static esa.servicekeeper.core.moats.MoatType.CONCURRENT_LIMIT;
+import static esa.servicekeeper.core.moats.MoatType.RATE_LIMIT;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.Mockito.mock;
 

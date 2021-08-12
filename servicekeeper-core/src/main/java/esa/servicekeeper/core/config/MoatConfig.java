@@ -17,7 +17,6 @@ package esa.servicekeeper.core.config;
 
 import esa.commons.Checks;
 import esa.servicekeeper.core.common.ResourceId;
-import esa.servicekeeper.core.fallback.FallbackHandler;
 
 import java.io.Serializable;
 

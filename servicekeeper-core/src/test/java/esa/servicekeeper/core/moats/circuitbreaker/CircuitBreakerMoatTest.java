@@ -36,7 +36,9 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 
-import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.*;
+import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.CLOSED;
+import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.FORCED_DISABLED;
+import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.FORCED_OPEN;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;

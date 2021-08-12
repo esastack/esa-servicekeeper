@@ -17,8 +17,6 @@ package esa.servicekeeper.core.moats;
 
 import esa.commons.Checks;
 import esa.servicekeeper.core.config.MoatConfig;
-import esa.servicekeeper.core.executionchain.Context;
-import esa.servicekeeper.core.fallback.FallbackHandler;
 
 import java.util.Collections;
 import java.util.List;

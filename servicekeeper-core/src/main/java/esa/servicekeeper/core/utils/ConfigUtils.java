@@ -15,11 +15,22 @@
  */
 package esa.servicekeeper.core.utils;
 
-import esa.servicekeeper.core.config.*;
+import esa.servicekeeper.core.config.BackoffConfig;
+import esa.servicekeeper.core.config.CircuitBreakerConfig;
+import esa.servicekeeper.core.config.ConcurrentLimitConfig;
+import esa.servicekeeper.core.config.FallbackConfig;
+import esa.servicekeeper.core.config.RateLimitConfig;
+import esa.servicekeeper.core.config.RetryConfig;
+import esa.servicekeeper.core.config.ServiceKeeperConfig;
 import esa.servicekeeper.core.configsource.DynamicConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 
-import static esa.servicekeeper.core.configsource.ExternalConfigUtils.*;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapCircuitBreaker;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapConcurrent;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapDynamic;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapRate;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapRetry;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasFallback;
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.FORCED_DISABLED;
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.FORCED_OPEN;
 

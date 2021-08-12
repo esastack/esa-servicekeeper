@@ -39,7 +39,11 @@ import java.util.concurrent.CountDownLatch;
 
 import static esa.servicekeeper.core.configsource.MoatLimitConfigSource.VALUE_MATCH_ALL;
 import static esa.servicekeeper.core.configsource.MoatLimitConfigSource.getMaxSizeLimit;
-import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.*;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.CIRCUITBREAKER_CONFIG;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.CONCURRENTLIMIT_CONFIG;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.FALLBACK_CONFIG;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.RATELIMIT_CONFIG;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.RETRY_CONFIG;
 import static esa.servicekeeper.core.moats.MoatType.CIRCUIT_BREAKER;
 import static esa.servicekeeper.core.moats.MoatType.CONCURRENT_LIMIT;
 import static esa.servicekeeper.core.moats.MoatType.RATE_LIMIT;

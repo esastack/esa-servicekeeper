@@ -37,7 +37,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static esa.servicekeeper.core.moats.MoatType.*;
+import static esa.servicekeeper.core.moats.MoatType.CIRCUIT_BREAKER;
+import static esa.servicekeeper.core.moats.MoatType.CONCURRENT_LIMIT;
+import static esa.servicekeeper.core.moats.MoatType.RATE_LIMIT;
 import static org.assertj.core.api.BDDAssertions.then;
 
 class OverLimitMoatHandlerTest {

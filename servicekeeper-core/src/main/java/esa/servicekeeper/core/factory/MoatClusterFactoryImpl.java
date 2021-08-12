@@ -20,13 +20,23 @@ import esa.commons.StringUtils;
 import esa.servicekeeper.core.common.ArgResourceId;
 import esa.servicekeeper.core.common.OriginalInvocation;
 import esa.servicekeeper.core.common.ResourceId;
-import esa.servicekeeper.core.config.*;
+import esa.servicekeeper.core.config.CircuitBreakerConfig;
+import esa.servicekeeper.core.config.ConcurrentLimitConfig;
+import esa.servicekeeper.core.config.FallbackConfig;
+import esa.servicekeeper.core.config.RateLimitConfig;
+import esa.servicekeeper.core.config.RetryConfig;
+import esa.servicekeeper.core.config.ServiceKeeperConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.fallback.FallbackHandlerConfig;
 import esa.servicekeeper.core.internal.ImmutableConfigs;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
-import esa.servicekeeper.core.moats.*;
+import esa.servicekeeper.core.moats.ArgMoatCluster;
+import esa.servicekeeper.core.moats.ArgMoatClusterImpl;
+import esa.servicekeeper.core.moats.Moat;
+import esa.servicekeeper.core.moats.MoatCluster;
+import esa.servicekeeper.core.moats.MoatType;
+import esa.servicekeeper.core.moats.RetryableMoatCluster;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
 import esa.servicekeeper.core.moats.concurrentlimit.ConcurrentLimitMoat;
 import esa.servicekeeper.core.moats.ratelimit.RateLimitMoat;
@@ -42,9 +52,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static esa.servicekeeper.core.configsource.ExternalConfigUtils.*;
-import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.*;
-import static esa.servicekeeper.core.moats.MoatType.*;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapCircuitBreaker;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapConcurrent;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapRate;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapRetry;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.CIRCUITBREAKER_CONFIG;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.CONCURRENTLIMIT_CONFIG;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.RATELIMIT_CONFIG;
+import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.RETRY_CONFIG;
+import static esa.servicekeeper.core.moats.MoatType.CIRCUIT_BREAKER;
+import static esa.servicekeeper.core.moats.MoatType.CONCURRENT_LIMIT;
+import static esa.servicekeeper.core.moats.MoatType.RATE_LIMIT;
+import static esa.servicekeeper.core.moats.MoatType.RETRY;
 
 public class MoatClusterFactoryImpl implements MoatClusterFactory {
 
