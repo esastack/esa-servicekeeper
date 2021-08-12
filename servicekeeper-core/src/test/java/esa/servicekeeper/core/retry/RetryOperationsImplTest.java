@@ -34,7 +34,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class RetryOperationsImplTest {
 
@@ -150,23 +149,6 @@ class RetryOperationsImplTest {
         then(metrics0.maxAttempts()).isEqualTo(1);
         then(metrics0.retriedTimes()).isEqualTo(0);
         then(metrics0.totalRetriedCount()).isEqualTo(0);
-    }
-
-    @Test
-    void testContextProxy() {
-        final Context ctx = mock(Context.class);
-        final RuntimeException bizEx = new RuntimeException();
-        final ServiceRetryException retryEx = new ServiceRetryException("", new IllegalStateException());
-        final RetryOperationsImpl.ContextProxy proxy = new RetryOperationsImpl.ContextProxy(ctx,
-                bizEx, retryEx);
-        then(proxy.getBizException()).isSameAs(bizEx);
-        then(proxy.getThroughFailsCause()).isSameAs(retryEx);
-
-        when(ctx.getResult()).thenReturn("ABC");
-        then(proxy.getResult()).isEqualTo("ABC");
-
-        when(ctx.getSpendTimeMs()).thenReturn(100L);
-        then(proxy.getSpendTimeMs()).isEqualTo(100L);
     }
 
     @Test

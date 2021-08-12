@@ -21,9 +21,7 @@ import esa.servicekeeper.core.config.RetryConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.exception.BackOffInterruptedException;
 import esa.servicekeeper.core.exception.ServiceRetryException;
-import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.executionchain.Executable;
-import esa.servicekeeper.core.executionchain.SyncContext;
 import esa.servicekeeper.core.listener.FondConfigListener;
 import esa.servicekeeper.core.metrics.RetryMetrics;
 import esa.servicekeeper.core.moats.LifeCycleSupport;
@@ -296,42 +294,6 @@ public class RetryOperationsImpl implements RetryOperations, FondConfigListener<
 
         private void onEnd(RetryContext ctx) {
             totalRetriedCount.add(ctx.getRetriedCount() - 1);
-        }
-    }
-
-    static class ContextProxy extends SyncContext {
-
-        private static final long serialVersionUID = -3067946257501126040L;
-
-        private final Context context;
-        private final Throwable bizException;
-        private final ServiceRetryException failsCause;
-
-        ContextProxy(Context context, Throwable bizException, ServiceRetryException failsCause) {
-            super(context.getResourceId(), context.getArgs());
-            this.bizException = bizException;
-            this.context = context;
-            this.failsCause = failsCause;
-        }
-
-        @Override
-        public Throwable getBizException() {
-            return bizException;
-        }
-
-        @Override
-        public Object getResult() {
-            return context.getResult();
-        }
-
-        @Override
-        public long getSpendTimeMs() {
-            return context.getSpendTimeMs();
-        }
-
-        @Override
-        public ServiceRetryException getThroughFailsCause() {
-            return failsCause;
         }
     }
 }
