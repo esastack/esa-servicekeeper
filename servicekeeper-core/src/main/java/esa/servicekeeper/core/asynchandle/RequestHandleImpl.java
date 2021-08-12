@@ -73,12 +73,7 @@ public class RequestHandleImpl implements RequestHandle {
     @Override
     public Object fallback(Throwable cause) throws Throwable {
         Checks.checkNotNull(cause, "throwable");
-        if (ctx.isStart()) {
-            endWithError(cause);
-        } else {
-            ExecutionChain chain = tryGetExecutionChain();
-            chain.endAndClean(ctx);
-        }
+        endWithError(cause);
         if (fallbackHandler == null) {
             throw cause;
         }

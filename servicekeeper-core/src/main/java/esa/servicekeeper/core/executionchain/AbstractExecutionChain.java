@@ -43,7 +43,7 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
     public RequestHandle tryToExecute(Context ctx) {
         try {
             doTryToExecute(ctx);
-            recordStart(ctx);
+            recordStartTime();
         } catch (ServiceKeeperNotPermittedException e) {
             return RequestHandleImpl.createNotAllowHandle(this,
                     ctx, fallbackHandler, e);
@@ -114,8 +114,9 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
     @Override
     public void endWithSuccess(Context ctx) {
         if (getStartTime() > 0L) {
-            endAndClean(ctx);
+            endAndExitMoats(ctx);
         } else {
+            //if getStartTime() <= 0L,it declare the context is not start,so it can't be end
             throw REQUEST_NOT_START_EXCEPTION;
         }
     }
@@ -124,8 +125,9 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
     public void endWithResult(Context ctx, Object result) {
         if (getStartTime() > 0L) {
             ctx.setResult(result);
-            endAndClean(ctx);
+            endAndExitMoats(ctx);
         } else {
+            //if getStartTime() <= 0L,it declare the context is not start,so it can't be end
             throw REQUEST_NOT_START_EXCEPTION;
         }
     }
@@ -134,25 +136,12 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
     public void endWithError(Context ctx, Throwable throwable) {
         if (getStartTime() > 0L) {
             ctx.setBizException(throwable);
-            endAndClean(ctx);
+            endAndExitMoats(ctx);
         } else {
-            throw REQUEST_NOT_START_EXCEPTION;
+            //if getStartTime() <= 0L,it declare the context is not start,
+            // so the throwable is caused by serviceKeeper'logic
+            exitMoats(ctx);
         }
-    }
-
-    @Override
-    public void endAndClean(Context ctx) {
-        //Note: If the ctx has already end, current end will be ignored.
-        if (getEndTime() <= 0L) {
-            recordEndTime();
-        }
-
-        ctx.setSpendTimeMs(getSpendTimeMs());
-
-        for (int i = getCurrentIndex(); i >= 0; i--) {
-            moats.get(i).exit(ctx);
-        }
-        setCurrentIndex(-1);
     }
 
     /**
@@ -230,9 +219,21 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
      */
     protected abstract void setCurrentIndex(int index);
 
-    private void recordStart(Context ctx) {
-        ctx.setStart(true);
-        recordStartTime();
+    private void endAndExitMoats(Context ctx) {
+        //Note: If the ctx has already end, current end will be ignored.
+        if (getEndTime() <= 0L) {
+            recordEndTime();
+        }
+
+        ctx.setSpendTimeMs(getSpendTimeMs());
+        exitMoats(ctx);
+    }
+
+    private void exitMoats(Context ctx) {
+        for (int i = getCurrentIndex(); i >= 0; i--) {
+            moats.get(i).exit(ctx);
+        }
+        setCurrentIndex(-1);
     }
 
     private void doTryToExecute(Context ctx) throws ServiceKeeperNotPermittedException {

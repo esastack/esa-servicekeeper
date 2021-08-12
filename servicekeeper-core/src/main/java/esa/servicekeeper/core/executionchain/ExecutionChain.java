@@ -62,6 +62,4 @@ public interface ExecutionChain {
      * @param throwable throwable
      */
     void endWithError(Context ctx, Throwable throwable);
-
-    void endAndClean(Context ctx);
 }
