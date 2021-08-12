@@ -57,20 +57,20 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
     @SuppressWarnings("unchecked")
     public <R> R asyncExecute(AsyncContext ctx, Supplier<OriginalInvocation> invocation,
                               Executable<R> executable, AsyncResultHandler handler) throws Throwable {
-        RequestHandle requestHandle = tryToExecute(ctx);
-        Throwable notAllowCause = requestHandle.getNotAllowedCause();
+        RequestHandle handle = tryToExecute(ctx);
+        Throwable notAllowCause = handle.getNotAllowedCause();
         if (notAllowCause != null) {
             endAndClean(ctx);
-            return (R) requestHandle.fallback(notAllowCause);
+            return (R) handle.fallback(notAllowCause);
         }
 
         try {
             R result = doExecute(ctx, invocation, executable, true);
             // Note: If the original call execute successfully, clean the internal later.
-            return (R) handler.handle(result, requestHandle);
+            return (R) handler.handle(result, handle);
         } catch (Throwable throwable) {
             // Note: If any throwable caught, clean the internal timely.
-            return (R) requestHandle.fallback(throwable);
+            return (R) handle.fallback(throwable);
         }
     }
 
@@ -78,37 +78,37 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
     @SuppressWarnings("unchecked")
     public <R> R execute(Context ctx, Supplier<OriginalInvocation> invocation,
                          Executable<R> executable) throws Throwable {
-        RequestHandle requestHandle = tryToExecute(ctx);
-        Throwable notAllowCause = requestHandle.getNotAllowedCause();
+        RequestHandle handle = tryToExecute(ctx);
+        Throwable notAllowCause = handle.getNotAllowedCause();
         if (notAllowCause != null) {
-            return (R) requestHandle.fallback(notAllowCause);
+            return (R) handle.fallback(notAllowCause);
         }
 
         try {
             R result = doExecute(ctx, invocation, executable, false);
             ctx.setResult(result);
-            requestHandle.endWithResult(result);
+            handle.endWithResult(result);
             return result;
         } catch (Throwable throwable) {
-            return (R) requestHandle.fallback(throwable);
+            return (R) handle.fallback(throwable);
         }
     }
 
     @Override
     public void execute(Context ctx, Supplier<OriginalInvocation> invocation,
                         Runnable runnable) throws Throwable {
-        RequestHandle requestHandle = tryToExecute(ctx);
-        Throwable notAllowCause = requestHandle.getNotAllowedCause();
+        RequestHandle handle = tryToExecute(ctx);
+        Throwable notAllowCause = handle.getNotAllowedCause();
         if (notAllowCause != null) {
-            requestHandle.fallback(notAllowCause);
+            handle.fallback(notAllowCause);
             return;
         }
 
         try {
             doExecute(ctx, invocation, runnable, false);
-            requestHandle.endWithSuccess();
+            handle.endWithSuccess();
         } catch (Throwable throwable) {
-            requestHandle.fallback(throwable);
+            handle.fallback(throwable);
         }
     }
 
