@@ -16,6 +16,7 @@
 package esa.servicekeeper.core.asynchandle;
 
 import esa.commons.Checks;
+import esa.servicekeeper.core.exception.ServiceKeeperException;
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.executionchain.AsyncExecutionChain;
 import esa.servicekeeper.core.executionchain.Context;
@@ -81,7 +82,7 @@ public class RequestHandleImpl implements RequestHandle {
         if (fallbackHandler == null) {
             throw cause;
         }
-        if ((cause instanceof ServiceKeeperNotPermittedException)
+        if ((cause instanceof ServiceKeeperException)
                 || fallbackHandler.alsoApplyToBizException()) {
             return fallbackHandler.handle(ctx);
         }
