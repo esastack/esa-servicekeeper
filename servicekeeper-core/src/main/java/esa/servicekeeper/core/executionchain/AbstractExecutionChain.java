@@ -60,7 +60,6 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
         RequestHandle handle = tryToExecute(ctx);
         Throwable notAllowCause = handle.getNotAllowedCause();
         if (notAllowCause != null) {
-            endAndClean(ctx);
             return (R) handle.fallback(notAllowCause);
         }
 
