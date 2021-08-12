@@ -71,10 +71,6 @@ public abstract class Context implements Serializable {
      */
     public abstract long getSpendTimeMs();
 
-    void setThroughFailsCause(ServiceKeeperNotPermittedException throughFailsCause) {
-        this.throughFailsCause = throughFailsCause;
-    }
-
     /**
      * Get spendTimeMs
      *
