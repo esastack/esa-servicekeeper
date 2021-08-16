@@ -52,6 +52,11 @@ public class RequestHandleImpl implements RequestHandle {
     }
 
     @Override
+    public boolean isAllowed() {
+        return notAllowCause == null;
+    }
+
+    @Override
     public ServiceKeeperNotPermittedException getNotAllowedCause() {
         return notAllowCause;
     }

@@ -31,6 +31,11 @@ public interface RequestHandle {
     RequestHandle DEFAULT_PASS_WITHOUT_OBSTACLE = new RequestHandle() {
 
         @Override
+        public boolean isAllowed() {
+            return true;
+        }
+
+        @Override
         public ServiceKeeperNotPermittedException getNotAllowedCause() {
             return null;
         }
@@ -56,6 +61,13 @@ public interface RequestHandle {
         }
 
     };
+
+    /**
+     * Whether the request is allowed.
+     *
+     * @return true or false
+     */
+    boolean isAllowed();
 
     /**
      * Try to get the reason of the request is not allowed.
