@@ -47,7 +47,7 @@ public class RequestHandleImpl implements RequestHandle {
 
     @Override
     public void endWithSuccess() {
-        ExecutionChain chain = tryGetExecutionChain();
+        ExecutionChain chain = tryGetAndUpdateChain();
         chain.endWithSuccess(ctx);
     }
 
@@ -63,7 +63,7 @@ public class RequestHandleImpl implements RequestHandle {
 
     @Override
     public void endWithResult(final Object result) {
-        ExecutionChain chain = tryGetExecutionChain();
+        ExecutionChain chain = tryGetAndUpdateChain();
         chain.endWithResult(ctx, result);
     }
 
@@ -71,7 +71,7 @@ public class RequestHandleImpl implements RequestHandle {
     public void endWithError(final Throwable throwable) {
         Checks.checkNotNull(throwable, "throwable");
 
-        ExecutionChain chain = tryGetExecutionChain();
+        ExecutionChain chain = tryGetAndUpdateChain();
         chain.endWithError(ctx, throwable);
     }
 
@@ -106,7 +106,7 @@ public class RequestHandleImpl implements RequestHandle {
         return new RequestHandleImpl(executionChain, ctx, fallbackHandler, notAllowCause);
     }
 
-    private ExecutionChain tryGetExecutionChain() {
+    private ExecutionChain tryGetAndUpdateChain() {
         ExecutionChain chain = executionChain.getAndUpdate((pre) -> null);
         if (chain == null) {
             throw REPEAT_END_EXCEPTION;
