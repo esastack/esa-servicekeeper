@@ -137,6 +137,7 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
         } else {
             //if getStartTime() <= 0L,it declare the context is not start,
             // so the throwable is caused by serviceKeeper'logic
+            ctx.setEnterFailsCause((ServiceKeeperNotPermittedException) throwable);
             exitMoats(ctx);
         }
     }

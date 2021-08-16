@@ -41,7 +41,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.CLOSED;
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.OPEN;
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -302,7 +301,8 @@ class ExecutionChainTest {
                 ConcurrentLimitMoat(getConfig(name), ConcurrentLimitConfig.ofDefault(),
                 null, Collections.emptyList()));
         ExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
-        assertDoesNotThrow(() -> chain.endWithError(new AsyncContext(name), new RuntimeException()));
+        assertThrows(ClassCastException.class,
+                () -> chain.endWithError(new AsyncContext(name), new RuntimeException()));
     }
 
     @Test

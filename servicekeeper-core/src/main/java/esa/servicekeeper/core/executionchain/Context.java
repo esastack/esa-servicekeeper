@@ -27,7 +27,7 @@ public abstract class Context implements Serializable {
     private final String resourceId;
     private final transient Object[] args;
 
-    private ServiceKeeperNotPermittedException throughFailsCause;
+    private ServiceKeeperNotPermittedException enterFailsCause;
 
     public Context(String resourceId) {
         this(resourceId, null);
@@ -46,8 +46,8 @@ public abstract class Context implements Serializable {
         return args;
     }
 
-    public ServiceKeeperException getThroughFailsCause() {
-        return throughFailsCause;
+    public ServiceKeeperException getEnterFailsCause() {
+        return enterFailsCause;
     }
 
     /**
@@ -70,6 +70,10 @@ public abstract class Context implements Serializable {
      * @return maxSpendTimeMs
      */
     public abstract long getSpendTimeMs();
+
+    void setEnterFailsCause(ServiceKeeperNotPermittedException enterFailsCause) {
+        this.enterFailsCause = enterFailsCause;
+    }
 
     /**
      * Get spendTimeMs

@@ -22,6 +22,7 @@ import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import esa.servicekeeper.core.exception.ServiceKeeperException;
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.exception.ServiceRetryException;
+import esa.servicekeeper.core.utils.FallbackMethodUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -39,7 +40,7 @@ public class FallbackMethod {
         this.method = method;
         this.isStatic = Modifier.isStatic(method.getModifiers());
         method.setAccessible(true);
-        this.causeAtFirst = isCauseAtFirst(method.getParameterTypes());
+        this.causeAtFirst = FallbackMethodUtils.isCauseAtFirst(method.getParameterTypes());
         this.matchFullArgs = isMatchFullArgs(causeAtFirst, method.getParameterCount());
     }
 
@@ -77,14 +78,11 @@ public class FallbackMethod {
                 return causeType.isAssignableFrom(ServiceKeeperNotPermittedException.class);
             case SERVICE_KEEPER:
                 return causeType.isAssignableFrom(ServiceKeeperException.class);
+            case BIZ:
+                return true;
             default:
                 return false;
         }
-    }
-
-    private boolean isCauseAtFirst(Class<?>[] targetParameterTypes) {
-        return targetParameterTypes.length > 0 &&
-                ServiceKeeperException.class.isAssignableFrom(targetParameterTypes[0]);
     }
 
     private boolean isMatchFullArgs(boolean isCauseAtFirst, int parameterLength) {

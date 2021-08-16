@@ -81,14 +81,20 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
     @Override
     @SuppressWarnings("unchecked")
     public R handle(Context ctx) throws Throwable {
-        final FallbackMethod fallbackMethod = matchingMethod(ctx);
+        //ThroughFailsCause and bizException never exist meanwhile
+        Throwable error = ctx.getEnterFailsCause();
+        if (error == null) {
+            error = ctx.getBizException();
+        }
+
+        final FallbackMethod fallbackMethod = matchingMethod(error);
 
         if (fallbackMethod == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Couldn't find method to handle exception: "
-                        + ctx.getThroughFailsCause().getMessage());
+                        + error.getMessage());
             }
-            throw ctx.getThroughFailsCause();
+            throw error;
         }
 
         final Method method = fallbackMethod.getMethod();
@@ -105,9 +111,9 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
             if (fallbackMethod.isCauseAtFirst()) {
                 if (fallbackMethod.isMatchFullArgs()) {
                     result = (R) method.invoke(object,
-                            combiningFailsCause(ctx.getThroughFailsCause(), ctx.getArgs()));
+                            combiningFailsCause(error, ctx.getArgs()));
                 } else {
-                    result = (R) method.invoke(object, new Object[]{ctx.getThroughFailsCause()});
+                    result = (R) method.invoke(object, new Object[]{error});
                 }
             } else {
                 if (fallbackMethod.isMatchFullArgs()) {
@@ -144,28 +150,31 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
                 '}';
     }
 
-    private FallbackMethod matchingMethod(final Context ctx) {
-        if (ctx.getThroughFailsCause() instanceof CircuitBreakerNotPermittedException) {
-            return fallbackMethodMap.get(CauseType.CIRCUIT_BREAKER);
-        }
-        if (ctx.getThroughFailsCause() instanceof RateLimitOverflowException) {
-            return fallbackMethodMap.get(CauseType.RATE_LIMIT);
-        }
-        if (ctx.getThroughFailsCause() instanceof ConcurrentOverFlowException) {
-            return fallbackMethodMap.get(CauseType.CONCURRENT_LIMIT);
-        }
-        if (ctx.getThroughFailsCause() instanceof ServiceRetryException) {
-            return fallbackMethodMap.get(CauseType.RETRY);
-        }
-        if (ctx.getThroughFailsCause() instanceof ServiceKeeperNotPermittedException) {
-            return fallbackMethodMap.get(CauseType.SERVICE_KEEPER_NOT_PERMIT);
+    private FallbackMethod matchingMethod(final Throwable error) {
+        if (error == null) {
+            return fallbackMethodMap.get(CauseType.UNKNOWN);
         }
 
-        if (ctx.getThroughFailsCause() != null) {
+        if (error instanceof CircuitBreakerNotPermittedException) {
+            return fallbackMethodMap.get(CauseType.CIRCUIT_BREAKER);
+        }
+        if (error instanceof RateLimitOverflowException) {
+            return fallbackMethodMap.get(CauseType.RATE_LIMIT);
+        }
+        if (error instanceof ConcurrentOverFlowException) {
+            return fallbackMethodMap.get(CauseType.CONCURRENT_LIMIT);
+        }
+        if (error instanceof ServiceRetryException) {
+            return fallbackMethodMap.get(CauseType.RETRY);
+        }
+        if (error instanceof ServiceKeeperNotPermittedException) {
+            return fallbackMethodMap.get(CauseType.SERVICE_KEEPER_NOT_PERMIT);
+        }
+        if (error instanceof ServiceKeeperException) {
             return fallbackMethodMap.get(CauseType.SERVICE_KEEPER);
         }
 
-        return fallbackMethodMap.get(CauseType.UNKNOWN);
+        return fallbackMethodMap.get(CauseType.BIZ);
     }
 
     private Map<CauseType, FallbackMethod> initFallbackMethodMap() {
@@ -211,10 +220,10 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
         return fallbackMethodMap;
     }
 
-    private Object[] combiningFailsCause(ServiceKeeperException causeException, Object[] realArgs) {
+    private Object[] combiningFailsCause(Throwable error, Object[] realArgs) {
         Object[] combinedArgs = new Object[realArgs == null ? 1 : realArgs.length + 1];
 
-        combinedArgs[0] = causeException;
+        combinedArgs[0] = error;
         if (combinedArgs.length == 1) {
             return combinedArgs;
         } else {
