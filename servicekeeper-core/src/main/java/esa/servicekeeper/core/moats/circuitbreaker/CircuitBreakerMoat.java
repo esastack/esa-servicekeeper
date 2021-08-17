@@ -35,7 +35,7 @@ import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateConfigFill
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateStrategy;
 import esa.servicekeeper.core.utils.LogUtils;
 import esa.servicekeeper.core.utils.TimerLogger;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;

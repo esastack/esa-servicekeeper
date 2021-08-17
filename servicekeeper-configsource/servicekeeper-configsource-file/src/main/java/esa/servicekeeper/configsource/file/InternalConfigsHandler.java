@@ -22,7 +22,7 @@ import esa.servicekeeper.core.common.ArgConfigKey;
 import esa.servicekeeper.core.common.ResourceId;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.util.HashMap;
 import java.util.Map;

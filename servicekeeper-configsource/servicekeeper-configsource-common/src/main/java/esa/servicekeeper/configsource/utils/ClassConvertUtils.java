@@ -19,7 +19,7 @@ import esa.commons.StringUtils;
 import esa.servicekeeper.configsource.constant.Constants;
 import esa.servicekeeper.core.utils.ClassCastUtils;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.util.LinkedList;
 import java.util.List;

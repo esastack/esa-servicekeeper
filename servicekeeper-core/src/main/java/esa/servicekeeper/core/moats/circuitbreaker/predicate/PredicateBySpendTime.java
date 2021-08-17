@@ -21,7 +21,7 @@ import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.listener.FondConfigListener;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 public class PredicateBySpendTime implements PredicateStrategy, PredicateConfigFilling,
         FondConfigListener<Long> {

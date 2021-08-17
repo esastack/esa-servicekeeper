@@ -23,7 +23,7 @@ import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
 import esa.servicekeeper.core.moats.concurrentlimit.ConcurrentLimitMoat;
 import esa.servicekeeper.core.moats.ratelimit.RateLimitMoat;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;

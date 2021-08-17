@@ -27,7 +27,7 @@ import esa.servicekeeper.core.fallback.FallbackToFunction;
 import esa.servicekeeper.core.fallback.FallbackToValue;
 import esa.servicekeeper.core.utils.FallbackMethodUtils;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;

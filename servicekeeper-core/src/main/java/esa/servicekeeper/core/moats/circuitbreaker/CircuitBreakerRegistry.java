@@ -18,7 +18,7 @@ package esa.servicekeeper.core.moats.circuitbreaker;
 import esa.servicekeeper.core.config.CircuitBreakerConfig;
 import esa.servicekeeper.core.moats.circuitbreaker.internal.CircuitBreakerStateMachine;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.util.List;
 import java.util.Map;

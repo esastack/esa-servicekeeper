@@ -28,7 +28,7 @@ import esa.servicekeeper.core.moats.LifeCycleSupport;
 import esa.servicekeeper.core.retry.internal.BackOffPolicy;
 import esa.servicekeeper.core.retry.internal.RetryablePredicate;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.util.Collections;
 import java.util.List;

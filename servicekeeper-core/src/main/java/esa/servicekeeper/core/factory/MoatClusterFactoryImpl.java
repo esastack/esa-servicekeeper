@@ -45,7 +45,7 @@ import esa.servicekeeper.core.retry.RetryOperations;
 import esa.servicekeeper.core.retry.RetryableExecutor;
 import esa.servicekeeper.core.utils.ConfigUtils;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

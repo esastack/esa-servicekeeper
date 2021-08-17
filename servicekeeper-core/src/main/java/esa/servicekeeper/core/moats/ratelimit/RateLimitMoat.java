@@ -33,7 +33,7 @@ import esa.servicekeeper.core.moats.MoatEventProcessor;
 import esa.servicekeeper.core.moats.MoatType;
 import esa.servicekeeper.core.utils.LogUtils;
 import esa.servicekeeper.core.utils.TimerLogger;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.time.Duration;
 import java.util.List;
