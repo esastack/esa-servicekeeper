@@ -31,7 +31,7 @@ import esa.servicekeeper.core.factory.MoatClusterFactory;
 import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.internal.GlobalConfig;
 import esa.servicekeeper.core.internal.ImmutableConfigs;
-import esa.servicekeeper.core.moats.ArgMoatCluster;
+import esa.servicekeeper.core.moats.FallbackMoatCluster;
 import esa.servicekeeper.core.moats.Moat;
 import esa.servicekeeper.core.moats.MoatCluster;
 import esa.servicekeeper.core.moats.RetryableMoatCluster;
@@ -128,39 +128,42 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
         final CompositeServiceKeeperConfig immutableConfig0 = getOrComputeConfig(resourceId, immutableConfig);
 
         // Get method chain
-        final RetryableMoatCluster retryableMoatCluster = factory.getOrCreateOfMethod(resourceId,
+        final FallbackMoatCluster moatClusterOfMethod = (FallbackMoatCluster) factory.getOrCreate(resourceId,
                 invocation,
                 () -> (immutableConfig0 == null ? null : immutableConfig0.getMethodConfig()),
-                () -> getExternalConfig(resourceId));
+                () -> getExternalConfig(resourceId),
+                isAsync);
 
         if (!globalConfig.argLevelEnable()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("ServiceKeeper args' governance has been disabled, so the args'" +
                         " checking will be ignored");
             }
-            return buildExecutionChain(retryableMoatCluster, null, isAsync, name);
+            return buildExecutionChain(moatClusterOfMethod, null, isAsync, name);
         }
 
         if (args == null || args.length == 0) {
-            return buildExecutionChain(retryableMoatCluster, null, isAsync, name);
+            return buildExecutionChain(moatClusterOfMethod, null, isAsync, name);
         }
 
-        return buildExecutionChain(retryableMoatCluster,
-                getArgMoatClusters(resourceId, invocation, immutableConfig0, args),
+        return buildExecutionChain(moatClusterOfMethod,
+                getMoatClustersOfArgs(resourceId, invocation, immutableConfig0, isAsync, args),
                 isAsync, name);
     }
 
-    private List<ArgMoatCluster> getArgMoatClusters(ResourceId resourceId,
+    private List<MoatCluster> getMoatClustersOfArgs(ResourceId resourceId,
                                                     Supplier<OriginalInvocation> invocation,
                                                     CompositeServiceKeeperConfig immutableConfig,
-                                                    Object... args) {
+                                                    boolean isAsync,
+                                                    Object... args
+    ) {
         final CompositeServiceKeeperConfig.ArgsServiceKeeperConfig argsConfig = immutableConfig == null
                 ? null : immutableConfig.getArgConfig();
         final Map<Integer, CompositeServiceKeeperConfig.CompositeArgConfig> argConfigMap = argsConfig == null
                 ? null : argsConfig.getArgConfigMap();
 
         String argName;
-        List<ArgMoatCluster> argMoatClusters = new ArrayList<>(3);
+        List<MoatCluster> moatClustersOfArgs = new ArrayList<>(3);
         for (int i = 0; i < args.length; i++) {
             if (args[i] == null) {
                 continue;
@@ -175,15 +178,15 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
             // If the current arg value is not configured in immutable config or external config, that means
             // the value is not considered as a governed value, just continue the next arg.
             final int index = i;
-            final ArgMoatCluster argMoatCluster = factory.getOrCreateOfArg(argId,
+            final MoatCluster argMoatCluster = factory.getOrCreate(argId,
                     invocation,
                     () -> getImmutableConfig(resourceId, args[index], argConfig),
-                    () -> getExternalConfig(argId));
+                    () -> getExternalConfig(argId), isAsync);
             if (argMoatCluster != null) {
-                argMoatClusters.add(argMoatCluster);
+                moatClustersOfArgs.add(argMoatCluster);
             }
         }
-        return argMoatClusters;
+        return moatClustersOfArgs;
     }
 
     /**
@@ -264,25 +267,27 @@ abstract class AbstractServiceKeeperEntry implements ServiceKeeperEntry {
         }
     }
 
-    private AbstractExecutionChain buildExecutionChain(RetryableMoatCluster retryableMoatCluster,
-                                                       List<ArgMoatCluster> argMoatClusters,
+    private AbstractExecutionChain buildExecutionChain(FallbackMoatCluster moatClusterOfMethod,
+                                                       List<MoatCluster> moatClustersOfArgs,
                                                        boolean isAsync, String name) {
 
-        if (retryableMoatCluster == null && argMoatClusters == null) {
+        if (moatClusterOfMethod == null && moatClustersOfArgs == null) {
             return null;
         }
 
         final List<Moat<?>> moats = new ArrayList<>(3);
         FallbackHandler<?> fallbackHandler = null;
         RetryableExecutor executor = null;
-        if (retryableMoatCluster != null) {
-            fallbackHandler = retryableMoatCluster.fallbackHandler();
-            executor = retryableMoatCluster.retryExecutor();
-            moats.addAll(retryableMoatCluster.getAll());
+        if (moatClusterOfMethod != null) {
+            moats.addAll(moatClusterOfMethod.getAll());
+            fallbackHandler = moatClusterOfMethod.fallbackHandler();
+            if (RetryableMoatCluster.isInstance(moatClusterOfMethod)) {
+                executor = ((RetryableMoatCluster) moatClusterOfMethod).retryExecutor();
+            }
         }
 
-        if (argMoatClusters != null) {
-            for (ArgMoatCluster argMoatCluster : argMoatClusters) {
+        if (moatClustersOfArgs != null) {
+            for (MoatCluster argMoatCluster : moatClustersOfArgs) {
                 moats.addAll(argMoatCluster.getAll());
             }
         }

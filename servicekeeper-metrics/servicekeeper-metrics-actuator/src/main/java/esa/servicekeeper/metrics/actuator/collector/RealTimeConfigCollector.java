@@ -107,7 +107,7 @@ public class RealTimeConfigCollector {
             }
         }
 
-        if (cluster instanceof RetryableMoatCluster) {
+        if (RetryableMoatCluster.isInstance(cluster)) {
             final RetryableExecutor executor = ((RetryableMoatCluster) cluster).retryExecutor();
             if (executor != null) {
                 builder.retryConfig(executor.getOperations().getConfig());

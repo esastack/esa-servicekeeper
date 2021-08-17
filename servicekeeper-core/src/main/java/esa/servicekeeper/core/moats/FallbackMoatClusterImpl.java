@@ -15,8 +15,22 @@
  */
 package esa.servicekeeper.core.moats;
 
-/**
- * This class has no new functions, just to identify that it is a MoatCluster only for arg
- */
-public interface ArgMoatCluster extends MoatCluster {
+import esa.servicekeeper.core.fallback.FallbackHandler;
+
+import java.util.List;
+
+public class FallbackMoatClusterImpl extends MoatClusterImpl implements FallbackMoatCluster {
+
+    private final FallbackHandler<?> fallbackHandler;
+
+    public FallbackMoatClusterImpl(List<Moat<?>> moats, List<MoatClusterListener> listeners,
+                                   FallbackHandler<?> fallbackHandler) {
+        super(moats, listeners);
+        this.fallbackHandler = fallbackHandler;
+    }
+
+    @Override
+    public FallbackHandler<?> fallbackHandler() {
+        return fallbackHandler;
+    }
 }

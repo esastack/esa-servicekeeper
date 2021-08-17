@@ -135,7 +135,7 @@ public class InternalsUpdaterImpl implements InternalsUpdater {
             if (listener instanceof LifeCycleSupport && ((LifeCycleSupport) listener).shouldDelete()) {
                 if (listener instanceof Moat) {
                     cluster0.remove((Moat<?>) listener);
-                } else if (cluster0 instanceof RetryableMoatCluster && listener instanceof RetryOperationsImpl) {
+                } else if (RetryableMoatCluster.isInstance(cluster0) && listener instanceof RetryOperationsImpl) {
                     ((RetryableMoatCluster) cluster0).updateRetryExecutor(null);
                 }
                 logger.info("Removed {}'s listener(moat): {} from moat cluster successfully",
@@ -176,7 +176,7 @@ public class InternalsUpdaterImpl implements InternalsUpdater {
 
         final List<ExternalConfigListener> listeners = new ArrayList<>(5);
         RetryableExecutor executor;
-        if (cluster0 instanceof RetryableMoatCluster &&
+        if (RetryableMoatCluster.isInstance(cluster0) &&
                 (executor = ((RetryableMoatCluster) cluster0).retryExecutor()) != null) {
             final RetryOperations operations = executor.getOperations();
             if (operations instanceof ExternalConfigListener) {
@@ -212,7 +212,7 @@ public class InternalsUpdaterImpl implements InternalsUpdater {
             return false;
         }
 
-        final boolean retryable = cluster0 instanceof RetryableMoatCluster;
+        final boolean retryable = RetryableMoatCluster.isInstance(cluster0);
         return (!retryable) || ((RetryableMoatCluster) cluster0).retryExecutor() == null;
     }
 }

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class RetryableMoatCluster extends MethodMoatClusterImpl {
+public class RetryableMoatCluster extends FallbackMoatClusterImpl {
 
     private final AtomicReference<RetryableExecutor> retryable;
 
@@ -38,6 +38,10 @@ public class RetryableMoatCluster extends MethodMoatClusterImpl {
 
     public void updateRetryExecutor(RetryableExecutor executor) {
         retryable.updateAndGet(item -> executor);
+    }
+
+    public static boolean isInstance(MoatCluster moatCluster) {
+        return moatCluster instanceof RetryableMoatCluster;
     }
 
     @Override

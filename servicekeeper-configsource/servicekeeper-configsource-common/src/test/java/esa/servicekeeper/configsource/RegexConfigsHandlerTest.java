@@ -118,7 +118,7 @@ class RegexConfigsHandlerTest {
 
         for (int i = 0; i < 10; i++) {
             then(cache.configOf(ResourceId.from("testRemoveRegex" + i))).isEqualTo(config);
-            factory.getOrCreateOfMethod(ResourceId.from("testRemoveRegex" + i), () -> null, () -> null, () -> config);
+            factory.getOrCreate(ResourceId.from("testRemoveRegex" + i), () -> null, () -> null, () -> config, false);
         }
         then(cluster.getAll().size()).isEqualTo(10);
 
@@ -141,7 +141,7 @@ class RegexConfigsHandlerTest {
 
         for (int i = 0; i < 10; i++) {
             then(cache.configOf(ResourceId.from("testUpdateRegex" + i))).isEqualTo(config);
-            factory.getOrCreateOfMethod(ResourceId.from("testUpdateRegex" + i), () -> null, () -> null, () -> config);
+            factory.getOrCreate(ResourceId.from("testUpdateRegex" + i), () -> null, () -> null, () -> config, false);
         }
         then(cluster.getAll().size()).isEqualTo(10);
 

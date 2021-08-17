@@ -81,21 +81,21 @@ public class MetricsCollector {
                 }
                 return null;
             case CIRCUIT_BREAKER:
-                for (Moat moat : moats) {
+                for (Moat<?> moat : moats) {
                     if (moat instanceof CircuitBreakerMoat) {
                         return ((CircuitBreakerMoat) moat).getCircuitBreaker().metrics();
                     }
                 }
                 return null;
             case CONCURRENT_LIMIT:
-                for (Moat moat : moats) {
+                for (Moat<?> moat : moats) {
                     if (moat instanceof ConcurrentLimitMoat) {
                         return ((ConcurrentLimitMoat) moat).getConcurrentLimiter().metrics();
                     }
                 }
                 return null;
             case RETRY:
-                if (cluster instanceof RetryableMoatCluster) {
+                if (RetryableMoatCluster.isInstance(cluster)) {
                     final RetryableExecutor executor = ((RetryableMoatCluster) cluster).retryExecutor();
                     if (executor == null) {
                         return null;

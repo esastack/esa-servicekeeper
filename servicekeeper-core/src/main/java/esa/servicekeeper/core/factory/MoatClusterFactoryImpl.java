@@ -31,10 +31,11 @@ import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.fallback.FallbackHandlerConfig;
 import esa.servicekeeper.core.internal.ImmutableConfigs;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
-import esa.servicekeeper.core.moats.ArgMoatCluster;
-import esa.servicekeeper.core.moats.ArgMoatClusterImpl;
+import esa.servicekeeper.core.moats.FallbackMoatCluster;
+import esa.servicekeeper.core.moats.FallbackMoatClusterImpl;
 import esa.servicekeeper.core.moats.Moat;
 import esa.servicekeeper.core.moats.MoatCluster;
+import esa.servicekeeper.core.moats.MoatClusterImpl;
 import esa.servicekeeper.core.moats.MoatType;
 import esa.servicekeeper.core.moats.RetryableMoatCluster;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
@@ -86,24 +87,11 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
     }
 
     @Override
-    public RetryableMoatCluster getOrCreateOfMethod(ResourceId resourceId,
-                                                    Supplier<OriginalInvocation> originalInvocation,
-                                                    Supplier<ServiceKeeperConfig> immutableConfig,
-                                                    Supplier<ExternalConfig> externalConfig) {
-        return (RetryableMoatCluster) getOrCreate(resourceId, originalInvocation, immutableConfig, externalConfig);
-    }
-
-    @Override
-    public ArgMoatCluster getOrCreateOfArg(ArgResourceId resourceId, Supplier<OriginalInvocation> originalInvocation,
-                                           Supplier<ServiceKeeperConfig> immutableConfig,
-                                           Supplier<ExternalConfig> externalConfig) {
-        return (ArgMoatCluster) getOrCreate(resourceId, originalInvocation, immutableConfig, externalConfig);
-    }
-
-    private MoatCluster getOrCreate(ResourceId resourceId,
-                                    Supplier<OriginalInvocation> originalInvocation,
-                                    Supplier<ServiceKeeperConfig> immutableConfig,
-                                    Supplier<ExternalConfig> externalConfig) {
+    public MoatCluster getOrCreate(ResourceId resourceId,
+                                   Supplier<OriginalInvocation> originalInvocation,
+                                   Supplier<ServiceKeeperConfig> immutableConfig,
+                                   Supplier<ExternalConfig> externalConfig,
+                                   boolean isAsync) {
         final MoatCluster cluster0 = cluster.get(resourceId);
         if (cluster0 != null) {
             if (logger.isDebugEnabled()) {
@@ -130,7 +118,7 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
         final OriginalInvocation invocation0 = originalInvocation == null
                 ? null : originalInvocation.get();
         return cluster.computeIfAbsent(resourceId, (id) -> doCreate(resourceId,
-                invocation0, immutableConfig0, externalConfig0));
+                invocation0, immutableConfig0, externalConfig0, isAsync));
     }
 
     @Override
@@ -191,7 +179,7 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
             }
         }
 
-        if (cluster0 instanceof RetryableMoatCluster) {
+        if (RetryableMoatCluster.isInstance(cluster0)) {
             if (hasBootstrapRetry(config) && ((RetryableMoatCluster) cluster0).retryExecutor() == null) {
                 final RetryConfig retryConfig = (RetryConfig) configs.getConfig(resourceId, RETRY_CONFIG);
                 final RetryOperations retryOperations =
@@ -217,7 +205,8 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
      * @return chain
      */
     private MoatCluster doCreate(final ResourceId resourceId, OriginalInvocation invocation,
-                                 ServiceKeeperConfig immutableConfig, ExternalConfig externalConfig) {
+                                 ServiceKeeperConfig immutableConfig, ExternalConfig externalConfig,
+                                 boolean isAsync) {
         final ServiceKeeperConfig combinedConfig = ConfigUtils.combine(immutableConfig, externalConfig);
 
         if (combinedConfig == null) {
@@ -231,8 +220,13 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
         if (resourceId instanceof ArgResourceId) {
             return createArgMoatCluster(moats);
         } else {
-            return createRetryableMoatCluster(resourceId, invocation, moats,
-                    combinedConfig, immutableConfig);
+            if (isAsync) {
+                //Async don,t support Retry
+                return createFallbackMoatCluster(invocation, moats, combinedConfig);
+            } else {
+                return createRetryableMoatCluster(resourceId, invocation, moats,
+                        combinedConfig, immutableConfig);
+            }
         }
 
     }
@@ -290,11 +284,19 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
         return moats;
     }
 
-    private ArgMoatCluster createArgMoatCluster(List<Moat<?>> moats) {
+    private MoatCluster createArgMoatCluster(List<Moat<?>> moats) {
         if (moats == null || moats.isEmpty()) {
             return null;
         }
-        return new ArgMoatClusterImpl(moats, context.listeners());
+        return new MoatClusterImpl(moats, context.listeners());
+    }
+
+    private FallbackMoatCluster createFallbackMoatCluster(OriginalInvocation invocation,
+                                                          List<Moat<?>> moats, ServiceKeeperConfig combinedConfig) {
+        return new FallbackMoatClusterImpl(
+                moats,
+                context.listeners(),
+                createFallbackHandler(invocation, combinedConfig.getFallbackConfig()));
     }
 
     private RetryableMoatCluster createRetryableMoatCluster(ResourceId resourceId, OriginalInvocation invocation,
