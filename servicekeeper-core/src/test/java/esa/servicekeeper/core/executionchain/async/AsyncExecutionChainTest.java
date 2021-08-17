@@ -62,7 +62,7 @@ class AsyncExecutionChainTest {
         final CountDownLatch latch = new CountDownLatch(maxConcurrentLimit);
         Executable<CompletableFuture<Void>> executable = () -> CompletableFuture.runAsync(() -> {
             try {
-                TimeUnit.MILLISECONDS.sleep(3L);
+                TimeUnit.MILLISECONDS.sleep(30L);
             } catch (Exception ex) {
                 // Do nothing
             } finally {
@@ -191,7 +191,7 @@ class AsyncExecutionChainTest {
         final CountDownLatch latch = new CountDownLatch(ringBufferSizeInClosedState);
         final Executable<CompletableFuture<String>> executable = () -> CompletableFuture.supplyAsync(() -> {
             try {
-                TimeUnit.MILLISECONDS.sleep(3L);
+                TimeUnit.MILLISECONDS.sleep(30L);
             } catch (Exception ex) {
                 // Do nothing
             } finally {
@@ -216,7 +216,7 @@ class AsyncExecutionChainTest {
         latch.await();
 
         // Wait until all CompletableFuture completed
-        TimeUnit.MILLISECONDS.sleep(20L);
+        TimeUnit.MILLISECONDS.sleep(30L);
         int circuitBreakerNotPermittedCount = 0;
         for (int i = 0; i < ringBufferSizeInClosedState; i++) {
             final AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
@@ -241,7 +241,7 @@ class AsyncExecutionChainTest {
         final CountDownLatch latch = new CountDownLatch(ringBufferSizeInClosedState);
         final Executable<CompletableFuture<Object>> executable = () -> CompletableFuture.supplyAsync(() -> {
             try {
-                TimeUnit.MILLISECONDS.sleep(3L);
+                TimeUnit.MILLISECONDS.sleep(30L);
             } catch (Exception ex) {
                 // Do nothing
             } finally {
