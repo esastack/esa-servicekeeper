@@ -15,8 +15,6 @@
  */
 package esa.servicekeeper.core.utils;
 
-
-
 import esa.commons.logging.Logger;
 import esa.commons.logging.LoggerFactory;
 
