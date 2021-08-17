@@ -56,7 +56,7 @@ import static esa.servicekeeper.core.fallback.FallbackHandler.FallbackType.FALLB
  *         }
  *     }
  * </pre>
- *
+ * <p>
  * As show above, when the rejection is caused by {@link CircuitBreakerNotPermittedException} the method first method
  * will be used to handle fallback, and when the rejection is caused by {@link RateLimitOverflowException} the second
  * method will be used. In other scenes, the last one will be used.
@@ -68,24 +68,33 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
     private final Object obj;
     private final Set<FallbackMethod> fallbackMethods;
     private final Map<CauseType, FallbackMethod> fallbackMethodMap;
+    private final boolean alsoApplyToBizException;
 
-    public FallbackToFunction(Object obj, Set<FallbackMethod> fallbackMethods) {
+    public FallbackToFunction(Object obj, Set<FallbackMethod> fallbackMethods,
+                              boolean alsoApplyToBizException) {
         this.obj = obj;
         this.fallbackMethods = fallbackMethods;
         this.fallbackMethodMap = initFallbackMethodMap();
+        this.alsoApplyToBizException = alsoApplyToBizException;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public R handle(Context ctx) throws Throwable {
-        final FallbackMethod fallbackMethod = matchingMethod(ctx);
+        //ThroughFailsCause and bizException never exist meanwhile
+        Throwable th = ctx.getEnterFailsCause();
+        if (th == null) {
+            th = ctx.getBizException();
+        }
+
+        final FallbackMethod fallbackMethod = matchingMethod(th);
 
         if (fallbackMethod == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Couldn't find method to handle exception: "
-                        + ctx.getThroughFailsCause().getMessage());
+                        + th.getMessage());
             }
-            throw ctx.getThroughFailsCause();
+            throw th;
         }
 
         final Method method = fallbackMethod.getMethod();
@@ -102,9 +111,9 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
             if (fallbackMethod.isCauseAtFirst()) {
                 if (fallbackMethod.isMatchFullArgs()) {
                     result = (R) method.invoke(object,
-                            combiningFailsCause(ctx.getThroughFailsCause(), ctx.getArgs()));
+                            combiningFailsCause(th, ctx.getArgs()));
                 } else {
-                    result = (R) method.invoke(object, new Object[]{ctx.getThroughFailsCause()});
+                    result = (R) method.invoke(object, new Object[]{th});
                 }
             } else {
                 if (fallbackMethod.isMatchFullArgs()) {
@@ -128,34 +137,44 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
     }
 
     @Override
+    public boolean alsoApplyToBizException() {
+        return alsoApplyToBizException;
+    }
+
+    @Override
     public String toString() {
-        return "FallbackToFunction{" + "obj=" + (obj == null ? "null" : obj.getClass().getName()) +
+        return "FallbackToFunction{" +
+                "obj=" + (obj == null ? "null" : obj.getClass().getName()) +
                 ", fallbackMethods=" + fallbackMethods +
+                ", alsoApplyToBizException=" + alsoApplyToBizException +
                 '}';
     }
 
-    private FallbackMethod matchingMethod(final Context ctx) {
-        if (ctx.getThroughFailsCause() instanceof CircuitBreakerNotPermittedException) {
-            return fallbackMethodMap.get(CauseType.CIRCUIT_BREAKER);
-        }
-        if (ctx.getThroughFailsCause() instanceof RateLimitOverflowException) {
-            return fallbackMethodMap.get(CauseType.RATE_LIMIT);
-        }
-        if (ctx.getThroughFailsCause() instanceof ConcurrentOverFlowException) {
-            return fallbackMethodMap.get(CauseType.CONCURRENT_LIMIT);
-        }
-        if (ctx.getThroughFailsCause() instanceof ServiceRetryException) {
-            return fallbackMethodMap.get(CauseType.RETRY);
-        }
-        if (ctx.getThroughFailsCause() instanceof ServiceKeeperNotPermittedException) {
-            return fallbackMethodMap.get(CauseType.SERVICE_KEEPER_NOT_PERMIT);
+    private FallbackMethod matchingMethod(final Throwable th) {
+        if (th == null) {
+            return fallbackMethodMap.get(CauseType.UNKNOWN);
         }
 
-        if (ctx.getThroughFailsCause() != null) {
+        if (th instanceof CircuitBreakerNotPermittedException) {
+            return fallbackMethodMap.get(CauseType.CIRCUIT_BREAKER);
+        }
+        if (th instanceof RateLimitOverflowException) {
+            return fallbackMethodMap.get(CauseType.RATE_LIMIT);
+        }
+        if (th instanceof ConcurrentOverFlowException) {
+            return fallbackMethodMap.get(CauseType.CONCURRENT_LIMIT);
+        }
+        if (th instanceof ServiceRetryException) {
+            return fallbackMethodMap.get(CauseType.RETRY);
+        }
+        if (th instanceof ServiceKeeperNotPermittedException) {
+            return fallbackMethodMap.get(CauseType.SERVICE_KEEPER_NOT_PERMIT);
+        }
+        if (th instanceof ServiceKeeperException) {
             return fallbackMethodMap.get(CauseType.SERVICE_KEEPER);
         }
 
-        return fallbackMethodMap.get(CauseType.UNKNOWN);
+        return fallbackMethodMap.get(CauseType.BIZ);
     }
 
     private Map<CauseType, FallbackMethod> initFallbackMethodMap() {
@@ -201,10 +220,10 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
         return fallbackMethodMap;
     }
 
-    private Object[] combiningFailsCause(ServiceKeeperException causeException, Object[] realArgs) {
+    private Object[] combiningFailsCause(Throwable th, Object[] realArgs) {
         Object[] combinedArgs = new Object[realArgs == null ? 1 : realArgs.length + 1];
 
-        combinedArgs[0] = causeException;
+        combinedArgs[0] = th;
         if (combinedArgs.length == 1) {
             return combinedArgs;
         } else {

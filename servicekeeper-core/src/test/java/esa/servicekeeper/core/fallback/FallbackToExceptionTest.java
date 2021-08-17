@@ -25,7 +25,7 @@ import static org.mockito.Mockito.mock;
 
 class FallbackToExceptionTest {
 
-    private final FallbackToException fallback = new FallbackToException(new IllegalStateException());
+    private final FallbackToException fallback = new FallbackToException(new IllegalStateException(), false);
 
     @Test
     void testHandle() {

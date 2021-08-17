@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface MoatFactory<KEY, CNF0, CNF1, CNF2, RTU> {
+public interface MoatFactory<KEY, CNF1, CNF2, RTU> {
 
     /**
      * Get moat factories through context.s
@@ -49,15 +49,13 @@ public interface MoatFactory<KEY, CNF0, CNF1, CNF2, RTU> {
     /**
      * Get or create target instance by supplied args.
      *
-     * @param key               supplied key
-     * @param config0           supplied config0
-     * @param config1           supplied config1
-     * @param config2           supplied config2
-     * @param immutableConfig   immutable config
+     * @param key             supplied key
+     * @param config1         supplied config1
+     * @param config2         supplied config2
+     * @param immutableConfig immutable config
      * @return instance
      */
     RTU doCreate(KEY key,
-                 CNF0 config0,
                  CNF1 config1,
                  CNF2 config2,
                  CNF2 immutableConfig);

@@ -22,7 +22,8 @@ import org.aspectj.lang.annotation.Aspect;
 @Aspect
 public class DefaultServiceKeeperAop extends AbstractServiceKeeperAop {
 
-    @Around("concurrentLimit() || rateLimit() || circuitBreaker() || enableServiceKeeper() || retry() || group()")
+    @Around("concurrentLimit() || rateLimit() || circuitBreaker() " +
+            "|| enableServiceKeeper() || retry() || group() || fallback()")
     public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
         if (logger.isDebugEnabled()) {
             logger.debug("ServiceKeeper's default aop is surrounding method: {}", getQualifiedName(pjp));

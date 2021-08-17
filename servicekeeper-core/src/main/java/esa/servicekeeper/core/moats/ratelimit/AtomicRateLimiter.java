@@ -31,7 +31,6 @@ package esa.servicekeeper.core.moats.ratelimit;
 
 import esa.commons.Checks;
 import esa.servicekeeper.core.config.RateLimitConfig;
-import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.metrics.RateLimitMetrics;
 
 import java.time.Duration;
@@ -310,14 +309,14 @@ public class AtomicRateLimiter implements RateLimiter {
      * <p>{@link AtomicRateLimiter.State} represents immutable internal of {@link AtomicRateLimiter} where:
      * <ul>
      * <li>activeCycle - {@link AtomicRateLimiter} cycle number that was used
-     * by the last {@link AtomicRateLimiter#acquirePermission(Context, Duration)} call.</li>
+     * by the last {@link AtomicRateLimiter#acquirePermission(Duration)} call.</li>
      * <p>
      * <li>activePermissions - count of available permissions after
-     * the last {@link AtomicRateLimiter#acquirePermission(Context, Duration)} call.
+     * the last {@link AtomicRateLimiter#acquirePermission(Duration)} call.
      * Can be negative if some permissions where reserved.</li>
      * <p>
      * <li>nanosToWait - count of nanoseconds to wait for permission for
-     * the last {@link AtomicRateLimiter#acquirePermission(Context, Duration)} call.</li>
+     * the last {@link AtomicRateLimiter#acquirePermission(Duration)} call.</li>
      * </ul>
      */
     private static class State {

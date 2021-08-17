@@ -42,10 +42,9 @@ class PredicateStrategyTest {
         };
 
         final SyncExecutionChain chain = new SyncExecutionChainImpl(Collections.singletonList(
-                new CircuitBreakerMoat(new MoatConfig(resourceId,
-                        new FallbackToValue("Fallback")),
+                new CircuitBreakerMoat(new MoatConfig(resourceId),
                         CircuitBreakerConfig.ofDefault(), CircuitBreakerConfig.ofDefault(),
-                        (ctx) -> true)));
+                        (ctx) -> true)), new FallbackToValue("Fallback", false));
 
         for (int i = 0; i < 100; i++) {
             final Context ctx = new SyncContext(resourceId.getName());

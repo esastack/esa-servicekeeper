@@ -20,7 +20,6 @@ import esa.servicekeeper.core.config.ConcurrentLimitConfig;
 import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.exception.ConcurrentOverFlowException;
-import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.moats.LifeCycleSupport;
 import esa.servicekeeper.core.moats.MoatEvent;
 import esa.servicekeeper.core.moats.MoatEventProcessor;
@@ -32,13 +31,13 @@ import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ConcurrentLimitMoatTest {
 
     private final int maxConcurrentLimit = RandomUtils.randomInt(5);
-    private final MoatConfig moatConfig = new MoatConfig(ResourceId.from("concurrentLimitMoat-test"),
-            null);
+    private final MoatConfig moatConfig = new MoatConfig(ResourceId.from("concurrentLimitMoat-test"));
     private final ConcurrentLimitConfig limitConfig = ConcurrentLimitConfig.builder()
             .threshold(maxConcurrentLimit).build();
 
@@ -51,7 +50,7 @@ class ConcurrentLimitMoatTest {
 
     @Test
     void testTryThrough() {
-        final MoatConfig moatConfig = new MoatConfig(ResourceId.from("testATryThrough"), null);
+        final MoatConfig moatConfig = new MoatConfig(ResourceId.from("testATryThrough"));
         final ConcurrentLimitMoat limitMoat = new ConcurrentLimitMoat(moatConfig, limitConfig,
                 null,
                 Collections.singletonList(new MoatEventProcessor() {
@@ -62,13 +61,13 @@ class ConcurrentLimitMoatTest {
                 }));
 
         for (int i = 0; i < maxConcurrentLimit; i++) {
-            then(limitMoat.tryThrough(null)).isTrue();
+            assertDoesNotThrow(() -> limitMoat.enter(null));
         }
-        then(limitMoat.tryThrough(null)).isFalse();
+        assertThrows(ConcurrentOverFlowException.class, () -> limitMoat.enter(null));
         for (int i = 0; i < maxConcurrentLimit; i++) {
             limitMoat.exit(null);
         }
-        then(limitMoat.tryThrough(null)).isTrue();
+        assertDoesNotThrow(() -> limitMoat.enter(null));
         limitMoat.exit(null);
     }
 
@@ -84,11 +83,6 @@ class ConcurrentLimitMoatTest {
     }
 
     @Test
-    void testGetFallbackType() {
-        then(limitMoat.fallbackType()).isEqualTo(FallbackHandler.FallbackType.FALLBACK_TO_EXCEPTION);
-    }
-
-    @Test
     void testGetFondConfig() {
         then(limitMoat.getFond(null)).isNull();
 
@@ -97,12 +91,6 @@ class ConcurrentLimitMoatTest {
 
         config.setMaxConcurrentLimit(5);
         then(limitMoat.getFond(config)).isNotNull();
-    }
-
-    @Test
-    void testDefaultRejectionHandle() {
-        then(limitMoat.defaultFallbackToException(null)).isInstanceOf(ConcurrentOverFlowException.class);
-        assertThrows(ConcurrentOverFlowException.class, () -> limitMoat.fallback(null));
     }
 
     @Test
@@ -116,14 +104,14 @@ class ConcurrentLimitMoatTest {
         ConcurrentLimitConfig immutableConfig = ConcurrentLimitConfig.builder()
                 .threshold(maxConcurrentLimit).build();
         final ConcurrentLimitMoat limitMoat = new ConcurrentLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateWhenFondConfigIsNull"), null),
+                new MoatConfig(ResourceId.from("testUpdateWhenFondConfigIsNull")),
                 limitConfig, immutableConfig, Collections.emptyList());
         limitMoat.updateWhenNewestConfigIsNull();
         then(limitMoat.shouldDelete()).isFalse();
         for (int i = 0; i < maxConcurrentLimit; i++) {
-            then(limitMoat.tryThrough(null)).isTrue();
+            assertDoesNotThrow(() -> limitMoat.enter(null));
         }
-        then(limitMoat.tryThrough(null)).isFalse();
+        assertThrows(ConcurrentOverFlowException.class, () -> limitMoat.enter(null));
         for (int i = 0; i < maxConcurrentLimit; i++) {
             limitMoat.exit(null);
         }
@@ -136,7 +124,7 @@ class ConcurrentLimitMoatTest {
         config.setMaxConcurrentLimit(maxConcurrentLimit);
         limitMoat.updateWithNewestConfig(limitMoat.getFond(config));
         for (int i = 0; i < maxConcurrentLimit; i++) {
-            then(limitMoat.tryThrough(null)).isTrue();
+            assertDoesNotThrow(() -> limitMoat.enter(null));
         }
         for (int i = 0; i < maxConcurrentLimit; i++) {
             limitMoat.exit(null);
@@ -149,7 +137,7 @@ class ConcurrentLimitMoatTest {
 
         // Case1: DynamicConfig is null
         final ConcurrentLimitMoat limitMoat0 = new ConcurrentLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit0-case1"), null),
+                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit0-case1")),
                 limitConfig, null, Collections.emptyList());
         final CountDownLatch latch0 = new CountDownLatch(1);
         new Thread(() -> {
@@ -164,7 +152,7 @@ class ConcurrentLimitMoatTest {
 
         // Case2: DynamicConfig's maxConcurrentLimit is null
         final ConcurrentLimitMoat limitMoat1 = new ConcurrentLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit0-case2"), null),
+                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit0-case2")),
                 limitConfig, null, Collections.emptyList());
         final CountDownLatch latch1 = new CountDownLatch(1);
         new Thread(() -> {
@@ -179,7 +167,7 @@ class ConcurrentLimitMoatTest {
 
         // Case3: DynamicConfig's maxConcurrentLimit has been updated
         final ConcurrentLimitMoat limitMoat2 = new ConcurrentLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit0-case3"), null),
+                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit0-case3")),
                 limitConfig, null, Collections.emptyList());
         final ExternalConfig config = new ExternalConfig();
         final int newestMaxConcurrentLimit = RandomUtils.randomInt(5);
@@ -207,7 +195,7 @@ class ConcurrentLimitMoatTest {
 
         // Case1: DynamicConfig is null.
         final ConcurrentLimitMoat limitMoat0 = new ConcurrentLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit1-case1"), null),
+                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit1-case1")),
                 limitConfig, immutableConfig, Collections.emptyList());
         limitMoat0.onUpdate(null);
         then(limitMoat0.shouldDelete()).isFalse();
@@ -215,7 +203,7 @@ class ConcurrentLimitMoatTest {
 
         // Case2: DynamicConfig's maxConcurrentLimit is null.
         final ConcurrentLimitMoat limitMoat1 = new ConcurrentLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit1-case2"), null),
+                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit1-case2")),
                 limitConfig, immutableConfig, Collections.emptyList());
         limitMoat1.onUpdate(new ExternalConfig());
         then(limitMoat1.shouldDelete()).isFalse();
@@ -223,7 +211,7 @@ class ConcurrentLimitMoatTest {
 
         // Case3: DynamicConfig's maxConcurrentLimit has updated
         final ConcurrentLimitMoat limitMoat2 = new ConcurrentLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit1-case3"), null),
+                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit1-case3")),
                 limitConfig, immutableConfig, Collections.emptyList());
         final int newestMaxConcurrentLimit = RandomUtils.randomInt(5);
         final ExternalConfig config = new ExternalConfig();
@@ -234,7 +222,7 @@ class ConcurrentLimitMoatTest {
 
         // Case4: DynamicConfig's maxConcurrentLimit hasn't updated
         final ConcurrentLimitMoat limitMoat3 = new ConcurrentLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit1-case4"), null),
+                new MoatConfig(ResourceId.from("testUpdateMaxConcurrentLimit1-case4")),
                 limitConfig, immutableConfig, Collections.emptyList());
         config.setMaxConcurrentLimit(this.maxConcurrentLimit);
         then(limitMoat3.isConfigEquals(limitMoat3.getFond(config))).isTrue();

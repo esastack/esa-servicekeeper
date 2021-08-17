@@ -31,6 +31,7 @@ import esa.servicekeeper.core.internal.ImmutableConfigs;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
 import esa.servicekeeper.core.internal.impl.CacheMoatClusterImpl;
 import esa.servicekeeper.core.internal.impl.ImmutableConfigsImpl;
+import esa.servicekeeper.core.moats.FallbackMoatCluster;
 import esa.servicekeeper.core.moats.MoatCluster;
 import esa.servicekeeper.core.moats.MoatClusterImpl;
 import esa.servicekeeper.core.moats.RetryableMoatCluster;
@@ -65,7 +66,7 @@ class MoatClusterFactoryImplTest {
                         .rateLimiterConfig(RateLimitConfig.ofDefault())
                         .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault())
                         .fallbackConfig(FallbackConfig.ofDefault())
-                        .build(), () -> null);
+                        .build(), () -> null, false);
         then(cluster0.getAll().size()).isEqualTo(3);
         then(cluster0).isInstanceOf(MoatClusterImpl.class);
         cluster.remove(resourceId);
@@ -77,7 +78,7 @@ class MoatClusterFactoryImplTest {
                         .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault())
                         .fallbackConfig(FallbackConfig.ofDefault())
                         .retryConfig(RetryConfig.ofDefault())
-                        .build(), () -> null);
+                        .build(), () -> null, false);
         then(cluster0).isInstanceOf(RetryableMoatCluster.class);
         then(cluster0.getAll().size()).isEqualTo(3);
         cluster.remove(resourceId);
@@ -113,17 +114,19 @@ class MoatClusterFactoryImplTest {
                             .concurrentLimiterConfig(concurrentLimitConfig)
                             .circuitBreakerConfig(circuitBreakerConfig)
                             .retryConfig(retryConfig)
-                            .fallbackConfig(FallbackConfig.ofDefault()).build(), null);
+                            .fallbackConfig(FallbackConfig.ofDefault()).build(), null, false);
         }
         then(cluster.getAll().size()).isEqualTo(count + originalCount);
     }
 
     @Test
     void testArgsMoats0() {
-        final MoatCluster cluster0 = factory.getOrCreate(ResourceId.from("testArgsMoats0"), null,
-                () -> ServiceKeeperConfig.builder().fallbackConfig(
-                        FallbackConfig.builder().specifiedValue("ABC").build()).build(), null);
-        then(cluster0).isNull();
+        final RetryableMoatCluster cluster0 =
+                (RetryableMoatCluster) factory.getOrCreate(ResourceId.from("testArgsMoats0"), null,
+                        () -> ServiceKeeperConfig.builder().fallbackConfig(
+                                FallbackConfig.builder().specifiedValue("ABC").build()).build(), null, false);
+        then(cluster0.fallbackHandler().getType())
+                .isEqualTo(FallbackHandler.FallbackType.FALLBACK_TO_VALUE);
 
         final MoatCluster cluster = factory.getOrCreate(new
                         ArgResourceId(ResourceId.from("testArgsMoats0"), "a", "b"),
@@ -132,10 +135,9 @@ class MoatClusterFactoryImplTest {
                         .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault())
                         .circuitBreakerConfig(CircuitBreakerConfig.ofDefault())
                         .retryConfig(RetryConfig.ofDefault())
-                        .build(), null);
+                        .build(), null, false);
         then(cluster).isNotNull();
         then(cluster.getAll().size()).isEqualTo(3);
-        then(cluster.getAll().get(0).fallbackType()).isEqualTo(FallbackHandler.FallbackType.FALLBACK_TO_VALUE);
         then(cluster).isNotInstanceOf(RetryableMoatCluster.class);
     }
 
@@ -143,9 +145,10 @@ class MoatClusterFactoryImplTest {
     void testArgsMoats1() {
         final ExternalConfig config = new ExternalConfig();
         config.setFallbackValue("ABC");
-        final MoatCluster cluster0 = factory.getOrCreate(ResourceId.from("testArgsMoats1"), null,
-                () -> null, () -> config);
-        then(cluster0).isNull();
+        final FallbackMoatCluster cluster0 =
+                (FallbackMoatCluster) factory.getOrCreate(ResourceId.from("testArgsMoats1"), null,
+                        () -> null, () -> config, false);
+        then(cluster0.fallbackHandler().getType()).isEqualTo(FallbackHandler.FallbackType.FALLBACK_TO_VALUE);
 
         final MoatCluster cluster = factory.getOrCreate(new
                         ArgResourceId(ResourceId.from("testArgsMoats1"), "a", "b"),
@@ -154,10 +157,9 @@ class MoatClusterFactoryImplTest {
                         .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault())
                         .circuitBreakerConfig(CircuitBreakerConfig.ofDefault())
                         .retryConfig(RetryConfig.ofDefault())
-                        .build(), null);
+                        .build(), null, false);
         then(cluster).isNotNull();
         then(cluster.getAll().size()).isEqualTo(3);
-        then(cluster.getAll().get(0).fallbackType()).isEqualTo(FallbackHandler.FallbackType.FALLBACK_TO_VALUE);
         then(cluster).isNotInstanceOf(RetryableMoatCluster.class);
     }
 
@@ -169,7 +171,7 @@ class MoatClusterFactoryImplTest {
                 null,
                 () -> ServiceKeeperConfig.builder().rateLimiterConfig(RateLimitConfig.ofDefault())
                         .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault())
-                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null);
+                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null, false);
 
         factory.update(resourceId, cluster, null);
         then(cluster.getAll().size()).isEqualTo(2);
@@ -183,11 +185,11 @@ class MoatClusterFactoryImplTest {
 
 
         // Arg level
-        final ResourceId argId = new ArgResourceId(resourceId, "abc", "xyz");
+        final ArgResourceId argId = new ArgResourceId(resourceId, "abc", "xyz");
         final MoatCluster cluster1 = factory.getOrCreate(argId,
                 null,
                 () -> ServiceKeeperConfig.builder().rateLimiterConfig(RateLimitConfig.ofDefault())
-                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null);
+                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null, false);
 
         factory.update(argId, cluster1, null);
         then(cluster1.getAll().size()).isEqualTo(1);
@@ -209,7 +211,7 @@ class MoatClusterFactoryImplTest {
                 null,
                 () -> ServiceKeeperConfig.builder().rateLimiterConfig(RateLimitConfig.ofDefault())
                         .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault())
-                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null);
+                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null, false);
 
         factory.update(resourceId, cluster, null);
         then(cluster.getAll().size()).isEqualTo(2);
@@ -226,7 +228,7 @@ class MoatClusterFactoryImplTest {
         final MoatCluster cluster = factory.getOrCreate(resourceId,
                 null,
                 () -> ServiceKeeperConfig.builder().rateLimiterConfig(RateLimitConfig.ofDefault())
-                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null);
+                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null, false);
 
         factory.update(resourceId, cluster, null);
         then(cluster.getAll().size()).isEqualTo(1);
@@ -245,7 +247,7 @@ class MoatClusterFactoryImplTest {
                 null,
                 () -> ServiceKeeperConfig.builder()
                         .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault())
-                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null);
+                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null, false);
 
         factory.update(resourceId, cluster, null);
         then(cluster.getAll().size()).isEqualTo(1);
@@ -261,11 +263,11 @@ class MoatClusterFactoryImplTest {
     void testTryToNewAndAddRetryExecutor() {
         // Method level
         final ResourceId resourceId = ResourceId.from("testTryToNewAndAddRetryExecutor");
-        final MoatCluster cluster = factory.getOrCreate(resourceId,
+        final RetryableMoatCluster cluster = (RetryableMoatCluster) factory.getOrCreate(resourceId,
                 null,
                 () -> ServiceKeeperConfig.builder()
                         .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault())
-                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null);
+                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null, false);
 
         factory.update(resourceId, cluster, null);
         then(cluster.getAll().size()).isEqualTo(1);
@@ -275,17 +277,17 @@ class MoatClusterFactoryImplTest {
 
         factory.update(resourceId, cluster, config0);
         then(cluster.getAll().size()).isEqualTo(1);
-        then(((RetryableMoatCluster) cluster).retryExecutor()).isNotNull();
+        then(cluster.retryExecutor()).isNotNull();
 
 
         // Arg level
-        final ResourceId argId = new ArgResourceId(ResourceId.from("testTryToNewAndAddRetryExecutor"),
+        final ArgResourceId argId = new ArgResourceId(ResourceId.from("testTryToNewAndAddRetryExecutor"),
                 "abc", "xyz");
         final MoatCluster cluster1 = factory.getOrCreate(argId,
                 null,
                 () -> ServiceKeeperConfig.builder()
                         .rateLimiterConfig(RateLimitConfig.ofDefault())
-                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null);
+                        .fallbackConfig(FallbackConfig.ofDefault()).build(), null, false);
 
         factory.update(argId, cluster1, null);
         then(cluster1.getAll().size()).isEqualTo(1);
@@ -362,7 +364,7 @@ class MoatClusterFactoryImplTest {
                                 .rateLimiterConfig(RateLimitConfig.ofDefault())
                                 .concurrentLimiterConfig(ConcurrentLimitConfig.ofDefault())
                                 .fallbackConfig(FallbackConfig.ofDefault())
-                                .build(), () -> null);
+                                .build(), () -> null, false);
 
                 latch.countDown();
             }).start();

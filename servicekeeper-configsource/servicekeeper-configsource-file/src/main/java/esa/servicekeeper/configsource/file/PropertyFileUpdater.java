@@ -33,7 +33,11 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static esa.servicekeeper.configsource.file.SingletonFactory.handler;
-import static esa.servicekeeper.configsource.file.utils.PropertiesUtils.*;
+import static esa.servicekeeper.configsource.file.utils.PropertiesUtils.configs;
+import static esa.servicekeeper.configsource.file.utils.PropertiesUtils.getArgLevelEnable;
+import static esa.servicekeeper.configsource.file.utils.PropertiesUtils.getGlobalDisable;
+import static esa.servicekeeper.configsource.file.utils.PropertiesUtils.getRetryEnable;
+import static esa.servicekeeper.configsource.file.utils.PropertiesUtils.maxSizeLimits;
 
 /**
  * Use the local configuration file which named as service-keeper.properties in the conf directory of current workspace

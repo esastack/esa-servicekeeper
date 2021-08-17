@@ -65,27 +65,24 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
     }
 
     @Override
-    public boolean tryThrough(Context ctx) {
+    public void enter(Context ctx) throws ServiceKeeperNotPermittedException {
         if (!hasProcessors) {
-            if (limiter.acquirePermission()) {
-                return true;
-            } else {
+            if (!limiter.acquirePermission()) {
                 // ***  Note: Mustn't modify the log content which is used for keyword alarms.  **
                 timerLogger.logPeriodically("The concurrent exceeds limit {}, which name is {}",
                         limiter.config().getThreshold(), limiter.name());
-                return false;
+                throw notPermittedException(ctx);
             }
         } else {
             if (limiter.acquirePermission()) {
                 process(MoatEventImpl.PERMITTED);
-                return true;
             } else {
                 process(MoatEventImpl.REJECTED_BY_CONCURRENT_LIMIT);
                 // ***  Note: Mustn't modify the log content which is used for keyword alarms.  **
 
                 timerLogger.logPeriodically("The concurrent exceeds limit {}, which name is {}",
                         limiter.config().getThreshold(), limiter.name());
-                return false;
+                throw notPermittedException(ctx);
             }
         }
     }
@@ -93,24 +90,6 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
     @Override
     public void exit(Context ctx) {
         limiter.release();
-    }
-
-    @Override
-    public ServiceKeeperNotPermittedException defaultFallbackToException(Context ctx) {
-        final int maxConcurrentLimit = limiter.metrics().threshold();
-        final int currentCallCount = limiter.metrics().currentCallCount();
-        return new ConcurrentOverFlowException(StringUtils.concat("The maxConcurrentLimit of ",
-                limiter.name(), ": " + maxConcurrentLimit), ctx, new ConcurrentLimitMetrics() {
-                    @Override
-                    public int threshold() {
-                        return maxConcurrentLimit;
-                    }
-
-                    @Override
-                    public int currentCallCount() {
-                        return currentCallCount;
-                    }
-                });
     }
 
     @Override
@@ -180,11 +159,6 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
         return MoatType.CONCURRENT_LIMIT;
     }
 
-    @Override
-    protected String name() {
-        return limiter.name();
-    }
-
     /**
      * Get concurrentLimiter of current moat
      *
@@ -192,6 +166,31 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
      */
     public ConcurrentLimiter getConcurrentLimiter() {
         return limiter;
+    }
+
+    @Override
+    protected String name() {
+        return limiter.name();
+    }
+
+    private ServiceKeeperNotPermittedException notPermittedException(Context ctx) {
+        final int maxConcurrentLimit = limiter.metrics().threshold();
+        final int currentCallCount = limiter.metrics().currentCallCount();
+        return new ConcurrentOverFlowException(
+                StringUtils.concat("The maxConcurrentLimit of ",
+                        limiter.name(), ": " + maxConcurrentLimit), ctx,
+                new ConcurrentLimitMetrics() {
+                    @Override
+                    public int threshold() {
+                        return maxConcurrentLimit;
+                    }
+
+                    @Override
+                    public int currentCallCount() {
+                        return currentCallCount;
+                    }
+                }
+        );
     }
 
     private void preDestroy() {

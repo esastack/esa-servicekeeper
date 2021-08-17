@@ -13,26 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esa.servicekeeper.core.config;
+package esa.servicekeeper.core.moats;
 
-import esa.commons.Checks;
-import esa.servicekeeper.core.common.ResourceId;
+import esa.servicekeeper.core.fallback.FallbackHandler;
 
-import java.io.Serializable;
+import java.util.List;
 
-public class MoatConfig implements Serializable {
+public class FallbackMoatClusterImpl extends MoatClusterImpl implements FallbackMoatCluster {
 
-    private static final long serialVersionUID = 682178548352105156L;
+    private final FallbackHandler<?> fallbackHandler;
 
-    private final ResourceId resourceId;
-
-    public MoatConfig(ResourceId resourceId) {
-        Checks.checkNotNull(resourceId, "resourceId");
-        this.resourceId = resourceId;
+    public FallbackMoatClusterImpl(List<Moat<?>> moats, List<MoatClusterListener> listeners,
+                                   FallbackHandler<?> fallbackHandler) {
+        super(moats, listeners);
+        this.fallbackHandler = fallbackHandler;
     }
 
-    public ResourceId getResourceId() {
-        return resourceId;
+    @Override
+    public FallbackHandler<?> fallbackHandler() {
+        return fallbackHandler;
     }
-
 }

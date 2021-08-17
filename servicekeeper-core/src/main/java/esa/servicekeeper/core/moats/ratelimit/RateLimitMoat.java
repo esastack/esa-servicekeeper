@@ -67,29 +67,26 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
     }
 
     @Override
-    public boolean tryThrough(Context ctx) {
+    public void enter(Context ctx) throws ServiceKeeperNotPermittedException {
         Duration maxWaitDuration = Duration.ZERO;
 
         if (!hasProcessors) {
-            if (limiter.acquirePermission(maxWaitDuration)) {
-                return true;
-            } else {
+            if (!limiter.acquirePermission(maxWaitDuration)) {
                 // ***  Note: Mustn't modify the log content which is used for keyword alarms.  **
                 timerLogger.logPeriodically("The rate limit exceeds threshold {}, which name is {}",
                         limiter.config().getLimitForPeriod(), limiter.name());
-                return false;
+                throw notPermittedException(ctx);
             }
         } else {
             if (limiter.acquirePermission(maxWaitDuration)) {
                 process(MoatEventImpl.PERMITTED);
-                return true;
             } else {
                 process(MoatEventImpl.REJECTED_BY_RATE_LIMIT);
 
                 // ***  Note: Mustn't modify the log content which is used for keyword alarms.  **
                 timerLogger.logPeriodically("The rate limit exceeds threshold {}, which name is {}",
                         limiter.config().getLimitForPeriod(), limiter.name());
-                return false;
+                throw notPermittedException(ctx);
             }
         }
     }
@@ -97,22 +94,6 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
     @Override
     public void exit(Context ctx) {
         // Do nothing
-    }
-
-    @Override
-    public ServiceKeeperNotPermittedException defaultFallbackToException(Context ctx) {
-        return new RateLimitOverflowException(StringUtils.concat("The limitForPeriod of rateLimiter ",
-                limiter.name(), ": " + limiter.config().getLimitForPeriod()), ctx, new RateLimitMetrics() {
-                    @Override
-                    public int numberOfWaitingThreads() {
-                        return limiter.metrics().numberOfWaitingThreads();
-                    }
-
-                    @Override
-                    public int availablePermissions() {
-                        return limiter.metrics().availablePermissions();
-                    }
-                });
     }
 
     @Override
@@ -182,11 +163,6 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
         return "RateLimitMoat-" + limiter.name();
     }
 
-    @Override
-    protected String name() {
-        return limiter.name();
-    }
-
     /**
      * Get rateLimiter of current moat.
      *
@@ -194,6 +170,27 @@ public class RateLimitMoat extends AbstractMoat<RateLimitConfig> implements
      */
     public RateLimiter rateLimiter() {
         return limiter;
+    }
+
+    @Override
+    protected String name() {
+        return limiter.name();
+    }
+
+    private ServiceKeeperNotPermittedException notPermittedException(Context ctx) {
+        return new RateLimitOverflowException(StringUtils.concat("The limitForPeriod of rateLimiter ",
+                limiter.name(), ": " + limiter.config().getLimitForPeriod()), ctx,
+                new RateLimitMetrics() {
+                    @Override
+                    public int numberOfWaitingThreads() {
+                        return limiter.metrics().numberOfWaitingThreads();
+                    }
+
+                    @Override
+                    public int availablePermissions() {
+                        return limiter.metrics().availablePermissions();
+                    }
+                });
     }
 
     private void preDestroy() {

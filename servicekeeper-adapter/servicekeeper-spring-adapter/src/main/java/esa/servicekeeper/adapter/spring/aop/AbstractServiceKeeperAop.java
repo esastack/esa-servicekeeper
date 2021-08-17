@@ -83,6 +83,10 @@ public abstract class AbstractServiceKeeperAop implements Ordered, InitializingB
     protected void retry() {
     }
 
+    @Pointcut("@annotation(esa.servicekeeper.core.annotation.Fallback)")
+    protected void fallback() {
+    }
+
     @Pointcut("@annotation(esa.servicekeeper.core.annotation.Group)")
     protected void group() {
     }

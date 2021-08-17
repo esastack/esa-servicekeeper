@@ -15,7 +15,6 @@
  */
 package esa.servicekeeper.core.asynchandle;
 
-import esa.servicekeeper.core.exception.ServiceKeeperException;
 import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.executionchain.ExecutionChain;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateStrategy;
@@ -26,8 +25,6 @@ import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateStrategy;
  * apply current handler to specified return value type.
  */
 public interface AsyncResultHandler<T> {
-
-    ServiceKeeperException ASYNC_RETURN_VALUE_IS_NULL = new ServiceKeeperException("Async return value is null");
 
     /**
      * Whether current handler supports the returnType.
@@ -44,12 +41,12 @@ public interface AsyncResultHandler<T> {
      * Note: you must clean and release the resource occupied by current invocation by {@link RequestHandle}. If you
      * don't do it, a major error will occur, because that there is no another way to release the resource of
      * concurrent counter and record current result. Generally, there are three ways to release the resource, eg:
-     *
+     * <p>
      * 1. {@link RequestHandle#endWithSuccess()} ends the invocation successfully.
      * 2. {@link RequestHandle#endWithError(Throwable)} ends the invocation with error.
      * 3. {@link RequestHandle#endWithResult(Object)} ends the invocation with specified result. It's only useful
-     *    when you want to custom {@link PredicateStrategy} and needs to implements
-     *    {@link PredicateStrategy#isSuccess(Context)} by {@link Context#getResult()}.
+     * when you want to custom {@link PredicateStrategy} and needs to implements
+     * {@link PredicateStrategy#isSuccess(Context)} by {@link Context#getResult()}.
      *
      * @param returnValue   return value
      * @param requestHandle RequestHandle
@@ -58,7 +55,7 @@ public interface AsyncResultHandler<T> {
      */
     default T handle(T returnValue, RequestHandle requestHandle) {
         if (returnValue == null) {
-            requestHandle.endWithError(ASYNC_RETURN_VALUE_IS_NULL);
+            requestHandle.endWithSuccess();
             return null;
         }
 

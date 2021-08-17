@@ -29,7 +29,7 @@ public class JaxRsAutoSupportAop extends AbstractServiceKeeperAop {
     }
 
     @Around("path() && !(concurrentLimit() || rateLimit() || circuitBreaker() ||" +
-            " enableServiceKeeper() || retry() || group())")
+            " enableServiceKeeper() || retry() || group() || fallback())")
     public Object doInvoke0(ProceedingJoinPoint pjp) throws Throwable {
         if (logger.isDebugEnabled()) {
             logger.debug("ServiceKeeper's Jax-RS(@Path) aop is surrounding method: {}",

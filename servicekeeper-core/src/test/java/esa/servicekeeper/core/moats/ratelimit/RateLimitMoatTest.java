@@ -20,7 +20,6 @@ import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.config.RateLimitConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.exception.RateLimitOverflowException;
-import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.moats.LifeCycleSupport;
 import esa.servicekeeper.core.moats.MoatEvent;
 import esa.servicekeeper.core.moats.MoatEventProcessor;
@@ -35,6 +34,7 @@ import java.util.concurrent.CountDownLatch;
 import static java.lang.System.currentTimeMillis;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 class RateLimitMoatTest {
 
     private final int limitForPeriod = RandomUtils.randomInt(5);
-    private final MoatConfig moatConfig = new MoatConfig(ResourceId.from("rateLimitMoat-test"), null);
+    private final MoatConfig moatConfig = new MoatConfig(ResourceId.from("rateLimitMoat-test"));
     private final RateLimitConfig limitConfig = RateLimitConfig.builder().limitRefreshPeriod(Duration.ofMillis(50L))
             .limitForPeriod(limitForPeriod).build();
 
@@ -56,7 +56,7 @@ class RateLimitMoatTest {
 
     @Test
     void testTryThrough() {
-        final MoatConfig moatConfig = new MoatConfig(ResourceId.from("testATryThrough"), null);
+        final MoatConfig moatConfig = new MoatConfig(ResourceId.from("testATryThrough"));
         final RateLimitMoat limitMoat = new RateLimitMoat(moatConfig, limitConfig,
                 null,
                 Collections.singletonList(new MoatEventProcessor() {
@@ -67,9 +67,9 @@ class RateLimitMoatTest {
                 }));
 
         for (int i = 0; i < limitForPeriod; i++) {
-            then(limitMoat.tryThrough(null)).isTrue();
+            assertDoesNotThrow(() -> limitMoat.enter(null));
         }
-        then(limitMoat.tryThrough(null)).isFalse();
+        assertThrows(RateLimitOverflowException.class, () -> limitMoat.enter(null));
         for (int i = 0; i < limitForPeriod; i++) {
             limitMoat.exit(null);
         }
@@ -99,11 +99,6 @@ class RateLimitMoatTest {
     }
 
     @Test
-    void testGetFallbackType() {
-        then(limitMoat.fallbackType()).isEqualTo(FallbackHandler.FallbackType.FALLBACK_TO_EXCEPTION);
-    }
-
-    @Test
     void testListeningKey() {
         then(limitMoat.listeningKey()).isEqualTo(ResourceId.from("rateLimitMoat-test"));
     }
@@ -121,7 +116,7 @@ class RateLimitMoatTest {
         then(limitMoat.lifeCycleType()).isEqualTo(LifeCycleSupport.LifeCycleType.TEMPORARY);
 
         final RateLimitMoat limitMoat = new RateLimitMoat(new MoatConfig(
-                ResourceId.from("updateWhenFondConfigIsNull"), null),
+                ResourceId.from("updateWhenFondConfigIsNull")),
                 limitConfig, immutableConfig, Collections.emptyList());
         then(limitMoat.shouldDelete()).isFalse();
     }
@@ -132,8 +127,9 @@ class RateLimitMoatTest {
         ExternalConfig config = new ExternalConfig();
         config.setLimitForPeriod(limitForPeriod);
 
-        final RateLimitMoat limitMoat = new RateLimitMoat(new MoatConfig(ResourceId.from("updateWithFondConfig"),
-                null), limitConfig,
+        final RateLimitMoat limitMoat = new RateLimitMoat(
+                new MoatConfig(ResourceId.from("updateWithFondConfig")),
+                limitConfig,
                 RateLimitConfig.builder()
                         .limitRefreshPeriod(Duration.ofMillis(200L)).build(), Collections.emptyList());
         limitMoat.updateWithNewestConfig(limitMoat.getFond(config));
@@ -141,15 +137,9 @@ class RateLimitMoatTest {
         long currentMillis = currentTimeMillis();
         await().until(() -> currentTimeMillis() > currentMillis + 200L);
         for (int i = 0; i < limitForPeriod; i++) {
-            then(limitMoat.tryThrough(null)).isTrue();
+            assertDoesNotThrow(() -> limitMoat.enter(null));
         }
-        then(limitMoat.tryThrough(null)).isFalse();
-    }
-
-    @Test
-    void testDefaultRejectionHandle() {
-        then(limitMoat.defaultFallbackToException(null)).isInstanceOf(RateLimitOverflowException.class);
-        assertThrows(RateLimitOverflowException.class, () -> limitMoat.fallback(null));
+        assertThrows(RateLimitOverflowException.class, () -> limitMoat.enter(null));
     }
 
     @Test
@@ -172,7 +162,7 @@ class RateLimitMoatTest {
 
         // Case2: DynamicConfig's limitForPeriod is null
         final RateLimitMoat limitMoat0 = new RateLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateLimitForPeriod0-case2"), null),
+                new MoatConfig(ResourceId.from("testUpdateLimitForPeriod0-case2")),
                 limitConfig, null, Collections.emptyList());
         final CountDownLatch latch1 = new CountDownLatch(1);
         new Thread(() -> {
@@ -187,7 +177,7 @@ class RateLimitMoatTest {
 
         // Case3: DynamicConfig's limitForPeriod is not null.
         final RateLimitMoat limitMoat1 = new RateLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateLimitForPeriod0-case3"), null),
+                new MoatConfig(ResourceId.from("testUpdateLimitForPeriod0-case3")),
                 limitConfig, null, Collections.emptyList());
         final ExternalConfig config = new ExternalConfig();
         config.setLimitForPeriod(RandomUtils.randomInt(200));
@@ -211,7 +201,7 @@ class RateLimitMoatTest {
 
         // Case1: DynamicConfig is null
         final RateLimitMoat limitMoat0 = new RateLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateLimitForPeriod1-case1"), null),
+                new MoatConfig(ResourceId.from("testUpdateLimitForPeriod1-case1")),
                 limitConfig, immutableConfig, Collections.emptyList());
         then(limitMoat0.rateLimiter().config().getLimitRefreshPeriod()).isNotEqualTo(limitForPeriod);
         limitMoat0.onUpdate(null);
@@ -220,7 +210,7 @@ class RateLimitMoatTest {
 
         // Case2: DynamicConfig's limitForPeriod is null
         final RateLimitMoat limitMoat1 = new RateLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateLimitForPeriod1-case2"), null),
+                new MoatConfig(ResourceId.from("testUpdateLimitForPeriod1-case2")),
                 limitConfig, immutableConfig, Collections.emptyList());
         then(limitMoat1.rateLimiter().config().getLimitRefreshPeriod()).isNotEqualTo(limitForPeriod);
         limitMoat1.onUpdate(new ExternalConfig());
@@ -230,7 +220,7 @@ class RateLimitMoatTest {
         // Case3: DynamicConfig's limitForPeriod has updated
         final int newestLimitForPeriod = RandomUtils.randomInt(20);
         final RateLimitMoat limitMoat2 = new RateLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateLimitForPeriod1-case3"), null),
+                new MoatConfig(ResourceId.from("testUpdateLimitForPeriod1-case3")),
                 limitConfig, immutableConfig, Collections.emptyList());
         then(limitMoat2.rateLimiter().config().getLimitRefreshPeriod()).isNotEqualTo(limitForPeriod);
         final ExternalConfig config2 = new ExternalConfig();
@@ -240,8 +230,8 @@ class RateLimitMoatTest {
         then(limitMoat2.rateLimiter().config().getLimitForPeriod()).isEqualTo(newestLimitForPeriod);
 
         // Case4: DynamicConfig's limitForPeriod hasn't updated
-        final RateLimitMoat limitMoat3 = new RateLimitMoat(new MoatConfig(ResourceId.from("rateLimitMoat-test4"),
-                null), limitConfig, immutableConfig, Collections.emptyList());
+        final RateLimitMoat limitMoat3 = new RateLimitMoat(new MoatConfig(ResourceId.from("rateLimitMoat-test4")),
+                limitConfig, immutableConfig, Collections.emptyList());
         then(limitMoat3.rateLimiter().config().getLimitRefreshPeriod()).isNotEqualTo(limitForPeriod);
         final ExternalConfig config3 = new ExternalConfig();
         config3.setLimitForPeriod(this.limitForPeriod);
@@ -256,7 +246,7 @@ class RateLimitMoatTest {
                 .limitForPeriod(1).limitRefreshPeriod(Duration.ofMillis(10)).build();
 
         RateLimitMoat limitMoat = new RateLimitMoat(
-                new MoatConfig(ResourceId.from("testUpdateLimitRefreshPeriod"), null),
+                new MoatConfig(ResourceId.from("testUpdateLimitRefreshPeriod")),
                 config, config, Collections.emptyList());
 
         final ExternalConfig config1 = new ExternalConfig();

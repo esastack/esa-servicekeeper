@@ -17,6 +17,7 @@ package esa.servicekeeper.core.executionchain;
 
 import esa.commons.Checks;
 import esa.servicekeeper.core.common.OriginalInvocation;
+import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.moats.Moat;
 import esa.servicekeeper.core.retry.RetryableExecutor;
 
@@ -27,8 +28,9 @@ public class RetryableExecutionChain extends SyncExecutionChainImpl {
 
     private final RetryableExecutor executor;
 
-    public RetryableExecutionChain(List<Moat<?>> moats, RetryableExecutor executor) {
-        super(moats);
+    public RetryableExecutionChain(List<Moat<?>> moats,
+                                   FallbackHandler<?> fallbackHandler, RetryableExecutor executor) {
+        super(moats, fallbackHandler);
         Checks.checkNotNull(executor, "executor");
         this.executor = executor;
     }

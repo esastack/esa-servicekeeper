@@ -28,15 +28,17 @@ public interface MoatClusterFactory {
     /**
      * Try to get a moat cluster by resourceId, if null try to doCreate one and return.
      *
-     * @param resourceId                     resourceId
-     * @param originalInvocation         the supplier to get original invocation
-     * @param immutableConfig                the supplier to get immutable config
-     * @param externalConfig                 the supplier to get external config
+     * @param resourceId         resourceId
+     * @param originalInvocation the supplier to get original invocation
+     * @param immutableConfig    the supplier to get immutable config
+     * @param externalConfig     the supplier to get external config
+     * @param isAsync            isAsync
      * @return moat cluster, null if not configured.
      */
     MoatCluster getOrCreate(ResourceId resourceId, Supplier<OriginalInvocation> originalInvocation,
                             Supplier<ServiceKeeperConfig> immutableConfig,
-                            Supplier<ExternalConfig> externalConfig);
+                            Supplier<ExternalConfig> externalConfig,
+                            boolean isAsync);
 
     /**
      * Try to update moat cluster with newest config.

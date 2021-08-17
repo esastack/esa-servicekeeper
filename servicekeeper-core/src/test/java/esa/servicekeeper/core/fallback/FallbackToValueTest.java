@@ -26,7 +26,7 @@ class FallbackToValueTest {
 
     private static final String FALLBACK_VALUE = "fallback";
 
-    private final FallbackToValue fallback = new FallbackToValue(FALLBACK_VALUE);
+    private final FallbackToValue fallback = new FallbackToValue(FALLBACK_VALUE, false);
 
     @Test
     void testHandle() {

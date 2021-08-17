@@ -56,6 +56,14 @@ class ExternalConfigTest {
         then(config.getFallbackExceptionClass()).isEqualTo(RuntimeException.class);
     }
 
+    @Test
+    void testGetAlsoApplyFallbackToBizException() {
+        final ExternalConfig config = new ExternalConfig();
+        then(config.getAlsoApplyFallbackToBizException()).isNull();
+        config.setAlsoApplyFallbackToBizException(true);
+        then(config.getAlsoApplyFallbackToBizException()).isTrue();
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     void testIsAllEmpty() {

@@ -63,5 +63,4 @@ public interface MoatCluster {
      * @param type type
      */
     void remove(MoatType type);
-
 }

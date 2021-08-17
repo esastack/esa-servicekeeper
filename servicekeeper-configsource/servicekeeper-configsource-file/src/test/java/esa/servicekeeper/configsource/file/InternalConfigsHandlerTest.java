@@ -106,7 +106,7 @@ class InternalConfigsHandlerTest {
         // It's not permitted to create when max size LIMIT is null
         for (int i = 0; i < 200; i++) {
             FACTORY.getOrCreate(new ArgResourceId(ResourceId.from("testUpdateMaxSizeLimits"), "arg0", i),
-                    () -> null, () -> null, () -> null);
+                    () -> null, () -> null, () -> null, false);
         }
         then(CLUSTER.getAll().size()).isEqualTo(0);
 
@@ -116,7 +116,7 @@ class InternalConfigsHandlerTest {
         config.setMaxConcurrentLimit(20);
         for (int i = 0; i < 200; i++) {
             FACTORY.getOrCreate(new ArgResourceId(ResourceId.from("testUpdateMaxSizeLimits"), "arg0", i),
-                    () -> null, () -> null, () -> config);
+                    () -> null, () -> null, () -> config, false);
         }
         then(CLUSTER.getAll().size()).isEqualTo(101);
         for (int i = 0; i < 101; i++) {
@@ -132,7 +132,7 @@ class InternalConfigsHandlerTest {
 
         for (int i = 0; i < 200; i++) {
             FACTORY.getOrCreate(new ArgResourceId(ResourceId.from("testUpdateMaxSizeLimits"), "arg0", i),
-                    () -> null, () -> null, () -> config);
+                    () -> null, () -> null, () -> config, false);
         }
         then(CLUSTER.getAll().size()).isEqualTo(200);
 

@@ -28,13 +28,16 @@ public class FallbackConfig implements Serializable {
     private Class<?> targetClass;
     private final String specifiedValue;
     private final Class<? extends Exception> specifiedException;
+    private final boolean alsoApplyToBizException;
 
     private FallbackConfig(String methodName, Class<?> targetClass, String specifiedValue,
-                           Class<? extends Exception> specifiedException) {
+                           Class<? extends Exception> specifiedException,
+                           boolean alsoApplyToBizException) {
         this.methodName = methodName;
         this.targetClass = targetClass;
         this.specifiedValue = specifiedValue;
         this.specifiedException = specifiedException;
+        this.alsoApplyToBizException = alsoApplyToBizException;
     }
 
     public static Builder builder() {
@@ -51,7 +54,8 @@ public class FallbackConfig implements Serializable {
                 .methodName(config.getMethodName())
                 .targetClass(config.getTargetClass())
                 .specifiedValue(config.getSpecifiedValue())
-                .specifiedException(config.getSpecifiedException());
+                .specifiedException(config.getSpecifiedException())
+                .alsoApplyToBizException(config.isAlsoApplyToBizException());
     }
 
     public String getMethodName() {
@@ -78,6 +82,10 @@ public class FallbackConfig implements Serializable {
         this.targetClass = targetClass;
     }
 
+    public boolean isAlsoApplyToBizException() {
+        return alsoApplyToBizException;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -90,12 +98,13 @@ public class FallbackConfig implements Serializable {
         return Objects.equals(methodName, that.methodName) &&
                 Objects.equals(targetClass, that.targetClass) &&
                 Objects.equals(specifiedValue, that.specifiedValue) &&
-                Objects.equals(specifiedException, that.specifiedException);
+                Objects.equals(specifiedException, that.specifiedException) &&
+                Objects.equals(alsoApplyToBizException, that.alsoApplyToBizException);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(methodName, targetClass, specifiedValue, specifiedException);
+        return Objects.hash(methodName, targetClass, specifiedValue, specifiedException, alsoApplyToBizException);
     }
 
     @Override
@@ -129,6 +138,13 @@ public class FallbackConfig implements Serializable {
                 sb.append(", specifiedException=").append(specifiedException);
             }
         }
+
+        if (isFirstOne) {
+            sb.append("alsoApplyToBizException=").append(alsoApplyToBizException);
+        } else {
+            sb.append(", alsoApplyToBizException=").append(alsoApplyToBizException);
+        }
+
         sb.append('}');
         return sb.toString();
     }
@@ -144,6 +160,7 @@ public class FallbackConfig implements Serializable {
         private Class<?> targetClass;
         private String specifiedValue = "";
         private Class<? extends Exception> specifiedException;
+        private boolean alsoApplyToBizException;
 
         private Builder() {
         }
@@ -163,13 +180,19 @@ public class FallbackConfig implements Serializable {
             return this;
         }
 
+        public Builder alsoApplyToBizException(boolean alsoApplyToBizException) {
+            this.alsoApplyToBizException = alsoApplyToBizException;
+            return this;
+        }
+
         public Builder specifiedException(Class<? extends Exception> fallbackExceptionClass) {
             this.specifiedException = fallbackExceptionClass;
             return this;
         }
 
         public FallbackConfig build() {
-            return new FallbackConfig(methodName, targetClass, specifiedValue, specifiedException);
+            return new FallbackConfig(methodName, targetClass, specifiedValue,
+                    specifiedException, alsoApplyToBizException);
         }
     }
 }

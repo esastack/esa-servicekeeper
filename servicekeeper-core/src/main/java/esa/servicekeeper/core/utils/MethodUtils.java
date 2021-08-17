@@ -142,7 +142,8 @@ public final class MethodUtils {
         if (fallback != null) {
             FallbackConfig.Builder builder = FallbackConfig.builder()
                     .specifiedException(fallback.fallbackExceptionClass())
-                    .specifiedValue(fallback.fallbackValue());
+                    .specifiedValue(fallback.fallbackValue())
+                    .alsoApplyToBizException(fallback.alsoApplyToBizException());
             if (fallback.fallbackClass() == Void.class && StringUtils.isEmpty(fallback.fallbackMethod())) {
                 fallbackConfig = builder.build();
             } else {

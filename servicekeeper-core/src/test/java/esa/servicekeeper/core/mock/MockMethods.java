@@ -15,7 +15,17 @@
  */
 package esa.servicekeeper.core.mock;
 
-import esa.servicekeeper.core.annotation.*;
+import esa.servicekeeper.core.annotation.Alias;
+import esa.servicekeeper.core.annotation.ArgsCircuitBreaker;
+import esa.servicekeeper.core.annotation.ArgsConcurrentLimiter;
+import esa.servicekeeper.core.annotation.ArgsRateLimiter;
+import esa.servicekeeper.core.annotation.Backoff;
+import esa.servicekeeper.core.annotation.CircuitBreaker;
+import esa.servicekeeper.core.annotation.ConcurrentLimiter;
+import esa.servicekeeper.core.annotation.Fallback;
+import esa.servicekeeper.core.annotation.Group;
+import esa.servicekeeper.core.annotation.RateLimiter;
+import esa.servicekeeper.core.annotation.Retryable;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByExceptionAndSpendTime;
 
 public class MockMethods {

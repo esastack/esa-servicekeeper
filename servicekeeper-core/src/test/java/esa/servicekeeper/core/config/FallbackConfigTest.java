@@ -39,6 +39,17 @@ class FallbackConfigTest {
                 .methodName("ABC")
                 .build();
         then(config.toString()).isEqualTo("FallbackConfig{methodName='ABC', targetClass=class java.lang.Object," +
-                " specifiedValue='ABC', specifiedException=class java.lang.RuntimeException}");
+                " specifiedValue='ABC', specifiedException=class java.lang.RuntimeException, " +
+                "alsoApplyToBizException=false}");
+
+        config = FallbackConfig.builder().specifiedValue("ABC")
+                .specifiedException(RuntimeException.class)
+                .targetClass(Object.class)
+                .methodName("ABC")
+                .alsoApplyToBizException(true)
+                .build();
+        then(config.toString()).isEqualTo("FallbackConfig{methodName='ABC', targetClass=class java.lang.Object," +
+                " specifiedValue='ABC', specifiedException=class java.lang.RuntimeException, " +
+                "alsoApplyToBizException=true}");
     }
 }

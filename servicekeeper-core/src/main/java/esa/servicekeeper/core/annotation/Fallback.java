@@ -50,4 +50,12 @@ public @interface Fallback {
      */
     String fallbackValue() default "";
 
+    /**
+     * Whether also apply to business exceptions.
+     * - true: business exceptions will also cause a fallback.
+     * - false: only the internal exception of serviceKeeper
+     * will cause a fallback
+     */
+    boolean alsoApplyToBizException() default false;
+
 }

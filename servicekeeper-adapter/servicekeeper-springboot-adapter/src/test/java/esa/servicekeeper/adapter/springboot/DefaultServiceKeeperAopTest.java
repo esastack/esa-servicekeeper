@@ -17,6 +17,7 @@ package esa.servicekeeper.adapter.springboot;
 
 import esa.servicekeeper.adapter.spring.aop.DefaultServiceKeeperAop;
 import esa.servicekeeper.adapter.spring.aop.WebAutoSupportAop;
+import esa.servicekeeper.core.annotation.Fallback;
 import esa.servicekeeper.core.annotation.RateLimiter;
 import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import org.junit.jupiter.api.BeforeAll;
@@ -75,6 +76,12 @@ class DefaultServiceKeeperAopTest {
 
         then(service.testPatch()).isEqualTo("Patch");
         assertThrows(RateLimitOverflowException.class, service::testPatch);
+
+        assertThrows(RuntimeException.class, service::testFallbackWithoutApplyToBizException);
+        then(service.testFallbackWithoutApplyToBizException()).isEqualTo("fallback value");
+
+        then(service.testFallbackWithApplyToBizException()).isEqualTo("fallback value");
+        then(service.testFallbackWithApplyToBizException()).isEqualTo("fallback value");
     }
 
     public static class HelloService {
@@ -107,6 +114,18 @@ class DefaultServiceKeeperAopTest {
         @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
         public String testPatch() {
             return "Patch";
+        }
+
+        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @Fallback(fallbackValue = "fallback value")
+        public String testFallbackWithoutApplyToBizException() {
+            throw new RuntimeException("error occur");
+        }
+
+        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @Fallback(fallbackValue = "fallback value", alsoApplyToBizException = true)
+        public String testFallbackWithApplyToBizException() {
+            throw new RuntimeException("error occur");
         }
 
     }

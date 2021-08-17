@@ -16,6 +16,7 @@
 package esa.servicekeeper.core.executionchain;
 
 import esa.servicekeeper.core.exception.ServiceKeeperWrapException;
+import esa.servicekeeper.core.exception.ServiceRetryException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.CompletionException;
@@ -50,7 +51,7 @@ public class SyncContext extends Context {
     @Override
     void setBizException(Throwable bizException) {
         if (bizException instanceof InvocationTargetException || bizException instanceof ServiceKeeperWrapException
-                || bizException instanceof CompletionException) {
+                || bizException instanceof CompletionException || bizException instanceof ServiceRetryException) {
             this.bizException = bizException.getCause();
         } else {
             this.bizException = bizException;

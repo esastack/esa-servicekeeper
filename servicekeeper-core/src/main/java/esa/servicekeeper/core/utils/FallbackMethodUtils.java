@@ -13,29 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esa.servicekeeper.core.annotation;
+package esa.servicekeeper.core.utils;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+public final class FallbackMethodUtils {
 
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Inherited
-public @interface RateLimiter {
+    private FallbackMethodUtils() {
+    }
 
-    /**
-     * @return threshold of a period.
-     */
-    int limitForPeriod();
-
-    /**
-     * @return the duration of a period.
-     */
-    String limitRefreshPeriod() default "1s";
-
+    public static boolean isCauseAtFirst(Class<?>[] targetParameterTypes) {
+        return targetParameterTypes.length > 0 &&
+                Throwable.class.isAssignableFrom(targetParameterTypes[0]);
+    }
 }

@@ -15,19 +15,20 @@
  */
 package esa.servicekeeper.core.moats;
 
+import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.retry.RetryableExecutor;
 
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class RetryableMoatCluster extends MoatClusterImpl {
+public class RetryableMoatCluster extends FallbackMoatClusterImpl {
 
     private final AtomicReference<RetryableExecutor> retryable;
 
     public RetryableMoatCluster(List<Moat<?>> moats, List<MoatClusterListener> listeners,
-                                RetryableExecutor retryable) {
-        super(moats, listeners);
+                                FallbackHandler<?> fallbackHandler, RetryableExecutor retryable) {
+        super(moats, listeners, fallbackHandler);
         this.retryable = new AtomicReference<>(retryable);
     }
 
@@ -37,6 +38,10 @@ public class RetryableMoatCluster extends MoatClusterImpl {
 
     public void updateRetryExecutor(RetryableExecutor executor) {
         retryable.updateAndGet(item -> executor);
+    }
+
+    public static boolean isInstance(MoatCluster moatCluster) {
+        return moatCluster instanceof RetryableMoatCluster;
     }
 
     @Override

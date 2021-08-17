@@ -71,11 +71,6 @@
             <artifactId>servicekeeper-ext-listenablefuture</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>servicekeeper-ext-nettyfuture</artifactId>
-        </dependency>
-
         <!--for cabin package-->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -86,12 +81,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>servicekeeper-ext-listenablefuture</artifactId>
-            <classifier>cabin-classifier</classifier>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>servicekeeper-ext-nettyfuture</artifactId>
             <classifier>cabin-classifier</classifier>
             <optional>true</optional>
         </dependency>

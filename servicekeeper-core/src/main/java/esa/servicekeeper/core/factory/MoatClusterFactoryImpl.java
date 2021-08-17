@@ -27,8 +27,12 @@ import esa.servicekeeper.core.config.RateLimitConfig;
 import esa.servicekeeper.core.config.RetryConfig;
 import esa.servicekeeper.core.config.ServiceKeeperConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
+import esa.servicekeeper.core.fallback.FallbackHandler;
+import esa.servicekeeper.core.fallback.FallbackHandlerConfig;
 import esa.servicekeeper.core.internal.ImmutableConfigs;
 import esa.servicekeeper.core.internal.InternalMoatCluster;
+import esa.servicekeeper.core.moats.FallbackMoatCluster;
+import esa.servicekeeper.core.moats.FallbackMoatClusterImpl;
 import esa.servicekeeper.core.moats.Moat;
 import esa.servicekeeper.core.moats.MoatCluster;
 import esa.servicekeeper.core.moats.MoatClusterImpl;
@@ -47,8 +51,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapCircuitBreaker;
@@ -57,7 +59,6 @@ import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstr
 import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapRetry;
 import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.CIRCUITBREAKER_CONFIG;
 import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.CONCURRENTLIMIT_CONFIG;
-import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.FALLBACK_CONFIG;
 import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.RATELIMIT_CONFIG;
 import static esa.servicekeeper.core.internal.ImmutableConfigs.ConfigType.RETRY_CONFIG;
 import static esa.servicekeeper.core.moats.MoatType.CIRCUIT_BREAKER;
@@ -68,8 +69,6 @@ import static esa.servicekeeper.core.moats.MoatType.RETRY;
 public class MoatClusterFactoryImpl implements MoatClusterFactory {
 
     private static final Logger logger = LogUtils.logger();
-
-    private final Map<ResourceId, FallbackConfig> fallbackConfigs = new ConcurrentHashMap<>(16);
 
     private final LimitableMoatFactoryContext context;
     private final Map<MoatType, AbstractMoatFactory<?, ?>> factories;
@@ -91,7 +90,8 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
     public MoatCluster getOrCreate(ResourceId resourceId,
                                    Supplier<OriginalInvocation> originalInvocation,
                                    Supplier<ServiceKeeperConfig> immutableConfig,
-                                   Supplier<ExternalConfig> externalConfig) {
+                                   Supplier<ExternalConfig> externalConfig,
+                                   boolean isAsync) {
         final MoatCluster cluster0 = cluster.get(resourceId);
         if (cluster0 != null) {
             if (logger.isDebugEnabled()) {
@@ -118,7 +118,7 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
         final OriginalInvocation invocation0 = originalInvocation == null
                 ? null : originalInvocation.get();
         return cluster.computeIfAbsent(resourceId, (id) -> doCreate(resourceId,
-                invocation0, immutableConfig0, externalConfig0));
+                invocation0, immutableConfig0, externalConfig0, isAsync));
     }
 
     @Override
@@ -131,14 +131,6 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
             return;
         }
 
-        FallbackConfig fallbackConfig = ConfigUtils.combine(
-                (FallbackConfig) configs.getConfig(resourceId, FALLBACK_CONFIG), config);
-
-        if (fallbackConfig != null) {
-            fallbackConfigs.putIfAbsent(resourceId, fallbackConfig);
-        }
-
-        fallbackConfig = detectFallbackConfig(resourceId, fallbackConfig);
         if (hasBootstrapCircuitBreaker(config) && !cluster0.contains(CIRCUIT_BREAKER)) {
             // New a CircuitBreaker moat.
             final CircuitBreakerConfig immutableConfig =
@@ -147,7 +139,6 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
             final CircuitBreakerMoat moat =
                     ((LimitableMoatFactory.LimitableCircuitBreakerMoatFactory) factories.get(CIRCUIT_BREAKER))
                             .doCreate(resourceId,
-                                    fallbackConfig,
                                     null,
                                     ConfigUtils.combine(immutableConfig, config),
                                     immutableConfig);
@@ -165,7 +156,7 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
             final RateLimitMoat moat =
                     ((LimitableMoatFactory.LimitableRateMoatFactory) factories.get(RATE_LIMIT))
                             .doCreate0(resourceId,
-                                    fallbackConfig, null,
+                                    null,
                                     ConfigUtils.combine(limitConfig, config), limitConfig);
 
             if (moat != null) {
@@ -179,7 +170,7 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
                     (ConcurrentLimitConfig) configs.getConfig(resourceId, CONCURRENTLIMIT_CONFIG);
             final ConcurrentLimitMoat moat =
                     ((LimitableMoatFactory.LimitableConcurrentMoatFactory) factories.get(CONCURRENT_LIMIT))
-                            .doCreate0(resourceId, fallbackConfig, null,
+                            .doCreate0(resourceId, null,
                                     ConfigUtils.combine(limitConfig, config), limitConfig);
 
             if (moat != null) {
@@ -188,12 +179,12 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
             }
         }
 
-        if (cluster0 instanceof RetryableMoatCluster) {
+        if (RetryableMoatCluster.isInstance(cluster0)) {
             if (hasBootstrapRetry(config) && ((RetryableMoatCluster) cluster0).retryExecutor() == null) {
                 final RetryConfig retryConfig = (RetryConfig) configs.getConfig(resourceId, RETRY_CONFIG);
                 final RetryOperations retryOperations =
                         ((LimitableMoatFactory.RetryOperationFactory) factories.get(RETRY))
-                                .doCreate(resourceId, fallbackConfig, null,
+                                .doCreate(resourceId, null,
                                         ConfigUtils.combine(retryConfig, config), retryConfig);
                 if (retryOperations != null) {
                     ((RetryableMoatCluster) cluster0).updateRetryExecutor(new RetryableExecutor(retryOperations));
@@ -213,43 +204,54 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
      * @param externalConfig  combineConfigSupplier
      * @return chain
      */
-    private MoatCluster  doCreate(final ResourceId resourceId, OriginalInvocation invocation,
-                                 ServiceKeeperConfig immutableConfig, ExternalConfig externalConfig) {
+    private MoatCluster doCreate(final ResourceId resourceId, OriginalInvocation invocation,
+                                 ServiceKeeperConfig immutableConfig, ExternalConfig externalConfig,
+                                 boolean isAsync) {
         final ServiceKeeperConfig combinedConfig = ConfigUtils.combine(immutableConfig, externalConfig);
 
         if (combinedConfig == null) {
             return null;
         }
 
-        FallbackConfig fallbackConfig = combinedConfig.getFallbackConfig();
+        List<Moat<?>> moats = createMoats(resourceId, invocation,
+                combinedConfig, immutableConfig, externalConfig);
 
-        // Note: Try to fill fallbackConfig with original method
-        if (invocation != null) {
-            tryToFillConfig(fallbackConfig, invocation.getMethod());
+        // If it's args level resourceId, just create and return a default moat cluster.
+        if (resourceId instanceof ArgResourceId) {
+            return createArgMoatCluster(moats);
+        } else {
+            if (isAsync) {
+                //Async don,t support Retry
+                return createFallbackMoatCluster(invocation, moats, combinedConfig);
+            } else {
+                return createRetryableMoatCluster(resourceId, invocation, moats,
+                        combinedConfig, immutableConfig);
+            }
         }
 
-        // Just save the fallbackConfig for further using.
-        if (fallbackConfig != null) {
-            fallbackConfigs.putIfAbsent(resourceId, fallbackConfig);
-        }
+    }
+
+    private List<Moat<?>> createMoats(final ResourceId resourceId, OriginalInvocation invocation,
+                                      ServiceKeeperConfig combinedConfig,
+                                      ServiceKeeperConfig immutableConfig,
+                                      ExternalConfig externalConfig) {
 
         if (combinedConfig.getRateLimitConfig() != null || combinedConfig.getConcurrentLimitConfig() != null
                 || combinedConfig.getCircuitBreakerConfig() != null || combinedConfig.getRetryConfig() != null) {
             logger.info("Begin to create a new moat cluster, resourceId: {}, config:{};" +
                             " immutable config: {}; external config: {}",
-                    resourceId.getName(), combinedConfig.toString(),
+                    resourceId.getName(), combinedConfig,
                     immutableConfig == null ? "null" : immutableConfig.toString(),
                     externalConfig == null ? "null" : externalConfig.toString());
         } else {
             return null;
         }
 
-        fallbackConfig = detectFallbackConfig(resourceId, fallbackConfig);
         List<Moat<?>> moats = new ArrayList<>(3);
         if (combinedConfig.getRateLimitConfig() != null) {
             final RateLimitMoat rateLimitMoat =
                     ((LimitableMoatFactory.LimitableRateMoatFactory) factories.get(RATE_LIMIT))
-                            .doCreate(resourceId, fallbackConfig, invocation,
+                            .doCreate(resourceId, invocation,
                                     combinedConfig.getRateLimitConfig(),
                                     immutableConfig == null ? null : immutableConfig.getRateLimitConfig());
             if (rateLimitMoat != null) {
@@ -260,7 +262,7 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
         if (combinedConfig.getConcurrentLimitConfig() != null) {
             final ConcurrentLimitMoat concurrentLimitMoat =
                     ((LimitableMoatFactory.LimitableConcurrentMoatFactory) factories.get(CONCURRENT_LIMIT))
-                            .doCreate(resourceId, fallbackConfig,
+                            .doCreate(resourceId,
                                     invocation, combinedConfig.getConcurrentLimitConfig(),
                                     immutableConfig == null ? null : immutableConfig.getConcurrentLimitConfig());
             if (concurrentLimitMoat != null) {
@@ -271,7 +273,7 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
         if (combinedConfig.getCircuitBreakerConfig() != null) {
             final CircuitBreakerMoat circuitBreakerMoat =
                     ((LimitableMoatFactory.LimitableCircuitBreakerMoatFactory) factories.get(CIRCUIT_BREAKER))
-                            .doCreate(resourceId, fallbackConfig,
+                            .doCreate(resourceId,
                                     invocation, combinedConfig.getCircuitBreakerConfig(),
                                     immutableConfig == null ? null : immutableConfig.getCircuitBreakerConfig());
             if (circuitBreakerMoat != null) {
@@ -279,57 +281,64 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
             }
         }
 
-        // If it's args level resourceId, just create and return a default moat cluster.
-        if (resourceId instanceof ArgResourceId) {
-            return doCreate0(resourceId, invocation, moats, null);
-        }
-
-        // If it's method level resourceId, just doCreate and return a retryable moat chain.
-        RetryableExecutor executor = null;
-        if (combinedConfig.getRetryConfig() != null) {
-            final RetryOperations retryOperations = ((AbstractMoatFactory.RetryOperationFactory) factories.get(RETRY))
-                    .doCreate(resourceId, fallbackConfig, invocation, combinedConfig.getRetryConfig(),
-                            immutableConfig == null ? null : immutableConfig.getRetryConfig());
-            if (retryOperations != null) {
-                executor = new RetryableExecutor(retryOperations);
-            }
-        }
-
-        return doCreate0(resourceId, invocation, moats, executor);
+        return moats;
     }
 
-    /**
-     * Create retryable moat cluster.
-     *
-     *
-     * @param resourceId     resourceId
-     * @param invocation     original invocation
-     * @param moats          moats
-     * @param executor       retryable executor
-     * @return retryable moat cluster
-     */
-    protected MoatCluster doCreate0(ResourceId resourceId, OriginalInvocation invocation,
-                                    List<Moat<?>> moats, RetryableExecutor executor) {
-        if (resourceId instanceof ArgResourceId) {
-            if (moats.isEmpty()) {
-                return null;
-            }
-            return new MoatClusterImpl(moats, context.listeners());
+    private MoatCluster createArgMoatCluster(List<Moat<?>> moats) {
+        if (moats == null || moats.isEmpty()) {
+            return null;
         }
+        return new MoatClusterImpl(moats, context.listeners());
+    }
 
-        if (moats.isEmpty() && executor == null) {
+    private FallbackMoatCluster createFallbackMoatCluster(OriginalInvocation invocation,
+                                                          List<Moat<?>> moats, ServiceKeeperConfig combinedConfig) {
+        return new FallbackMoatClusterImpl(
+                moats,
+                context.listeners(),
+                createFallbackHandler(invocation, combinedConfig.getFallbackConfig()));
+    }
+
+    private RetryableMoatCluster createRetryableMoatCluster(ResourceId resourceId, OriginalInvocation invocation,
+                                                            List<Moat<?>> moats, ServiceKeeperConfig combinedConfig,
+                                                            ServiceKeeperConfig immutableConfig) {
+        return new RetryableMoatCluster(
+                moats,
+                context.listeners(),
+                createFallbackHandler(invocation, combinedConfig.getFallbackConfig()),
+                createRetryableExecutor(resourceId, invocation, combinedConfig.getRetryConfig(), immutableConfig));
+    }
+
+
+    private FallbackHandler<?> createFallbackHandler(OriginalInvocation invocation, FallbackConfig fallbackConfig) {
+        if (fallbackConfig == null) {
             return null;
         }
 
-        // Note that: Async method's retry is not supported!
-        Class<?> returnType;
-        if (invocation != null
-                && (returnType = invocation.getReturnType()) != null
-                && !CompletionStage.class.isAssignableFrom(returnType)) {
-            return new RetryableMoatCluster(moats, context.listeners(), executor);
+        // Note: Try to fill fallbackConfig with original method
+        if (invocation != null) {
+            tryToFillConfig(fallbackConfig, invocation.getMethod());
         }
 
-        return new RetryableMoatCluster(moats, context.listeners(), executor);
+        return context.handler().get(new FallbackHandlerConfig(fallbackConfig, invocation));
+    }
+
+    private RetryableExecutor createRetryableExecutor(ResourceId resourceId,
+                                                      OriginalInvocation invocation,
+                                                      RetryConfig retryConfig,
+                                                      ServiceKeeperConfig immutableConfig) {
+        if (retryConfig == null) {
+            return null;
+        }
+
+        final RetryOperations retryOperations = ((AbstractMoatFactory.RetryOperationFactory) factories.get(RETRY))
+                .doCreate(resourceId, invocation, retryConfig,
+                        immutableConfig == null ? null : immutableConfig.getRetryConfig());
+
+        if (retryOperations != null) {
+            return new RetryableExecutor(retryOperations);
+        }
+        return null;
     }
 
     /**
@@ -351,13 +360,5 @@ public class MoatClusterFactoryImpl implements MoatClusterFactory {
         if (fallbackConfig.getTargetClass() == null) {
             fallbackConfig.setTargetClass(method.getDeclaringClass());
         }
-    }
-
-    private FallbackConfig detectFallbackConfig(final ResourceId id, final FallbackConfig config) {
-        if (config != null) {
-            return config;
-        }
-
-        return id instanceof ArgResourceId ? fallbackConfigs.get(((ArgResourceId) id).getMethodId()) : null;
     }
 }

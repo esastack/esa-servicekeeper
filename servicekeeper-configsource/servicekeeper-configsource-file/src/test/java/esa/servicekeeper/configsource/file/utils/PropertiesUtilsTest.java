@@ -138,6 +138,7 @@ class PropertiesUtilsTest {
         then(configs.get(resourceId1).getFallbackValue()).isEqualTo("Custom fallbackHandler value");
         then(configs.get(resourceId1).getFallbackExceptionClass()).isEqualTo(RuntimeException.class);
         then(configs.get(resourceId1).getFallbackMethodName()).isEqualTo("fallbackMethod");
+        then(configs.get(resourceId1).getAlsoApplyFallbackToBizException()).isEqualTo(true);
         then(configs.get(resourceId1).getFallbackClass()).isEqualTo(CustomFallback.class);
         then((configs.get(resourceId1).getForcedDisabled() == null
                 && configs.get(resourceId1).getForcedOpen()) ||

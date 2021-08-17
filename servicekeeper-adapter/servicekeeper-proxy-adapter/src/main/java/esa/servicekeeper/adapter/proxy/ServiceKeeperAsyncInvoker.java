@@ -22,7 +22,6 @@ import esa.servicekeeper.core.asynchandle.RequestHandle;
 import esa.servicekeeper.core.common.OriginalInvocation;
 import esa.servicekeeper.core.common.OriginalInvocationInfo;
 import esa.servicekeeper.core.entry.CompositeServiceKeeperConfig;
-import esa.servicekeeper.core.utils.RequestHandleUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,12 +38,11 @@ public final class ServiceKeeperAsyncInvoker {
     /**
      * Try to get permission to access the given {@link String} resourceId, and the {@link RequestHandle} will be
      * returned. If the {@link RequestHandle#isAllowed()} is true, you can do your business invocation continuously,
-     * otherwise you can get the reason of not allowed or fallback result by {@link RequestHandle#getNotAllowedCause()}
-     * or {@link RequestHandle#getFallbackResult()}. Normally, if the fallback fails, you also can get the reason by
-     * {@link RequestHandle#getFallbackFailsCause()}. Last but most importantly, you must callback the
-     * {@link RequestHandle#endWithSuccess()} or {@link RequestHandle#endWithResult(Object)} explicitly when the
-     * invocation ends successfully. Otherwise, you must callback the {@link RequestHandle#endWithError(Throwable)}
-     * to end the current {@link RequestHandle}.
+     * otherwise you can get the reason of not allowed to fallback result by {@link RequestHandle#getNotAllowedCause()}
+     * and {@link RequestHandle#fallback(Throwable)} ()}. Last but most importantly, you must callback the
+     * {@link RequestHandle#endWithSuccess()} or {@link RequestHandle#endWithResult(Object)} ()} explicitly when the
+     * execution is successful.Otherwise, you must callback the {@link RequestHandle#endWithError(Throwable)} or
+     * {@link RequestHandle#fallback(Throwable)} ()} to end the current {@link RequestHandle}.
      * <p>
      * eg:
      *
@@ -57,14 +55,11 @@ public final class ServiceKeeperAsyncInvoker {
      *                  doSomething();
      *                  handle.endWithSuccess();      // endWithResult(Object) is also allowed.
      *              } catch(Throwable throwable) {
-     *                  handle.endWithError(throwable);
+     *                  handle.fallback(throwable);  //or handle.endWithError(throwable)
      *              }
      *          } else {
-     *              if (handle.isFallbackSucceed()) {
-     *                  return handle.getFallbackResult();
-     *              } else {
-     *                  throw handle.getFallbackFailsCause();
-     *              }
+     *              handle.fallback(handle.getNotAllowedCause());
+     *              //or ServiceKeeperAsyncInvoker.handleWhenNotAllowed(requestHandle)
      *          }
      *     }
      * </pre>
@@ -84,9 +79,9 @@ public final class ServiceKeeperAsyncInvoker {
      * {@link OriginalInvocation#getReturnType()} and fallback method's parameter types should as same as
      * original method's parameter types.
      *
-     * @param resourceId             resourceId
-     * @param originalInvocation     original invocation. It's helpful to locate fallback method.
-     * @param args                   args
+     * @param resourceId         resourceId
+     * @param originalInvocation original invocation. It's helpful to locate fallback method.
+     * @param args               args
      * @return Request handle
      */
     public static RequestHandle tryAsyncInvokeWithOriginalInvocation(String resourceId,
@@ -133,10 +128,10 @@ public final class ServiceKeeperAsyncInvoker {
      * Try to get permission to access the given resourceId with {@link CompositeServiceKeeperConfig} and
      * {@link OriginalInvocation}.
      *
-     * @param resourceId             resourceId
-     * @param immutableConfig        immutable config
-     * @param originalInvocation     original invocation
-     * @param args                   args
+     * @param resourceId         resourceId
+     * @param immutableConfig    immutable config
+     * @param originalInvocation original invocation
+     * @param args               args
      * @return Request handle
      * @see #tryAsyncInvokeWithConfig(String, CompositeServiceKeeperConfig, Object...)
      * @see #tryAsyncInvokeWithOriginalInvocation(String, OriginalInvocation, Object...)
@@ -177,6 +172,6 @@ public final class ServiceKeeperAsyncInvoker {
      * @throws Throwable throwable
      */
     public static Object handleWhenNotAllowed(final RequestHandle requestHandle) throws Throwable {
-        return RequestHandleUtils.handle(requestHandle);
+        return requestHandle.fallback(requestHandle.getNotAllowedCause());
     }
 }

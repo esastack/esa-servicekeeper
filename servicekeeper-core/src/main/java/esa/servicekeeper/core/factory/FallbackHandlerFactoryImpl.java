@@ -19,13 +19,13 @@ import esa.commons.StringUtils;
 import esa.servicekeeper.core.common.OriginalInvocation;
 import esa.servicekeeper.core.config.FallbackConfig;
 import esa.servicekeeper.core.exception.FallbackFailsException;
-import esa.servicekeeper.core.exception.ServiceKeeperException;
 import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.fallback.FallbackHandlerConfig;
 import esa.servicekeeper.core.fallback.FallbackMethod;
 import esa.servicekeeper.core.fallback.FallbackToException;
 import esa.servicekeeper.core.fallback.FallbackToFunction;
 import esa.servicekeeper.core.fallback.FallbackToValue;
+import esa.servicekeeper.core.utils.FallbackMethodUtils;
 import esa.servicekeeper.core.utils.LogUtils;
 import org.slf4j.Logger;
 
@@ -71,7 +71,7 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
         // Firstly: Try to create fallback function
         final FallbackToFunction<?> function = doCreate(fallbackConfig.getMethodName(),
                 fallbackConfig.getTargetClass(), returnType,
-                parameterTypes);
+                parameterTypes, fallbackConfig.isAlsoApplyToBizException());
         if (function != null) {
             logger.info("Created fallback function handler successfully, config: {}", fallbackConfig);
             return function;
@@ -83,7 +83,7 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
         // Secondly: Try to create fallback to value
         if ((canFallbackToValue) && StringUtils.isNotEmpty(fallbackConfig.getSpecifiedValue())) {
             logger.info("Created fallback value handler successfully, config: {}", fallbackConfig);
-            return new FallbackToValue(fallbackConfig.getSpecifiedValue());
+            return new FallbackToValue(fallbackConfig.getSpecifiedValue(), fallbackConfig.isAlsoApplyToBizException());
         }
 
         // Finally: Try to crete fallback to exception
@@ -99,7 +99,8 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
     protected FallbackToFunction<?> doCreate(final String methodName,
                                              Class<?> targetClass,
                                              Class<?> originalReturnType,
-                                             Class<?>[] originalParameterTypes) {
+                                             Class<?>[] originalParameterTypes,
+                                             boolean alsoApplyToBizException) {
         if (StringUtils.isEmpty(methodName) || targetClass == null) {
             return null;
         }
@@ -122,9 +123,9 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
         final boolean allStatic = fallbackMethods.stream().allMatch(FallbackMethod::isStatic);
 
         if (allStatic) {
-            return new FallbackToFunction<>(null, fallbackMethods);
+            return new FallbackToFunction<>(null, fallbackMethods, alsoApplyToBizException);
         } else {
-            return new FallbackToFunction<>(getOrNewInstance(targetClass), fallbackMethods);
+            return new FallbackToFunction<>(getOrNewInstance(targetClass), fallbackMethods, alsoApplyToBizException);
         }
     }
 
@@ -140,7 +141,8 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
             return null;
         }
 
-        FallbackToException fallback = new FallbackToException((Exception) getOrNewInstance(exception));
+        FallbackToException fallback = new FallbackToException((Exception) getOrNewInstance(exception),
+                config.isAlsoApplyToBizException());
         logger.info("Created fallback exception handler successfully, config: {}", config);
         return fallback;
     }
@@ -221,7 +223,7 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
     }
 
     private boolean isParamMatch(Class<?>[] originalParameterTypes, Class<?>[] targetParameterTypes) {
-        if (isCauseAtFirst(targetParameterTypes)) {
+        if (FallbackMethodUtils.isCauseAtFirst(targetParameterTypes)) {
             return targetParameterTypes.length == 1 || Arrays.equals(originalParameterTypes,
                     Arrays.copyOfRange(targetParameterTypes, 1, targetParameterTypes.length));
         } else {
@@ -229,9 +231,5 @@ public class FallbackHandlerFactoryImpl implements FallbackHandlerFactory {
         }
     }
 
-    private boolean isCauseAtFirst(Class<?>[] targetParameterTypes) {
-        return targetParameterTypes.length > 0 &&
-                ServiceKeeperException.class.isAssignableFrom(targetParameterTypes[0]);
-    }
 }
 

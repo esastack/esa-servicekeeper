@@ -57,7 +57,7 @@ class SyncRunnableTest {
                 ConcurrentLimitConfig.builder().threshold(maxConcurrentLimit).build(), null,
                 Collections.emptyList());
         List<Moat<?>> moats = Collections.singletonList(concurrentLimitMoat);
-        SyncExecutionChain chain = new SyncExecutionChainImpl(moats);
+        SyncExecutionChain chain = new SyncExecutionChainImpl(moats, null);
 
         final CountDownLatch latch = new CountDownLatch(maxConcurrentLimit * 2);
         final AtomicInteger concurrentOverFlowCount = new AtomicInteger(0);
@@ -88,7 +88,7 @@ class SyncRunnableTest {
         List<Moat<?>> moats = Collections.singletonList(new RateLimitMoat(getConfig(name),
                 RateLimitConfig.builder().limitForPeriod(limitForPeriod).build(), null,
                 Collections.emptyList()));
-        SyncExecutionChain chain = new SyncExecutionChainImpl(moats);
+        SyncExecutionChain chain = new SyncExecutionChainImpl(moats, null);
         final AtomicInteger rateLimitOverFlowCount = new AtomicInteger(0);
 
         for (int i = 0; i < limitForPeriod * 2; i++) {
@@ -104,6 +104,6 @@ class SyncRunnableTest {
     }
 
     private MoatConfig getConfig(String name) {
-        return new MoatConfig(ResourceId.from(name), null);
+        return new MoatConfig(ResourceId.from(name));
     }
 }

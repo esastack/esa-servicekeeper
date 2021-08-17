@@ -76,7 +76,7 @@ public class OverLimitMoatHandler implements MoatLimitConfigListener {
                     logger.info("Removed {}'s {} moat, current index:{}, new size limit:{}",
                             entry.getKey(), key.getType(), currentCount, newSizeLimit);
 
-                    if (cluster0.getAll().isEmpty() && !(cluster0 instanceof RetryableMoatCluster)) {
+                    if (cluster0.getAll().isEmpty() && !(RetryableMoatCluster.isInstance(cluster0))) {
                         toDeleteIds.add(entry.getKey());
                     }
                 }

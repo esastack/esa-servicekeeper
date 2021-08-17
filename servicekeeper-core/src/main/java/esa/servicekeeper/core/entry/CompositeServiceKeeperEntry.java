@@ -67,81 +67,38 @@ public class CompositeServiceKeeperEntry extends DefaultServiceKeeperEntry imple
 
     @Override
     public Object invoke(String aliasName, Method method, Object delegate, Object... args) throws Throwable {
-        if (absentHandlers) {
-            return super.invoke(aliasName, method, delegate, args);
-        } else {
-            final Supplier<OriginalInvocation> originalInvocation =
-                    getOriginalInvocation(method);
-
+        if (!absentHandlers) {
             final Class<?> returnType = method.getReturnType();
-
-            method.setAccessible(true);
-            final Executable<?> executable = () -> method.invoke(delegate, args);
-            final Supplier<CompositeServiceKeeperConfig> configSupplier = () -> MethodUtils.getCompositeConfig(method);
 
             for (AsyncResultHandler<?> asyncResultHandler : handlers) {
                 if (asyncResultHandler.supports(returnType)) {
-                    final AbstractExecutionChain executionChain =
-                            buildExecutionChain(aliasName, getOriginalInvocation(method),
-                                    configSupplier, true, args);
-                    if (executionChain == null) {
-                        return method.invoke(delegate, args);
-                    }
-
-                    return executionChain.asyncExecute(buildAsyncContext(aliasName, args),
-                            originalInvocation, executable,
-                            asyncResultHandler);
+                    return asyncInvoke(aliasName, method, delegate, asyncResultHandler, args);
                 }
             }
-
-            AbstractExecutionChain executionChain =
-                    buildExecutionChain(aliasName, getOriginalInvocation(method), configSupplier,
-                            false, args);
-            if (executionChain == null) {
-                return method.invoke(delegate, args);
-            }
-
-            return executionChain.execute(buildContext(aliasName, args), originalInvocation, executable);
         }
+        return syncInvoke(aliasName, method, delegate, args);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T call(String resourceId, Supplier<CompositeServiceKeeperConfig> immutableConfig,
                       Supplier<OriginalInvocation> originalInvocation,
                       Callable<T> callable, Object... args) throws Throwable {
-        if (absentHandlers) {
-            return super.call(resourceId, immutableConfig, originalInvocation, callable, args);
-        } else {
+        if (!absentHandlers) {
             final Class<T> returnType = originalInvocation == null ? null :
                     (Class<T>) originalInvocation.get().getReturnType();
             if (returnType == null) {
-                return super.call(resourceId, immutableConfig, originalInvocation, callable, args);
+                return syncCall(resourceId, immutableConfig, originalInvocation, callable, args);
             }
 
             for (AsyncResultHandler<?> asyncResultHandler : handlers) {
                 if (asyncResultHandler.supports(returnType)) {
-                    final AbstractExecutionChain executionChain =
-                            buildExecutionChain(resourceId, originalInvocation,
-                                    immutableConfig, true, args);
-                    if (executionChain == null) {
-                        return callable.call();
-                    }
-
-                    return executionChain.asyncExecute(buildAsyncContext(resourceId, args),
-                            originalInvocation, callable::call,
-                            asyncResultHandler);
+                    return asyncCall(resourceId, immutableConfig, originalInvocation, callable,
+                            asyncResultHandler, args);
                 }
             }
-
-            final AbstractExecutionChain executionChain =
-                    buildExecutionChain(resourceId, originalInvocation,
-                            immutableConfig, false, args);
-            if (executionChain == null) {
-                return callable.call();
-            }
-            return executionChain.execute(buildAsyncContext(resourceId, args), originalInvocation,
-                    callable::call);
         }
+        return syncCall(resourceId, immutableConfig, originalInvocation, callable, args);
     }
 
     @Override
@@ -201,5 +158,51 @@ public class CompositeServiceKeeperEntry extends DefaultServiceKeeperEntry imple
         }
 
         return groupConfig;
+    }
+
+    private Object syncInvoke(String aliasName, Method method, Object delegate, Object... args) throws Throwable {
+        return super.invoke(aliasName, method, delegate, args);
+    }
+
+    private Object asyncInvoke(String aliasName, Method method, Object delegate,
+                               AsyncResultHandler<?> asyncResultHandler, Object... args) throws Throwable {
+        final Supplier<OriginalInvocation> originalInvocation =
+                getOriginalInvocation(method);
+        method.setAccessible(true);
+        final Executable<?> executable = () -> method.invoke(delegate, args);
+        final Supplier<CompositeServiceKeeperConfig> configSupplier = () -> MethodUtils.getCompositeConfig(method);
+
+        final AbstractExecutionChain executionChain =
+                buildExecutionChain(aliasName, getOriginalInvocation(method),
+                        configSupplier, true, args);
+        if (executionChain == null) {
+            return method.invoke(delegate, args);
+        }
+
+        return executionChain.asyncExecute(buildAsyncContext(aliasName, args),
+                originalInvocation, executable,
+                asyncResultHandler);
+    }
+
+    private <T> T syncCall(String resourceId, Supplier<CompositeServiceKeeperConfig> immutableConfig,
+                           Supplier<OriginalInvocation> originalInvocation,
+                           Callable<T> callable, Object[] args) throws Throwable {
+        return super.call(resourceId, immutableConfig, originalInvocation, callable, args);
+    }
+
+    private <T> T asyncCall(String resourceId, Supplier<CompositeServiceKeeperConfig> immutableConfig,
+                            Supplier<OriginalInvocation> originalInvocation,
+                            Callable<T> callable, AsyncResultHandler<?> asyncResultHandler,
+                            Object... args) throws Throwable {
+        final AbstractExecutionChain executionChain =
+                buildExecutionChain(resourceId, originalInvocation,
+                        immutableConfig, true, args);
+        if (executionChain == null) {
+            return callable.call();
+        }
+
+        return executionChain.asyncExecute(buildAsyncContext(resourceId, args),
+                originalInvocation, callable::call,
+                asyncResultHandler);
     }
 }

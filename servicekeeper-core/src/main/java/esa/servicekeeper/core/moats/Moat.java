@@ -18,7 +18,6 @@ package esa.servicekeeper.core.moats;
 import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.executionchain.Context;
-import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.utils.Ordered;
 
 /**
@@ -39,9 +38,8 @@ public interface Moat<T> extends Ordered {
      * Try to through the component.
      *
      * @param ctx ctx
-     * @return whether through successfully.
      */
-    boolean tryThrough(Context ctx);
+    void enter(Context ctx) throws ServiceKeeperNotPermittedException;
 
     /**
      * Exit current moat
@@ -49,13 +47,6 @@ public interface Moat<T> extends Ordered {
      * @param ctx ctx
      */
     void exit(Context ctx);
-
-    /**
-     * Get fallbackHandler's type
-     *
-     * @return fallback FallbackType
-     */
-    FallbackHandler.FallbackType fallbackType();
 
     /**
      * Get type
@@ -70,32 +61,4 @@ public interface Moat<T> extends Ordered {
      * @return config
      */
     MoatConfig config0();
-
-    /**
-     * Whether current moat has custom fallback handler
-     *
-     * @return true or false
-     */
-    boolean hasCustomFallbackHandler();
-
-    /**
-     * To performed  rejection handle.
-     *
-     * @param ctx ctx
-     * @return the result to return
-     * @throws Throwable throwable
-     */
-    default Object fallback(Context ctx) throws Throwable {
-        throw defaultFallbackToException(ctx);
-    }
-
-    /**
-     * Default rejection handle, just to throw corresponding exception
-     *
-     * @param ctx ctx
-     * @return object
-     */
-    default ServiceKeeperNotPermittedException defaultFallbackToException(Context ctx) {
-        return new ServiceKeeperNotPermittedException(ctx);
-    }
 }

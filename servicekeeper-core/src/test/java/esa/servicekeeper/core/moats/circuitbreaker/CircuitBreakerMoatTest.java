@@ -20,11 +20,7 @@ import esa.servicekeeper.core.config.CircuitBreakerConfig;
 import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
-import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.executionchain.Context;
-import esa.servicekeeper.core.executionchain.SyncContext;
-import esa.servicekeeper.core.fallback.FallbackHandler;
-import esa.servicekeeper.core.metrics.CircuitBreakerMetrics;
 import esa.servicekeeper.core.moats.LifeCycleSupport;
 import esa.servicekeeper.core.moats.MoatEvent;
 import esa.servicekeeper.core.moats.MoatEventProcessor;
@@ -44,6 +40,7 @@ import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.C
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.FORCED_DISABLED;
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.FORCED_OPEN;
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,7 +50,7 @@ class CircuitBreakerMoatTest {
     private static final String NAME = "circuitBreaker-Test";
     private static final PredicateStrategy DEFAULT_PREDICATE = new PredicateByException(null);
 
-    private final MoatConfig moatConfig = new MoatConfig(ResourceId.from(NAME), null);
+    private final MoatConfig moatConfig = new MoatConfig(ResourceId.from(NAME));
 
     private final int ringBufferSizeInClosedOpen = RandomUtils.randomInt(20);
     private final float failureRateThreshold = RandomUtils.randomFloat(100);
@@ -62,31 +59,6 @@ class CircuitBreakerMoatTest {
                     .ringBufferSizeInClosedState(ringBufferSizeInClosedOpen)
                     .failureRateThreshold(failureRateThreshold).build(),
             null, DEFAULT_PREDICATE);
-
-    @Test
-    void testDefaultRejectionHandle() {
-        then(breakerMoat.defaultFallbackToException(null)).isInstanceOf(CircuitBreakerNotPermittedException.class);
-        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat.fallback(null));
-
-        final CircuitBreakerNotPermittedException ex = (CircuitBreakerNotPermittedException)
-                breakerMoat.defaultFallbackToException(new SyncContext(
-                "testDefaultRejectionHandle"));
-        then(ex.getCauseType()).isEqualTo(ServiceKeeperNotPermittedException.CauseType.CIRCUIT_BREAKER_NOT_PERMIT);
-        final CircuitBreakerMetrics metrics = ex.getMetrics();
-        then(metrics.failureRateThreshold()).isEqualTo(-1.0f);
-        then(metrics.numberOfBufferedCalls()).isEqualTo(breakerMoat.getCircuitBreaker()
-                .metrics().numberOfBufferedCalls());
-        then(metrics.numberOfFailedCalls()).isEqualTo(breakerMoat.getCircuitBreaker()
-                .metrics().numberOfFailedCalls());
-        then(metrics.numberOfNotPermittedCalls()).isEqualTo(breakerMoat.getCircuitBreaker()
-                .metrics().numberOfNotPermittedCalls());
-        then(metrics.maxNumberOfBufferedCalls()).isEqualTo(breakerMoat.getCircuitBreaker()
-                .metrics().maxNumberOfBufferedCalls());
-        then(metrics.numberOfSuccessfulCalls()).isEqualTo(breakerMoat.getCircuitBreaker()
-                .metrics().numberOfSuccessfulCalls());
-        then(metrics.state()).isEqualTo(breakerMoat.getCircuitBreaker()
-                .metrics().state());
-    }
 
     @Test
     void testGetListeningKey() {
@@ -132,14 +104,15 @@ class CircuitBreakerMoatTest {
 
         when(ctx.getBizException()).thenReturn(new RuntimeException());
         for (int i = 0; i < ringBufferSizeInClosedOpen; i++) {
-            then(breakerMoat0.tryThrough(ctx)).isTrue();
-            then(breakerMoat1.tryThrough(ctx)).isTrue();
+            assertDoesNotThrow(() -> breakerMoat0.enter(ctx));
+            assertDoesNotThrow(() -> breakerMoat1.enter(ctx));
             breakerMoat0.exit(ctx);
             breakerMoat1.exit(ctx);
         }
 
-        then(breakerMoat0.tryThrough(ctx)).isTrue();
-        then(breakerMoat1.tryThrough(ctx)).isFalse();
+        assertDoesNotThrow(() -> breakerMoat0.enter(ctx));
+        assertThrows(CircuitBreakerNotPermittedException.class,
+                () -> breakerMoat1.enter(ctx));
     }
 
     @Test
@@ -156,10 +129,10 @@ class CircuitBreakerMoatTest {
                 .ringBufferSizeInClosedState(ringBufferSizeInClosedOpen).build(),
                 null, predicateStrategy);
         for (int i = 0; i < ringBufferSizeInClosedOpen; i++) {
-            then(breakerMoat0.tryThrough(ctx0)).isTrue();
+            assertDoesNotThrow(() -> breakerMoat0.enter(ctx0));
             breakerMoat0.exit(ctx0);
         }
-        then(breakerMoat0.tryThrough(ctx0)).isFalse();
+        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat0.enter(ctx0));
 
         Context ctx1 = mock(Context.class);
         when(ctx1.getSpendTimeMs()).thenReturn(5L);
@@ -169,10 +142,10 @@ class CircuitBreakerMoatTest {
                 .ringBufferSizeInClosedState(ringBufferSizeInClosedOpen).build(),
                 null, predicateStrategy);
         for (int i = 0; i < ringBufferSizeInClosedOpen; i++) {
-            then(breakerMoat1.tryThrough(ctx1)).isTrue();
+            assertDoesNotThrow(() -> breakerMoat1.enter(ctx1));
             breakerMoat1.exit(ctx1);
         }
-        then(breakerMoat1.tryThrough(ctx1)).isTrue();
+        assertDoesNotThrow(() -> breakerMoat1.enter(ctx1));
     }
 
     @Test
@@ -195,10 +168,10 @@ class CircuitBreakerMoatTest {
 
         for (int i = 0; i < ringBufferSizeInClosedOpen; i++) {
             if (i % 2 == 0) {
-                then(breakerMoat.tryThrough(ctx0)).isTrue();
+                assertDoesNotThrow(() -> breakerMoat.enter(ctx0));
                 breakerMoat.exit(ctx0);
             } else {
-                then(breakerMoat.tryThrough(ctx1)).isTrue();
+                assertDoesNotThrow(() -> breakerMoat.enter(ctx1));
                 breakerMoat.exit(ctx1);
             }
         }
@@ -207,8 +180,8 @@ class CircuitBreakerMoatTest {
         then(breakerMoat.getCircuitBreaker().metrics().numberOfFailedCalls())
                 .isEqualTo(ringBufferSizeInClosedOpen);
         then(breakerMoat.getCircuitBreaker().metrics().numberOfNotPermittedCalls()).isEqualTo(0);
-        then(breakerMoat.tryThrough(ctx0)).isFalse();
-        then(breakerMoat.tryThrough(ctx1)).isFalse();
+        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat.enter(ctx0));
+        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat.enter(ctx1));
     }
 
     @Test
@@ -217,11 +190,6 @@ class CircuitBreakerMoatTest {
         CircuitBreakerMoat breakerMoat = new CircuitBreakerMoat(moatConfig, CircuitBreakerConfig.ofDefault(),
                 CircuitBreakerConfig.ofDefault(), DEFAULT_PREDICATE);
         then(breakerMoat.lifeCycleType()).isEqualTo(LifeCycleSupport.LifeCycleType.PERMANENT);
-    }
-
-    @Test
-    void testGetFallbackType() {
-        then(breakerMoat.fallbackType()).isEqualTo(FallbackHandler.FallbackType.FALLBACK_TO_EXCEPTION);
     }
 
     @Test
@@ -250,7 +218,7 @@ class CircuitBreakerMoatTest {
     @Test
     void testUpdateWhenNewestConfigIsNull() {
         CircuitBreakerMoat breakerMoat = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testUpdateWhenNewestConfigIsNull-0"), null),
+                new MoatConfig(ResourceId.from("testUpdateWhenNewestConfigIsNull-0")),
                 CircuitBreakerConfig.builder()
                         .ringBufferSizeInClosedState(ringBufferSizeInClosedOpen)
                         .failureRateThreshold(failureRateThreshold).build(),
@@ -259,21 +227,21 @@ class CircuitBreakerMoatTest {
         // Current immutable config is null
         breakerMoat.updateWhenNewestConfigIsNull();
         then(breakerMoat.shouldDelete()).isTrue();
-
         Context ctx = mock(Context.class);
         when(ctx.getBizException()).thenReturn(new RuntimeException());
+
         for (int i = 0; i < ringBufferSizeInClosedOpen; i++) {
-            then(breakerMoat.tryThrough(ctx)).isTrue();
+            assertDoesNotThrow(() -> breakerMoat.enter(ctx));
             breakerMoat.exit(ctx);
         }
-        then(breakerMoat.tryThrough(ctx)).isFalse();
+        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat.enter(ctx));
 
         // Immutable config is not null
         final int newRingBufferSizeInClosedOpen = RandomUtils.randomInt(200);
         final float newFailureRateThreshold = RandomUtils.randomFloat(100);
 
-        breakerMoat = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testUpdateWhenNewestConfigIsNull-1"), null),
+        CircuitBreakerMoat breakerMoat1 = new CircuitBreakerMoat(
+                new MoatConfig(ResourceId.from("testUpdateWhenNewestConfigIsNull-1")),
                 CircuitBreakerConfig.builder()
                         .waitDurationInOpenState(Duration.ofSeconds(1L))
                         .ringBufferSizeInClosedState(ringBufferSizeInClosedOpen)
@@ -283,33 +251,33 @@ class CircuitBreakerMoatTest {
                         .failureRateThreshold(newFailureRateThreshold).build(),
                 DEFAULT_PREDICATE);
 
-        breakerMoat.updateWhenNewestConfigIsNull();
-        then(breakerMoat.shouldDelete()).isFalse();
+        breakerMoat1.updateWhenNewestConfigIsNull();
+        then(breakerMoat1.shouldDelete()).isFalse();
 
         for (int i = 0; i < newRingBufferSizeInClosedOpen; i++) {
-            then(breakerMoat.tryThrough(ctx)).isTrue();
-            breakerMoat.exit(ctx);
-            then(breakerMoat.getCircuitBreaker().metrics().numberOfFailedCalls()).isEqualTo(i + 1);
-            then(breakerMoat.getCircuitBreaker().metrics().numberOfSuccessfulCalls()).isEqualTo(0);
+            assertDoesNotThrow(() -> breakerMoat1.enter(ctx));
+            breakerMoat1.exit(ctx);
+            then(breakerMoat1.getCircuitBreaker().metrics().numberOfFailedCalls()).isEqualTo(i + 1);
+            then(breakerMoat1.getCircuitBreaker().metrics().numberOfSuccessfulCalls()).isEqualTo(0);
         }
-        then(breakerMoat.tryThrough(ctx)).isFalse();
+        assertThrows(CircuitBreakerNotPermittedException.class, () -> breakerMoat1.enter(ctx));
 
         // Reset the circuit breaker
-        breakerMoat.getCircuitBreaker().reset();
-        then(breakerMoat.getCircuitBreaker().metrics().numberOfSuccessfulCalls()).isEqualTo(0);
-        then(breakerMoat.getCircuitBreaker().metrics().numberOfFailedCalls()).isEqualTo(0);
-        then(breakerMoat.getCircuitBreaker().metrics().numberOfBufferedCalls()).isEqualTo(0);
-        then(breakerMoat.getCircuitBreaker().metrics().maxNumberOfBufferedCalls())
+        breakerMoat1.getCircuitBreaker().reset();
+        then(breakerMoat1.getCircuitBreaker().metrics().numberOfSuccessfulCalls()).isEqualTo(0);
+        then(breakerMoat1.getCircuitBreaker().metrics().numberOfFailedCalls()).isEqualTo(0);
+        then(breakerMoat1.getCircuitBreaker().metrics().numberOfBufferedCalls()).isEqualTo(0);
+        then(breakerMoat1.getCircuitBreaker().metrics().maxNumberOfBufferedCalls())
                 .isEqualTo(newRingBufferSizeInClosedOpen);
-        then(breakerMoat.getCircuitBreaker().metrics().numberOfNotPermittedCalls())
+        then(breakerMoat1.getCircuitBreaker().metrics().numberOfNotPermittedCalls())
                 .isEqualTo(0);
-        then(breakerMoat.getCircuitBreaker().metrics().failureRateThreshold()).isEqualTo(-1.0f);
+        then(breakerMoat1.getCircuitBreaker().metrics().failureRateThreshold()).isEqualTo(-1.0f);
     }
 
     @Test
     void testUpdateWithNewestConfig() {
         final CircuitBreakerMoat breakerMoat = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testUpdateWithNewestConfig-0"), null),
+                new MoatConfig(ResourceId.from("testUpdateWithNewestConfig-0")),
                 CircuitBreakerConfig.builder()
                         .ringBufferSizeInClosedState(ringBufferSizeInClosedOpen)
                         .failureRateThreshold(failureRateThreshold).build(),
@@ -346,7 +314,7 @@ class CircuitBreakerMoatTest {
 
         // Case1: DynamicConfig is null
         final CircuitBreakerMoat breakerMoat0 = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate0-case1"), null),
+                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate0-case1")),
                 CircuitBreakerConfig.ofDefault(), null, DEFAULT_PREDICATE);
         final CountDownLatch latch0 = new CountDownLatch(1);
         new Thread(() -> {
@@ -362,7 +330,7 @@ class CircuitBreakerMoatTest {
 
         // Case2: DynamicConfig's failureRateThreshold is null
         final CircuitBreakerMoat breakerMoat1 = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate0-case2"), null),
+                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate0-case2")),
                 CircuitBreakerConfig.ofDefault(), null, DEFAULT_PREDICATE);
         final CountDownLatch latch1 = new CountDownLatch(1);
         new Thread(() -> {
@@ -378,7 +346,7 @@ class CircuitBreakerMoatTest {
 
         // Case3: DynamicConfig's failureRateThreshold is not null
         final CircuitBreakerMoat breakerMoat2 = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate0-case3"), null),
+                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate0-case3")),
                 CircuitBreakerConfig.ofDefault(), null, DEFAULT_PREDICATE);
         final float newestFailureRateThreshold = RandomUtils.randomFloat(100);
         final ExternalConfig config = new ExternalConfig();
@@ -406,7 +374,7 @@ class CircuitBreakerMoatTest {
 
         // Case1: DynamicConfig is null
         final CircuitBreakerMoat breakerMoat0 = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate1-case1"), null),
+                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate1-case1")),
                 CircuitBreakerConfig.ofDefault(), immutableConfig, DEFAULT_PREDICATE);
         breakerMoat0.onUpdate(null);
         then(breakerMoat0.getCircuitBreaker().config().getFailureRateThreshold()).isEqualTo(failureRateThreshold);
@@ -414,7 +382,7 @@ class CircuitBreakerMoatTest {
 
         // Case2: DynamicConfig's failureRateThreshold is null
         final CircuitBreakerMoat breakerMoat1 = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate1-case2"), null),
+                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate1-case2")),
                 CircuitBreakerConfig.ofDefault(), immutableConfig, DEFAULT_PREDICATE);
         breakerMoat1.onUpdate(new ExternalConfig());
         then(breakerMoat1.getCircuitBreaker().config().getFailureRateThreshold()).isEqualTo(failureRateThreshold);
@@ -422,7 +390,7 @@ class CircuitBreakerMoatTest {
 
         // Case3: DynamicConfig's failureRateThreshold has updated
         final CircuitBreakerMoat breakerMoat2 = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate1-case3"), null),
+                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate1-case3")),
                 CircuitBreakerConfig.ofDefault(), immutableConfig, DEFAULT_PREDICATE);
         final ExternalConfig config2 = new ExternalConfig();
         final float newestFailureRateThreshold = RandomUtils.randomFloat(100);
@@ -435,7 +403,7 @@ class CircuitBreakerMoatTest {
 
         // Case4: DynamicConfig's failureRateThreshold hasn't updated
         final CircuitBreakerMoat breakerMoat3 = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate1-case3"), null),
+                new MoatConfig(ResourceId.from("testFailureRateThresholdUpdate1-case3")),
                 CircuitBreakerConfig.ofDefault(), immutableConfig, DEFAULT_PREDICATE);
         final ExternalConfig config3 = new ExternalConfig();
         config3.setFailureRateThreshold(newestFailureRateThreshold);
@@ -450,7 +418,7 @@ class CircuitBreakerMoatTest {
     void testForcedOpenUpdate() {
         // Case1: transition from normal state to FORCED_OPEN state
         final CircuitBreakerMoat breakerMoat0 = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testForcedOpenUpdate"), null),
+                new MoatConfig(ResourceId.from("testForcedOpenUpdate")),
                 CircuitBreakerConfig.ofDefault(), null, DEFAULT_PREDICATE);
         then(breakerMoat0.getCircuitBreaker().getState()).isEqualTo(CLOSED);
         then(breakerMoat0.getCircuitBreaker().immutableConfig()).isNull();
@@ -481,7 +449,7 @@ class CircuitBreakerMoatTest {
 
         // Original ImmutableConfig is not null
         final CircuitBreakerMoat breakerMoat1 = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testForcedOpenUpdate"), null),
+                new MoatConfig(ResourceId.from("testForcedOpenUpdate")),
                 CircuitBreakerConfig.ofDefault(), CircuitBreakerConfig.ofDefault(),
                 DEFAULT_PREDICATE);
         breakerMoat1.getCircuitBreaker().forceToForcedOpenState();
@@ -498,7 +466,7 @@ class CircuitBreakerMoatTest {
     void testForcedDisabledUpdate() {
         // Case1: transition from normal state to FORCED_OPEN state
         final CircuitBreakerMoat breakerMoat0 = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testForcedDisabledUpdate"), null),
+                new MoatConfig(ResourceId.from("testForcedDisabledUpdate")),
                 CircuitBreakerConfig.ofDefault(), null, DEFAULT_PREDICATE);
         then(breakerMoat0.getCircuitBreaker().getState()).isEqualTo(CLOSED);
         then(breakerMoat0.getCircuitBreaker().immutableConfig()).isNull();
@@ -525,7 +493,7 @@ class CircuitBreakerMoatTest {
 
         // Original ImmutableConfig is not null
         final CircuitBreakerMoat breakerMoat1 = new CircuitBreakerMoat(
-                new MoatConfig(ResourceId.from("testForcedDisabledUpdate"), null),
+                new MoatConfig(ResourceId.from("testForcedDisabledUpdate")),
                 CircuitBreakerConfig.ofDefault(), CircuitBreakerConfig.ofDefault(),
                 DEFAULT_PREDICATE);
         breakerMoat1.getCircuitBreaker().forceToDisabledState();
@@ -541,7 +509,7 @@ class CircuitBreakerMoatTest {
     @Test
     void testInitWithForcedOpen() {
         final ResourceId resourceId0 = ResourceId.from("testInitWithForcedOpen");
-        final MoatConfig config0 = new MoatConfig(resourceId0, null);
+        final MoatConfig config0 = new MoatConfig(resourceId0);
 
         CircuitBreakerMoat breakerMoat0 = new CircuitBreakerMoat(config0, CircuitBreakerConfig.builder()
                 .state(FORCED_OPEN)
@@ -554,7 +522,7 @@ class CircuitBreakerMoatTest {
     @Test
     void testInitWithForcedDisable() {
         final ResourceId resourceId0 = ResourceId.from("testInitWithForcedDisable");
-        final MoatConfig config0 = new MoatConfig(resourceId0, null);
+        final MoatConfig config0 = new MoatConfig(resourceId0);
 
         CircuitBreakerMoat breakerMoat0 = new CircuitBreakerMoat(config0, CircuitBreakerConfig.builder()
                 .state(FORCED_DISABLED)
@@ -567,7 +535,7 @@ class CircuitBreakerMoatTest {
     @Test
     void testTransitionFromForcedOpen() throws InterruptedException {
         final ResourceId resourceId0 = ResourceId.from("testTransitionFromForcedOpen");
-        final MoatConfig config0 = new MoatConfig(resourceId0, null);
+        final MoatConfig config0 = new MoatConfig(resourceId0);
 
         CircuitBreakerMoat breakerMoat0 = new CircuitBreakerMoat(config0, CircuitBreakerConfig.builder()
                 .state(FORCED_OPEN)
@@ -593,7 +561,7 @@ class CircuitBreakerMoatTest {
     @Test
     void testTransitionFromForcedDisable() throws InterruptedException {
         final ResourceId resourceId0 = ResourceId.from("testTransitionFromForcedDisable");
-        final MoatConfig config0 = new MoatConfig(resourceId0, null);
+        final MoatConfig config0 = new MoatConfig(resourceId0);
 
         CircuitBreakerMoat breakerMoat0 = new CircuitBreakerMoat(config0, CircuitBreakerConfig.builder()
                 .state(FORCED_DISABLED)

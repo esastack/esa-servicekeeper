@@ -25,7 +25,12 @@ import esa.servicekeeper.core.config.ServiceKeeperConfig;
 import esa.servicekeeper.core.configsource.DynamicConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 
-import static esa.servicekeeper.core.configsource.ExternalConfigUtils.*;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapCircuitBreaker;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapConcurrent;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapDynamic;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapRate;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasBootstrapRetry;
+import static esa.servicekeeper.core.configsource.ExternalConfigUtils.hasFallback;
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.FORCED_DISABLED;
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.FORCED_OPEN;
 
@@ -206,6 +211,10 @@ public final class ConfigUtils {
         if (external.getFallbackMethodName() != null) {
             allIsNull = false;
             builder.methodName(external.getFallbackMethodName());
+        }
+        if (external.getAlsoApplyFallbackToBizException() != null) {
+            allIsNull = false;
+            builder.alsoApplyToBizException(external.getAlsoApplyFallbackToBizException());
         }
 
         if (config == null && allIsNull) {

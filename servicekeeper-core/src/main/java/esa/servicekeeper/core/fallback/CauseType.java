@@ -51,6 +51,11 @@ enum CauseType {
     SERVICE_KEEPER,
 
     /**
+     * General {@link Throwable},
+     */
+    BIZ,
+
+    /**
      * Unknown reason
      */
     UNKNOWN

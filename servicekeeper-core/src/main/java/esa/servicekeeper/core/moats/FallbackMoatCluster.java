@@ -13,29 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esa.servicekeeper.core.annotation;
+package esa.servicekeeper.core.moats;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import esa.servicekeeper.core.fallback.FallbackHandler;
 
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Inherited
-public @interface RateLimiter {
+public interface FallbackMoatCluster extends MoatCluster {
 
     /**
-     * @return threshold of a period.
+     * get fallbackHandler
+     *
+     * @return FallbackHandler
      */
-    int limitForPeriod();
-
-    /**
-     * @return the duration of a period.
-     */
-    String limitRefreshPeriod() default "1s";
-
+    FallbackHandler<?> fallbackHandler();
 }

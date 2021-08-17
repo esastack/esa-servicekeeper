@@ -15,9 +15,13 @@
  */
 package esa.servicekeeper.core.asynchandle;
 
+import esa.commons.Checks;
+import esa.servicekeeper.core.exception.ServiceKeeperException;
 import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.executionchain.AsyncExecutionChain;
 import esa.servicekeeper.core.executionchain.Context;
+import esa.servicekeeper.core.executionchain.ExecutionChain;
+import esa.servicekeeper.core.fallback.FallbackHandler;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -27,70 +31,86 @@ public class RequestHandleImpl implements RequestHandle {
             new IllegalStateException("The request has ended!");
 
     private final Context ctx;
-    private final AtomicReference<AsyncExecutionChain> executionChain;
+    private final AtomicReference<ExecutionChain> executionChain;
+    private final FallbackHandler<?> fallbackHandler;
+    private final ServiceKeeperNotPermittedException notAllowCause;
 
-    public RequestHandleImpl(AsyncExecutionChain executionChain, Context ctx) {
+    private RequestHandleImpl(ExecutionChain executionChain,
+                              Context ctx,
+                              FallbackHandler<?> fallbackHandler,
+                              ServiceKeeperNotPermittedException notAllowCause) {
         this.executionChain = new AtomicReference<>(executionChain);
         this.ctx = ctx;
-    }
-
-    @Override
-    public boolean isAllowed() {
-        return true;
-    }
-
-    @Override
-    public Object getFallbackResult() {
-        throw ILLEGAL_FALLBACK_EXCEPTION;
-    }
-
-    @Override
-    public ServiceKeeperNotPermittedException getNotAllowedCause() {
-        throw ILLEGAL_GET_NOT_ALLOWED_CAUSE_EXCEPTION;
-    }
-
-    @Override
-    public boolean isFallbackSucceed() {
-        throw ILLEGAL_FALLBACK_EXCEPTION;
-    }
-
-    @Override
-    public Throwable getFallbackFailsCause() {
-        throw ILLEGAL_FALLBACK_EXCEPTION;
+        this.fallbackHandler = fallbackHandler;
+        this.notAllowCause = notAllowCause;
     }
 
     @Override
     public void endWithSuccess() {
-        AsyncExecutionChain chain = executionChain.getAndUpdate((pre) -> null);
-        if (chain == null) {
-            throw REPEAT_END_EXCEPTION;
-        } else {
-            chain.endWithSuccess(ctx);
-        }
+        ExecutionChain chain = tryGetAndUpdateChain();
+        chain.endWithSuccess(ctx);
+    }
+
+    @Override
+    public boolean isAllowed() {
+        return notAllowCause == null;
+    }
+
+    @Override
+    public ServiceKeeperNotPermittedException getNotAllowedCause() {
+        return notAllowCause;
     }
 
     @Override
     public void endWithResult(final Object result) {
-        AsyncExecutionChain chain = executionChain.getAndUpdate((pre) -> null);
-        if (chain == null) {
-            throw REPEAT_END_EXCEPTION;
-        } else {
-            chain.endWithResult(ctx, result);
-        }
+        ExecutionChain chain = tryGetAndUpdateChain();
+        chain.endWithResult(ctx, result);
     }
 
     @Override
     public void endWithError(final Throwable throwable) {
-        AsyncExecutionChain chain = executionChain.getAndUpdate((pre) -> null);
+        Checks.checkNotNull(throwable, "throwable");
 
-        if (chain == null) {
-            throw REPEAT_END_EXCEPTION;
-        } else {
-            chain.endWithError(ctx, throwable);
+        ExecutionChain chain = tryGetAndUpdateChain();
+        chain.endWithError(ctx, throwable);
+    }
+
+    @Override
+    public Object fallback(Throwable cause) throws Throwable {
+        Checks.checkNotNull(cause, "throwable");
+        endWithError(cause);
+        if (fallbackHandler == null) {
+            throw cause;
         }
+        if ((cause instanceof ServiceKeeperException)
+                || fallbackHandler.alsoApplyToBizException()) {
+            return fallbackHandler.handle(ctx);
+        }
+        throw cause;
     }
 
     public Context getCtx() {
         return ctx;
+    }
+
+    public static RequestHandleImpl createAllowHandle(AsyncExecutionChain executionChain,
+                                                      Context ctx,
+                                                      FallbackHandler<?> fallbackHandler) {
+        return new RequestHandleImpl(executionChain, ctx, fallbackHandler, null);
+    }
+
+    public static RequestHandleImpl createNotAllowHandle(AsyncExecutionChain executionChain,
+                                                         Context ctx,
+                                                         FallbackHandler<?> fallbackHandler,
+                                                         ServiceKeeperNotPermittedException notAllowCause) {
+        return new RequestHandleImpl(executionChain, ctx, fallbackHandler, notAllowCause);
+    }
+
+    private ExecutionChain tryGetAndUpdateChain() {
+        ExecutionChain chain = executionChain.getAndUpdate((pre) -> null);
+        if (chain == null) {
+            throw REPEAT_END_EXCEPTION;
+        }
+        return chain;
     }
 }

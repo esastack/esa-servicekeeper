@@ -54,7 +54,7 @@ class OverLimitMoatHandlerTest {
         for (int i = 0; i < 100; i++) {
             cluster.computeIfAbsent(new ArgResourceId(id, argName, "value" + i), (id) -> {
                 final List<Moat<?>> moats = new ArrayList<>(3);
-                final MoatConfig config = new MoatConfig(id, null);
+                final MoatConfig config = new MoatConfig(id);
                 moats.add(new ConcurrentLimitMoat(config, ConcurrentLimitConfig.ofDefault(),
                         null, null));
 

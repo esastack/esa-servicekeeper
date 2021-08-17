@@ -18,10 +18,7 @@ package esa.servicekeeper.core.factory;
 import esa.commons.Checks;
 import esa.servicekeeper.core.common.OriginalInvocation;
 import esa.servicekeeper.core.common.ResourceId;
-import esa.servicekeeper.core.config.FallbackConfig;
 import esa.servicekeeper.core.config.RetryConfig;
-import esa.servicekeeper.core.fallback.FallbackHandler;
-import esa.servicekeeper.core.fallback.FallbackHandlerConfig;
 import esa.servicekeeper.core.retry.RetryEventProcessor;
 import esa.servicekeeper.core.retry.RetryOperations;
 import esa.servicekeeper.core.retry.RetryOperationsImpl;
@@ -34,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract class AbstractMoatFactory<CNF2, RTU> implements
-        MoatFactory<ResourceId, FallbackConfig, OriginalInvocation, CNF2, RTU> {
+        MoatFactory<ResourceId, OriginalInvocation, CNF2, RTU> {
 
     private final MoatFactoryContext context;
 
@@ -62,7 +59,6 @@ abstract class AbstractMoatFactory<CNF2, RTU> implements
 
         @Override
         public RetryOperations doCreate(ResourceId resourceId,
-                                        FallbackConfig config0,
                                         OriginalInvocation config1,
                                         RetryConfig config2,
                                         RetryConfig immutableConfig) {
@@ -75,10 +71,7 @@ abstract class AbstractMoatFactory<CNF2, RTU> implements
                 }
             }
 
-            final FallbackHandler<?> handler = config0 == null
-                    ? null : context().handler().get(new FallbackHandlerConfig(config0, config1));
-
-            final RetryOperations operations = new RetryOperationsImpl(resourceId, processors, handler,
+            final RetryOperations operations = new RetryOperationsImpl(resourceId, processors,
                     BackOffPolicy.newInstance(config2.getBackoffConfig()),
                     RetryablePredicate.newInstance(config2), config2,
                     immutableConfig);

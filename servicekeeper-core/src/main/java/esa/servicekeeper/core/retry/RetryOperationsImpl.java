@@ -21,10 +21,7 @@ import esa.servicekeeper.core.config.RetryConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.exception.BackOffInterruptedException;
 import esa.servicekeeper.core.exception.ServiceRetryException;
-import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.executionchain.Executable;
-import esa.servicekeeper.core.executionchain.SyncContext;
-import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.listener.FondConfigListener;
 import esa.servicekeeper.core.metrics.RetryMetrics;
 import esa.servicekeeper.core.moats.LifeCycleSupport;
@@ -60,14 +57,12 @@ public class RetryOperationsImpl implements RetryOperations, FondConfigListener<
     private final AtomicBoolean shouldDelete = new AtomicBoolean();
     private final List<RetryEventProcessor> processors;
     private final RetryEventProcessImpl statistics = new RetryEventProcessImpl();
-    private final FallbackHandler<?> handler;
 
     private volatile RetryConfig config;
     private volatile BackOffPolicy backOffPolicy;
     private volatile RetryablePredicate predicate;
 
     public RetryOperationsImpl(ResourceId resourceId, List<RetryEventProcessor> processors,
-                               FallbackHandler<?> handler,
                                BackOffPolicy backOffPolicy, RetryablePredicate predicate,
                                RetryConfig config, RetryConfig immutableConfig) {
         Checks.checkNotNull(resourceId, "resourceId");
@@ -81,12 +76,11 @@ public class RetryOperationsImpl implements RetryOperations, FondConfigListener<
         this.predicate = predicate;
         this.lifeCycleType = immutableConfig == null ? TEMPORARY : PERMANENT;
         if (processors == null) {
-            this.processors = Collections.unmodifiableList(Collections.singletonList(statistics));
+            this.processors = Collections.singletonList(statistics);
         } else {
             processors.add(statistics);
             this.processors = Collections.unmodifiableList(processors);
         }
-        this.handler = handler;
     }
 
     @Override
@@ -128,7 +122,7 @@ public class RetryOperationsImpl implements RetryOperations, FondConfigListener<
 
         final RetryEvent endEvent = buildEndEvt(context);
         processors.forEach((processor) -> processor.process(resourceId.getName(), endEvent));
-        return doFallback(context);
+        throw createFailsCause(context);
     }
 
     @Override
@@ -194,7 +188,6 @@ public class RetryOperationsImpl implements RetryOperations, FondConfigListener<
                 .add("resourceId=" + resourceId)
                 .add("immutableConfig=" + immutableConfig)
                 .add("lifeCycleType=" + lifeCycleType)
-                .add("handler=" + handler)
                 .add("config=" + config)
                 .toString();
     }
@@ -203,21 +196,14 @@ public class RetryOperationsImpl implements RetryOperations, FondConfigListener<
         return config.getMaxAttempts() != null && config.getMaxAttempts() > 1;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T doFallback(final RetryContext context) throws Throwable {
-        final ServiceRetryException failsCause;
+    private ServiceRetryException createFailsCause(final RetryContext context) {
         if (config.getMaxAttempts() == context.getRetriedCount()) {
-            failsCause = new ServiceRetryException(resourceId.getName() +
+            return new ServiceRetryException(resourceId.getName() +
                     " has retried " + config.getMaxAttempts() + " times", context.getLastThrowable());
         } else {
-            failsCause = new ServiceRetryException(resourceId.getName() + " caught none-retryable exception" +
+            return new ServiceRetryException(resourceId.getName() + " caught none-retryable exception" +
                     " during retry", context.getLastThrowable());
         }
-        if (handler == null) {
-            throw failsCause;
-        }
-
-        return (T) handler.handle(new ContextProxy(context.getContext(), context.getLastThrowable(), failsCause));
     }
 
     private RetryEvent buildStartEvt(final RetryContext ctx) {
@@ -308,42 +294,6 @@ public class RetryOperationsImpl implements RetryOperations, FondConfigListener<
 
         private void onEnd(RetryContext ctx) {
             totalRetriedCount.add(ctx.getRetriedCount() - 1);
-        }
-    }
-
-    static class ContextProxy extends SyncContext {
-
-        private static final long serialVersionUID = -3067946257501126040L;
-
-        private final Context context;
-        private final Throwable bizException;
-        private final ServiceRetryException failsCause;
-
-        ContextProxy(Context context, Throwable bizException, ServiceRetryException failsCause) {
-            super(context.getResourceId(), context.getArgs());
-            this.bizException = bizException;
-            this.context = context;
-            this.failsCause = failsCause;
-        }
-
-        @Override
-        public Throwable getBizException() {
-            return bizException;
-        }
-
-        @Override
-        public Object getResult() {
-            return context.getResult();
-        }
-
-        @Override
-        public long getSpendTimeMs() {
-            return context.getSpendTimeMs();
-        }
-
-        @Override
-        public ServiceRetryException getThroughFailsCause() {
-            return failsCause;
         }
     }
 }

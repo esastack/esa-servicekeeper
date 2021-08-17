@@ -21,7 +21,6 @@ import esa.servicekeeper.core.config.RetryConfig;
 import esa.servicekeeper.core.configsource.ExternalConfig;
 import esa.servicekeeper.core.exception.ServiceRetryException;
 import esa.servicekeeper.core.executionchain.Context;
-import esa.servicekeeper.core.fallback.FallbackToValue;
 import esa.servicekeeper.core.metrics.RetryMetrics;
 import esa.servicekeeper.core.retry.internal.impl.ExceptionPredicate;
 import esa.servicekeeper.core.retry.internal.impl.ExponentialBackOffPolicy;
@@ -33,8 +32,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class RetryOperationsImplTest {
 
@@ -42,7 +41,7 @@ class RetryOperationsImplTest {
     void testGetConfig() {
         final RetryConfig config = RetryConfig.ofDefault();
         final RetryOperations operations = new RetryOperationsImpl(ResourceId.from("testGetConfig"),
-                null, null, new ExponentialBackOffPolicy(0, 0, 0),
+                null, new ExponentialBackOffPolicy(0, 0, 0),
                 new ExceptionPredicate(3), config, null);
         then(operations.getConfig()).isEqualTo(config);
     }
@@ -51,7 +50,7 @@ class RetryOperationsImplTest {
     void testGetFond() {
         final RetryConfig config = RetryConfig.ofDefault();
         final RetryOperationsImpl operations = new RetryOperationsImpl(ResourceId.from("testGetFond"),
-                null, null, new ExponentialBackOffPolicy(0, 0, 0),
+                null, new ExponentialBackOffPolicy(0, 0, 0),
                 new ExceptionPredicate(3), config, null);
         then(operations.getFond(null)).isNull();
 
@@ -81,7 +80,7 @@ class RetryOperationsImplTest {
 
         final RetryConfig config = RetryConfig.ofDefault();
         final RetryOperationsImpl operations = new RetryOperationsImpl(resourceId,
-                null, null, new ExponentialBackOffPolicy(0, 0, 0),
+                null, new ExponentialBackOffPolicy(0, 0, 0),
                 new ExceptionPredicate(3), config, null);
         then(operations.listeningKey()).isEqualTo(resourceId);
     }
@@ -89,17 +88,16 @@ class RetryOperationsImplTest {
     @Test
     void testExecute() throws Throwable {
         final RetryOperations operations = new RetryOperationsImpl(ResourceId.from("testExecute"),
-                null, new FallbackToValue("Retry fallback"),
+                null,
                 new ExponentialBackOffPolicy(0, 0, 0),
                 new ExceptionPredicate(3), RetryConfig.ofDefault(), null);
 
         final RetryContext context0 = buildContext();
         final FakeService service = new FakeService();
-        operations.execute(context0, () -> {
+        assertThrows(ServiceRetryException.class, () -> operations.execute(context0, () -> {
             service.doIncrement0();
             return null;
-        });
-
+        }));
         then(service.index0.get()).isEqualTo(3);
 
         final RetryMetrics metrics0 = operations.getMetrics();
@@ -123,7 +121,7 @@ class RetryOperationsImplTest {
     @Test
     void testUpdate() {
         final RetryOperationsImpl operations = new RetryOperationsImpl(ResourceId.from("testUpdate"),
-                null, new FallbackToValue("Fallback"), new ExponentialBackOffPolicy(0,
+                null, new ExponentialBackOffPolicy(0,
                 0, 0),
                 new ExceptionPredicate(3), RetryConfig.ofDefault(), null);
 
@@ -154,26 +152,9 @@ class RetryOperationsImplTest {
     }
 
     @Test
-    void testContextProxy() {
-        final Context ctx = mock(Context.class);
-        final RuntimeException bizEx = new RuntimeException();
-        final ServiceRetryException retryEx = new ServiceRetryException("", new IllegalStateException());
-        final RetryOperationsImpl.ContextProxy proxy = new RetryOperationsImpl.ContextProxy(ctx,
-                bizEx, retryEx);
-        then(proxy.getBizException()).isSameAs(bizEx);
-        then(proxy.getThroughFailsCause()).isSameAs(retryEx);
-
-        when(ctx.getResult()).thenReturn("ABC");
-        then(proxy.getResult()).isEqualTo("ABC");
-
-        when(ctx.getSpendTimeMs()).thenReturn(100L);
-        then(proxy.getSpendTimeMs()).isEqualTo(100L);
-    }
-
-    @Test
     void testUpdateParallel() throws InterruptedException {
         final RetryOperationsImpl operations = new RetryOperationsImpl(ResourceId.from("testUpdate"),
-                null, new FallbackToValue("Fallback"),
+                null,
                 new ExponentialBackOffPolicy(0, 0, 0),
                 new ExceptionPredicate(3), RetryConfig.ofDefault(), null);
 

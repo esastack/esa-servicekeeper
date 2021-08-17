@@ -15,6 +15,7 @@
  */
 package esa.servicekeeper.core.executionchain;
 
+import esa.servicekeeper.core.fallback.FallbackHandler;
 import esa.servicekeeper.core.moats.Moat;
 
 import java.util.List;
@@ -27,8 +28,8 @@ public class AsyncExecutionChainImpl extends AbstractExecutionChain {
     private volatile long endTimeNs;
     private volatile int currentIndex;
 
-    public AsyncExecutionChainImpl(List<Moat<?>> moats) {
-        super(moats);
+    public AsyncExecutionChainImpl(List<Moat<?>> moats, FallbackHandler<?> fallbackHandler) {
+        super(moats, fallbackHandler);
     }
 
     @Override

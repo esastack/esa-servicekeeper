@@ -21,7 +21,6 @@ import esa.servicekeeper.core.config.ConcurrentLimitConfig;
 import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.config.RateLimitConfig;
 import esa.servicekeeper.core.config.ServiceKeeperConfig;
-import esa.servicekeeper.core.fallback.FallbackToValue;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByException;
 import esa.servicekeeper.core.moats.concurrentlimit.ConcurrentLimitMoat;
@@ -45,7 +44,7 @@ class MoatClusterImplTest {
     @Test
     void testConstructSort() {
         List<Moat<?>> moats = new CopyOnWriteArrayList<>();
-        final MoatConfig config = new MoatConfig(ResourceId.from("testConstructSort"), new FallbackToValue("String"));
+        final MoatConfig config = new MoatConfig(ResourceId.from("testConstructSort"));
         CircuitBreakerMoat circuitBreakerMoat = new CircuitBreakerMoat(config,
                 CircuitBreakerConfig.ofDefault(), null, new PredicateByException());
         moats.add(circuitBreakerMoat);
@@ -85,7 +84,7 @@ class MoatClusterImplTest {
     @Test
     void testAddSort() {
         List<Moat<?>> moats = new CopyOnWriteArrayList<>();
-        final MoatConfig config = new MoatConfig(ResourceId.from("testAddSort"), new FallbackToValue("String"));
+        final MoatConfig config = new MoatConfig(ResourceId.from("testAddSort"));
         CircuitBreakerMoat circuitBreakerMoat = new CircuitBreakerMoat(config,
                 CircuitBreakerConfig.ofDefault(), null, new PredicateByException());
         moats.add(circuitBreakerMoat);
@@ -148,7 +147,7 @@ class MoatClusterImplTest {
     @Test
     void testContains() {
         List<Moat<?>> moats = new CopyOnWriteArrayList<>();
-        final MoatConfig config = new MoatConfig(ResourceId.from("testContains"), new FallbackToValue("String"));
+        final MoatConfig config = new MoatConfig(ResourceId.from("testContains"));
         CircuitBreakerMoat circuitBreakerMoat = new CircuitBreakerMoat(config,
                 CircuitBreakerConfig.ofDefault(), null,
                 new PredicateByException());
@@ -170,7 +169,7 @@ class MoatClusterImplTest {
     void testDeleteByType() {
         final ResourceId resourceId = ResourceId.from("testDeleteByType");
 
-        final MoatConfig config = new MoatConfig(resourceId, new FallbackToValue("String"));
+        final MoatConfig config = new MoatConfig(resourceId);
         final ServiceKeeperConfig config0 = ServiceKeeperConfig.builder()
                 .circuitBreakerConfig(CircuitBreakerConfig.ofDefault())
                 .rateLimiterConfig(RateLimitConfig.ofDefault())
@@ -208,7 +207,7 @@ class MoatClusterImplTest {
         List<Moat<?>> moats = new CopyOnWriteArrayList<>();
         final MoatCluster cluster = new MoatClusterImpl(moats, null);
 
-        final MoatConfig config = new MoatConfig(ResourceId.from("testParallelOperate"), new FallbackToValue("String"));
+        final MoatConfig config = new MoatConfig(ResourceId.from("testParallelOperate"));
         CircuitBreakerMoat circuitBreakerMoat = new CircuitBreakerMoat(config,
                 CircuitBreakerConfig.ofDefault(), null,
                 new PredicateByException());

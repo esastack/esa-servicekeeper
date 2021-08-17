@@ -27,7 +27,7 @@ public abstract class Context implements Serializable {
     private final String resourceId;
     private final transient Object[] args;
 
-    private ServiceKeeperNotPermittedException throughFailsCause;
+    private ServiceKeeperNotPermittedException enterFailsCause;
 
     public Context(String resourceId) {
         this(resourceId, null);
@@ -46,12 +46,8 @@ public abstract class Context implements Serializable {
         return args;
     }
 
-    public ServiceKeeperException getThroughFailsCause() {
-        return throughFailsCause;
-    }
-
-    void setThroughFailsCause(ServiceKeeperNotPermittedException throughFailsCause) {
-        this.throughFailsCause = throughFailsCause;
+    public ServiceKeeperException getEnterFailsCause() {
+        return enterFailsCause;
     }
 
     /**
@@ -62,18 +58,29 @@ public abstract class Context implements Serializable {
     public abstract Throwable getBizException();
 
     /**
-     * Set bizException
-     *
-     * @param bizException bizException
-     */
-    abstract void setBizException(Throwable bizException);
-
-    /**
      * Get result
      *
      * @return result
      */
     public abstract Object getResult();
+
+    /**
+     * Get spendTimeMs of original method's execution.
+     *
+     * @return maxSpendTimeMs
+     */
+    public abstract long getSpendTimeMs();
+
+    void setEnterFailsCause(ServiceKeeperNotPermittedException enterFailsCause) {
+        this.enterFailsCause = enterFailsCause;
+    }
+
+    /**
+     * Get spendTimeMs
+     *
+     * @param spendTimeMs spendTimeMs
+     */
+    abstract void setSpendTimeMs(long spendTimeMs);
 
     /**
      * Set result
@@ -83,16 +90,9 @@ public abstract class Context implements Serializable {
     abstract void setResult(Object result);
 
     /**
-     * Get spendTimeMs of original method's execution.
+     * Set bizException
      *
-     * @return maxSpendTimeMs
+     * @param bizException bizException
      */
-    public abstract long getSpendTimeMs();
-
-    /**
-     * Get spendTimeMs
-     *
-     * @param spendTimeMs spendTimeMs
-     */
-    abstract void setSpendTimeMs(long spendTimeMs);
+    abstract void setBizException(Throwable bizException);
 }
