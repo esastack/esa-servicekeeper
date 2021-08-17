@@ -20,7 +20,7 @@ import esa.servicekeeper.core.factory.PredicateStrategyFactoryImpl;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateStrategy;
 import esa.servicekeeper.core.utils.LogUtils;
 import esa.servicekeeper.ext.factory.spring.utils.SpringContextUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 import org.springframework.context.ApplicationContext;
 
 /**

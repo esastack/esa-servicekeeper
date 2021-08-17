@@ -17,7 +17,7 @@ package esa.servicekeeper.configsource.cache;
 
 import esa.commons.annotation.Beta;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.util.HashMap;
 import java.util.Map;

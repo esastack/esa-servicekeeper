@@ -40,7 +40,7 @@ import esa.servicekeeper.core.utils.GenericTypeUtils;
 import esa.servicekeeper.core.utils.LogUtils;
 import esa.servicekeeper.core.utils.MethodUtils;
 import esa.servicekeeper.core.utils.ParameterUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

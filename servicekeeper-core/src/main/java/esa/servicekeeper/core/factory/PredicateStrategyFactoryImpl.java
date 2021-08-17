@@ -23,7 +23,7 @@ import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByExceptio
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateBySpendTime;
 import esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateStrategy;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;

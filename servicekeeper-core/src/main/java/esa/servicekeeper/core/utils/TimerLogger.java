@@ -15,7 +15,7 @@
  */
 package esa.servicekeeper.core.utils;
 
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;

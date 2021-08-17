@@ -24,7 +24,7 @@ import esa.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import esa.servicekeeper.core.exception.ServiceRetryException;
 import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

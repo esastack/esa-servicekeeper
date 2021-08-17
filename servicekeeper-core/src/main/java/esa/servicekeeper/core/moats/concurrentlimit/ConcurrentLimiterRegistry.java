@@ -20,7 +20,7 @@ import esa.servicekeeper.core.config.ConcurrentLimitConfig;
 import esa.servicekeeper.core.moats.MoatEventProcessor;
 import esa.servicekeeper.core.moats.Registry;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.util.List;
 import java.util.Map;

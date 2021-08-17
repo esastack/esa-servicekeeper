@@ -22,7 +22,7 @@ import esa.servicekeeper.core.internal.InternalMoatCluster;
 import esa.servicekeeper.core.moats.MoatCluster;
 import esa.servicekeeper.core.utils.LogUtils;
 import esa.servicekeeper.core.utils.SystemConfigUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;

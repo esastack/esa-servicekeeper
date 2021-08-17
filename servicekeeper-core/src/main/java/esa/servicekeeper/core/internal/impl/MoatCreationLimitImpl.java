@@ -24,7 +24,7 @@ import esa.servicekeeper.core.configsource.MoatLimitConfigSource;
 import esa.servicekeeper.core.internal.MoatCreationLimit;
 import esa.servicekeeper.core.moats.MoatStatistics;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 public class MoatCreationLimitImpl implements MoatCreationLimit {
 

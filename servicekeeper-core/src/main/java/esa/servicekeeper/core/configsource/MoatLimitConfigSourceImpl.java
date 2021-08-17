@@ -19,7 +19,7 @@ import esa.commons.Checks;
 import esa.servicekeeper.core.common.ArgConfigKey;
 import esa.servicekeeper.core.internal.ImmutableConfigs;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 public class MoatLimitConfigSourceImpl implements MoatLimitConfigSource {
 

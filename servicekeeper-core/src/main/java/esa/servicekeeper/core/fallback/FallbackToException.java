@@ -18,7 +18,7 @@ package esa.servicekeeper.core.fallback;
 import esa.commons.Checks;
 import esa.servicekeeper.core.executionchain.Context;
 import esa.servicekeeper.core.utils.LogUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import static esa.servicekeeper.core.fallback.FallbackHandler.FallbackType.FALLBACK_TO_EXCEPTION;
 

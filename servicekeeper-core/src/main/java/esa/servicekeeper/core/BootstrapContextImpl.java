@@ -41,7 +41,7 @@ import esa.servicekeeper.core.internal.impl.OverLimitMoatHandler;
 import esa.servicekeeper.core.moats.MoatStatisticsImpl;
 import esa.servicekeeper.core.utils.LogUtils;
 import esa.servicekeeper.core.utils.SpiUtils;
-import org.slf4j.Logger;
+import esa.commons.logging.Logger;
 
 import java.util.Collections;
 import java.util.List;
