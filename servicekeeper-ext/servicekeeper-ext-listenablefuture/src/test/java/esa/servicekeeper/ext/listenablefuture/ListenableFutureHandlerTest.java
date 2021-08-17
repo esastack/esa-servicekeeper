@@ -102,12 +102,12 @@ class ListenableFutureHandlerTest {
             return "ABC";
         });
 
-        // dont,t use fallback and not apply to BizException
+        // don't use fallback and not apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, false,
                 maxConcurrentLimit * 2, maxConcurrentLimit, maxConcurrentLimit, 0,
                 0, true);
 
-        // dont,t use fallback but apply to BizException
+        // don't use fallback but apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, true,
                 maxConcurrentLimit * 2, maxConcurrentLimit, maxConcurrentLimit, 0,
                 0, true);
@@ -135,12 +135,12 @@ class ListenableFutureHandlerTest {
                 RateLimitConfig.builder().limitForPeriod(limitForPeriod).build(), null,
                 Collections.emptyList()));
 
-        // dont,t use fallback and not apply to BizException
+        // don't use fallback and not apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, false,
                 limitForPeriod * 2, limitForPeriod, limitForPeriod, 0,
                 0, false);
 
-        // dont,t use fallback but apply to BizException
+        // don't use fallback but apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, true,
                 limitForPeriod * 2, limitForPeriod, limitForPeriod, 0,
                 0, false);
@@ -172,12 +172,12 @@ class ListenableFutureHandlerTest {
                 CircuitBreakerConfig.ofDefault(),
                 new PredicateByException()));
 
-        // dont,t use fallback and not apply to BizException
+        // don't use fallback and not apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, false,
                 ringBufferSizeInClosedState * 2, 0, ringBufferSizeInClosedState, 0,
                 ringBufferSizeInClosedState, false);
 
-        // dont,t use fallback but apply to BizException
+        // don't use fallback but apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, true,
                 ringBufferSizeInClosedState * 2, 0, ringBufferSizeInClosedState, 0,
                 ringBufferSizeInClosedState, false);
@@ -212,12 +212,12 @@ class ListenableFutureHandlerTest {
                         CircuitBreakerConfig.ofDefault(),
                         new PredicateBySpendTime(3L)));
 
-        // dont,t use fallback and not apply to BizException
+        // don't use fallback and not apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, false,
                 ringBufferSizeInClosedState * 2, ringBufferSizeInClosedState, ringBufferSizeInClosedState, 0,
                 0, false);
 
-        // dont,t use fallback but apply to BizException
+        // don't use fallback but apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, true,
                 ringBufferSizeInClosedState * 2, ringBufferSizeInClosedState, ringBufferSizeInClosedState, 0,
                 0, false);
@@ -246,12 +246,12 @@ class ListenableFutureHandlerTest {
             return "ABC";
         });
         final int maxRequestCount = 10;
-        // dont,t use fallback and not apply to BizException
+        // don't use fallback and not apply to BizException
         testAsyncExecute(executable, moatsSupplier, false, false,
                 maxRequestCount, maxPassRequestCount, 0, 0,
                 maxRequestCount - maxPassRequestCount, false);
 
-        // dont,t use fallback but apply to BizException
+        // don't use fallback but apply to BizException
         passRequestCount.set(0);
         testAsyncExecute(executable, moatsSupplier, false, true,
                 maxRequestCount, maxPassRequestCount, 0, 0,

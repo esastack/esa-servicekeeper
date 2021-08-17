@@ -15,7 +15,11 @@
  */
 package esa.servicekeeper.core.utils;
 
-public class FallbackMethodUtils {
+public final class FallbackMethodUtils {
+
+    private FallbackMethodUtils() {
+    }
+
     public static boolean isCauseAtFirst(Class<?>[] targetParameterTypes) {
         return targetParameterTypes.length > 0 &&
                 Throwable.class.isAssignableFrom(targetParameterTypes[0]);
