@@ -88,7 +88,7 @@ class CompletableStageHandlerTest {
 
         final Executable<CompletionStage<String>> executable = () -> CompletableFuture.supplyAsync(() -> {
             try {
-                TimeUnit.MILLISECONDS.sleep(10L);
+                TimeUnit.MILLISECONDS.sleep(30L);
             } catch (Exception ex) {
                 // Do nothing
             }

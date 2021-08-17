@@ -95,7 +95,7 @@ class ListenableFutureHandlerTest {
 
         final Executable<ListenableFuture<String>> executable = () -> executorService.submit(() -> {
             try {
-                TimeUnit.MILLISECONDS.sleep(10L);
+                TimeUnit.MILLISECONDS.sleep(30L);
             } catch (Exception ex) {
                 // Do nothing
             }
