@@ -62,8 +62,28 @@ public class MockMethods {
 
     }
 
+    @ConcurrentLimiter(500)
+    public void methodConcurrentLimitAliasSet() {
+
+    }
+
+    @ConcurrentLimiter(value = 100, threshold = 500)
+    public void methodConcurrentLimitAliasSetError() {
+
+    }
+
     @RateLimiter(limitForPeriod = 500, limitRefreshPeriod = "2s")
     public void methodOnlyRateLimit() {
+
+    }
+
+    @RateLimiter(1)
+    public String methodRateLimitAliasSet() {
+        return "testAliasSet";
+    }
+
+    @RateLimiter(value = 2, limitForPeriod = 1, limitRefreshPeriod = "10s")
+    public void methodRateLimitAliasSetError() {
 
     }
 
@@ -72,6 +92,32 @@ public class MockMethods {
             maxSpendTimeMs = 50, failureRateThreshold = 49.0f,
             ignoreExceptions = {IllegalStateException.class, IllegalArgumentException.class})
     public void methodOnlyCircuitBreaker() {
+
+    }
+
+    @CircuitBreaker(ringBufferSizeInClosedState = 99, ringBufferSizeInHalfOpenState = 9,
+            waitDurationInOpenState = "59s", predicateStrategy = PredicateByExceptionAndSpendTime.class,
+            maxSpendTimeMs = 50, value = 49.0f,
+            ignoreExceptions = {IllegalStateException.class, IllegalArgumentException.class})
+    public void methodCircuitBreakerAliasSet() {
+
+    }
+
+    @CircuitBreaker(ringBufferSizeInClosedState = 99, ringBufferSizeInHalfOpenState = 9,
+            waitDurationInOpenState = "59s", predicateStrategy = PredicateByExceptionAndSpendTime.class,
+            maxSpendTimeMs = 50, failureRateThreshold = 49.0f, value = 51.0f,
+            ignoreExceptions = {IllegalStateException.class, IllegalArgumentException.class})
+    public void methodCircuitBreakerAliasSetError() {
+
+    }
+
+    @Retryable(5)
+    public void methodRetryAliasSet() {
+
+    }
+
+    @Retryable(value = 5, maxAttempts = 6)
+    public void methodRetryAliasSetError() {
 
     }
 

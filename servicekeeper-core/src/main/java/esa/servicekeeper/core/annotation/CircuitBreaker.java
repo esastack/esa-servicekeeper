@@ -31,6 +31,8 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface CircuitBreaker {
 
+    float DEFAULT_FAILURE_RATE_THRESHOLD = 50.0f;
+
     /**
      * ringBufferSize while CircuitBreaker is closed
      */
@@ -47,9 +49,14 @@ public @interface CircuitBreaker {
     String waitDurationInOpenState() default "60s";
 
     /**
+     * alias for failureRateThreshold
+     */
+    float value() default DEFAULT_FAILURE_RATE_THRESHOLD;
+
+    /**
      * the failureRateThreshold
      */
-    float failureRateThreshold() default 50.0f;
+    float failureRateThreshold() default DEFAULT_FAILURE_RATE_THRESHOLD;
 
     /**
      * the predicateStrategy to predicate whether a call is success.

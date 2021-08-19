@@ -68,8 +68,8 @@ public final class ParameterUtils {
     static Map<Object, Integer> getLimitForPeriodMap(Parameter parameter) {
         final ArgsRateLimiter argsRateLimiter = parameter.getAnnotation(ArgsRateLimiter.class);
         String limitForPeriodMapString;
-        if (argsRateLimiter == null ||
-                StringUtils.isEmpty(limitForPeriodMapString = argsRateLimiter.limitForPeriodMap())) {
+        if (argsRateLimiter == null
+                || StringUtils.isEmpty(limitForPeriodMapString = argsRateLimiter.limitForPeriodMap())) {
             return Collections.emptyMap();
         }
         return getLimitForPeriodMapFromString(limitForPeriodMapString);
@@ -78,7 +78,8 @@ public final class ParameterUtils {
     static Map<Object, Integer> getMaxConcurrentLimitMap(Parameter parameter) {
         final ArgsConcurrentLimiter argsConcurrentLimiter = parameter.getAnnotation(ArgsConcurrentLimiter.class);
         String thresholdMap;
-        if (argsConcurrentLimiter == null || StringUtils.isEmpty(thresholdMap = argsConcurrentLimiter.thresholdMap())) {
+        if (argsConcurrentLimiter == null
+                || StringUtils.isEmpty(thresholdMap = argsConcurrentLimiter.thresholdMap())) {
             return Collections.emptyMap();
         }
         return getMaxConcurrentLimitMapFromString(thresholdMap);
