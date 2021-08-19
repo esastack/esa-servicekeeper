@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface RateLimiter {
 
-    int DEFAULT_LIMIT_FOR_PERIOD = 0;
+    int DEFAULT_LIMIT_FOR_PERIOD = Integer.MAX_VALUE;
 
     /**
      * alias for limitForPeriod

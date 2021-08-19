@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface ConcurrentLimiter {
 
-    int DEFAULT_VALUE = 0;
+    int DEFAULT_VALUE = Integer.MAX_VALUE;
 
     /**
      * alias for threshold
