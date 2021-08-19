@@ -126,26 +126,7 @@ public class MockMethods {
 
     }
 
-    public void methodArgConcurrentLimitAliasSet(@ArgsConcurrentLimiter("{ZhangSan: 56, LiSi: 23}")
-                                                         String name) {
-
-    }
-
-    public void methodArgConcurrentLimitAliasSetError(@ArgsConcurrentLimiter(value = "{ZhangSan: 56, LiSi: 21}",
-            thresholdMap = "{ZhangSan: 56, LiSi: 23}") String name) {
-
-    }
-
     public void methodOnlyArgRateLimit(@ArgsRateLimiter(limitRefreshPeriod = "2s",
-            limitForPeriodMap = "{LiMing: 20, ZhangSan: 60}") String name) {
-
-    }
-
-    public void methodArgRateLimitAliasSet(@ArgsRateLimiter("{LiMing: 20, ZhangSan: 60}") String name) {
-
-    }
-
-    public void methodArgRateLimitAliasSetError(@ArgsRateLimiter(value = "{LiMing: 21, ZhangSan: 60}",
             limitForPeriodMap = "{LiMing: 20, ZhangSan: 60}") String name) {
 
     }
@@ -154,16 +135,6 @@ public class MockMethods {
             ringBufferSizeInClosedState = 101, waitDurationInOpenState = "61s",
             predicateStrategy = PredicateByExceptionAndSpendTime.class, maxSpendTimeMs = 10,
             ignoreExceptions = {RuntimeException.class},
-            failureRateThresholdMap = "{LiMing: 20.0f, ZhangSan: 60.0f}") String name) {
-
-    }
-
-    public void methodArgCircuitBreakerAliasSet(@ArgsCircuitBreaker("{LiMing: 20.0f, ZhangSan: 60.0f}") String name) {
-
-    }
-
-    public void methodArgCircuitBreakerAliasSetError(@ArgsCircuitBreaker(
-            value = "{LiMing: 20.0f, ZhangSan: 60.1f}",
             failureRateThresholdMap = "{LiMing: 20.0f, ZhangSan: 60.0f}") String name) {
 
     }
