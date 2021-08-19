@@ -113,14 +113,20 @@ public final class MethodUtils {
         final ConcurrentLimiter concurrentLimiter = method.getAnnotation(ConcurrentLimiter.class);
         if (concurrentLimiter != null) {
             concurrentConfig = ConcurrentLimitConfig.builder()
-                    .threshold(concurrentLimiter.threshold())
+                    .threshold(AnnotationUtils.resolve("ConcurrentLimiter.threshold",
+                            concurrentLimiter.threshold(),
+                            concurrentLimiter.value(),
+                            ConcurrentLimiter.DEFAULT_VALUE))
                     .build();
         }
 
         final RateLimiter rateLimiter = method.getAnnotation(RateLimiter.class);
         if (rateLimiter != null) {
             rateLimitConfig = RateLimitConfig.builder()
-                    .limitForPeriod(rateLimiter.limitForPeriod())
+                    .limitForPeriod(AnnotationUtils.resolve("RateLimiter.limitForPeriod",
+                            rateLimiter.limitForPeriod(),
+                            rateLimiter.value(),
+                            RateLimiter.DEFAULT_LIMIT_FOR_PERIOD))
                     .limitRefreshPeriod(DurationUtils.parse(rateLimiter.limitRefreshPeriod()))
                     .build();
         }
@@ -128,7 +134,10 @@ public final class MethodUtils {
         final CircuitBreaker circuitBreaker = method.getAnnotation(CircuitBreaker.class);
         if (circuitBreaker != null) {
             circuitBreakerConfig = CircuitBreakerConfig.builder()
-                    .failureRateThreshold(circuitBreaker.failureRateThreshold())
+                    .failureRateThreshold(AnnotationUtils.resolve("CircuitBreaker.failureRateThreshold",
+                            circuitBreaker.failureRateThreshold(),
+                            circuitBreaker.value(),
+                            CircuitBreaker.DEFAULT_FAILURE_RATE_THRESHOLD))
                     .ignoreExceptions(circuitBreaker.ignoreExceptions())
                     .ringBufferSizeInClosedState(circuitBreaker.ringBufferSizeInClosedState())
                     .ringBufferSizeInHalfOpenState(circuitBreaker.ringBufferSizeInHalfOpenState())
@@ -164,7 +173,10 @@ public final class MethodUtils {
             RetryConfig.Builder builder = RetryConfig.builder()
                     .includeExceptions(retryable.includeExceptions())
                     .excludeExceptions(retryable.excludeExceptions())
-                    .maxAttempts(retryable.maxAttempts());
+                    .maxAttempts(AnnotationUtils.resolve("RetryConfig.maxAttempts",
+                            retryable.maxAttempts(),
+                            retryable.value(),
+                            Retryable.DEFAULT_MAX_ATTEMPTS));
             Backoff backoff = retryable.backoff();
             if (backoff.delay() != 0) {
                 builder.backoffConfig(BackoffConfig.builder()

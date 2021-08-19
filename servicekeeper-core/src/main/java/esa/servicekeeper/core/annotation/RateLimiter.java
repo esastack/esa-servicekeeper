@@ -28,10 +28,17 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface RateLimiter {
 
+    int DEFAULT_LIMIT_FOR_PERIOD = 0;
+
+    /**
+     * alias for limitForPeriod
+     */
+    int value() default DEFAULT_LIMIT_FOR_PERIOD;
+
     /**
      * @return threshold of a period.
      */
-    int limitForPeriod();
+    int limitForPeriod() default DEFAULT_LIMIT_FOR_PERIOD;
 
     /**
      * @return the duration of a period.

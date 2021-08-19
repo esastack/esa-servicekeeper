@@ -29,6 +29,8 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ArgsCircuitBreaker {
 
+    String DEFAULT_FAILURE_RATE_THRESHOLD_MAP = "";
+
     /**
      * ringBufferSize while CircuitBreaker is closed
      */
@@ -60,10 +62,16 @@ public @interface ArgsCircuitBreaker {
     Class<? extends Throwable>[] ignoreExceptions() default {};
 
     /**
+     * alias for failureRateThresholdMap
+     * eg: "{{LiMing: 10.0f, WangWu: 70.0f, ZhangSan: 20.0f, *: 80.0f}}"
+     */
+    String value() default DEFAULT_FAILURE_RATE_THRESHOLD_MAP;
+
+    /**
      * @return mapping from value to failureRateThreshold,
      * eg: "{{LiMing: 10.0f, WangWu: 70.0f, ZhangSan: 20.0f, *: 80.0f}}"
      */
-    String failureRateThresholdMap() default "";
+    String failureRateThresholdMap() default DEFAULT_FAILURE_RATE_THRESHOLD_MAP;
 
     /**
      * @return max size of governed value number, the value which exceeds the number will be ignored to

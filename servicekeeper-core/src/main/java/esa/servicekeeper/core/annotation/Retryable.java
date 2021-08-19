@@ -25,6 +25,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Retryable {
+
+    int DEFAULT_MAX_ATTEMPTS = 3;
+
     /**
      * Exception types that are retryable. Defaults to empty (and if excludes is also empty all exceptions are retried).
      * <p>
@@ -44,9 +47,14 @@ public @interface Retryable {
     Class<? extends Throwable>[] excludeExceptions() default {};
 
     /**
+     * alias for maxAttempts
+     */
+    int value() default DEFAULT_MAX_ATTEMPTS;
+
+    /**
      * @return the maximum number of attempts (NOTE: including the first failure), defaults to 3
      */
-    int maxAttempts() default 3;
+    int maxAttempts() default DEFAULT_MAX_ATTEMPTS;
 
     /**
      * Specify the backoff properties for retrying this operation. The default is a simple

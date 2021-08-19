@@ -69,7 +69,11 @@ public final class ParameterUtils {
         final ArgsRateLimiter argsRateLimiter = parameter.getAnnotation(ArgsRateLimiter.class);
         String limitForPeriodMapString;
         if (argsRateLimiter == null ||
-                StringUtils.isEmpty(limitForPeriodMapString = argsRateLimiter.limitForPeriodMap())) {
+                StringUtils.isEmpty(limitForPeriodMapString =
+                        AnnotationUtils.resolve("ArgsRateLimiter.limitForPeriodMap",
+                                argsRateLimiter.limitForPeriodMap(),
+                                argsRateLimiter.value(),
+                                ArgsRateLimiter.DEFAULT_LIMIT_FOR_PERIOD_MAP))) {
             return Collections.emptyMap();
         }
         return getLimitForPeriodMapFromString(limitForPeriodMapString);
@@ -78,7 +82,11 @@ public final class ParameterUtils {
     static Map<Object, Integer> getMaxConcurrentLimitMap(Parameter parameter) {
         final ArgsConcurrentLimiter argsConcurrentLimiter = parameter.getAnnotation(ArgsConcurrentLimiter.class);
         String thresholdMap;
-        if (argsConcurrentLimiter == null || StringUtils.isEmpty(thresholdMap = argsConcurrentLimiter.thresholdMap())) {
+        if (argsConcurrentLimiter == null || StringUtils.isEmpty(thresholdMap =
+                AnnotationUtils.resolve("ArgsConcurrentLimiter.thresholdMap",
+                        argsConcurrentLimiter.thresholdMap(),
+                        argsConcurrentLimiter.value(),
+                        ArgsConcurrentLimiter.DEFAULT_THRESHOLD_MAP))) {
             return Collections.emptyMap();
         }
         return getMaxConcurrentLimitMapFromString(thresholdMap);
@@ -106,7 +114,11 @@ public final class ParameterUtils {
         final ArgsCircuitBreaker argsCircuitBreaker = parameter.getAnnotation(ArgsCircuitBreaker.class);
         String failureRateThreshold;
         if (argsCircuitBreaker == null
-                || StringUtils.isEmpty(failureRateThreshold = argsCircuitBreaker.failureRateThresholdMap())) {
+                || StringUtils.isEmpty(failureRateThreshold =
+                AnnotationUtils.resolve("ArgsCircuitBreaker.failureRateThresholdMap",
+                        argsCircuitBreaker.failureRateThresholdMap(),
+                        argsCircuitBreaker.value(),
+                        ArgsCircuitBreaker.DEFAULT_FAILURE_RATE_THRESHOLD_MAP))) {
             return Collections.emptyMap();
         }
         return getFailureRateThresholdMapFromString(failureRateThreshold);

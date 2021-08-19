@@ -26,11 +26,19 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ArgsConcurrentLimiter {
 
+    String DEFAULT_THRESHOLD_MAP = "";
+
+    /**
+     * alias for thresholdMap
+     * eg: values = "{LiMing: 10, WangWu: 5, ZhangSan: 20, *: 100}"
+     */
+    String value() default DEFAULT_THRESHOLD_MAP;
+
     /**
      * @return mapping from value to concurrent limit.
      * eg: values = "{LiMing: 10, WangWu: 5, ZhangSan: 20, *: 100}"
      */
-    String thresholdMap() default "";
+    String thresholdMap() default DEFAULT_THRESHOLD_MAP;
 
     /**
      * @return max size of governed value number, the value which exceeds the number will be ignored to

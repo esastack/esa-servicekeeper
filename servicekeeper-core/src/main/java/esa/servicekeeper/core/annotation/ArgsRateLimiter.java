@@ -26,16 +26,24 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ArgsRateLimiter {
 
+    String DEFAULT_LIMIT_FOR_PERIOD_MAP = "";
+
     /**
      * @return the duration of a period.
      */
     String limitRefreshPeriod() default "1s";
 
     /**
+     * alias for limitForPeriodMap
+     * eg: values = "{LiMing: 20, ZhangSan: 10, WangWu: 2, *: 100}"
+     */
+    String value() default DEFAULT_LIMIT_FOR_PERIOD_MAP;
+
+    /**
      * @return mapping from value to limitForPeriod.
      * eg: values = "{LiMing: 20, ZhangSan: 10, WangWu: 2, *: 100}"
      */
-    String limitForPeriodMap() default "";
+    String limitForPeriodMap() default DEFAULT_LIMIT_FOR_PERIOD_MAP;
 
     /**
      * @return max size of governed value number, the value which exceeds the number will be ignored to

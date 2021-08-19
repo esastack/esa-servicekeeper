@@ -27,6 +27,7 @@ import java.time.Duration;
 import java.util.Arrays;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MethodUtilsTest {
 
@@ -83,6 +84,27 @@ class MethodUtilsTest {
     }
 
     @Test
+    void testConcurrentLimitAliasSet() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodConcurrentLimitAliasSet");
+        CompositeServiceKeeperConfig config = MethodUtils.getCompositeConfig(method);
+
+        assert config != null;
+        then(config.getMethodConfig().getFallbackConfig()).isNull();
+        then(config.getMethodConfig().getCircuitBreakerConfig()).isNull();
+        then(config.getMethodConfig().getConcurrentLimitConfig()).isNotNull();
+        then(config.getMethodConfig().getConcurrentLimitConfig().getThreshold()).isEqualTo(500);
+
+        then(config.getMethodConfig().getRateLimitConfig()).isNull();
+        then(config.getArgConfig().getArgConfigMap()).isEmpty();
+    }
+
+    @Test
+    void testConcurrentLimitAliasSetError() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodConcurrentLimitAliasSetError");
+        assertThrows(IllegalArgumentException.class, () -> MethodUtils.getCompositeConfig(method));
+    }
+
+    @Test
     void testGetOnlyRateLimitConfig() throws NoSuchMethodException {
         Method method = mockClass.getDeclaredMethod("methodOnlyRateLimit");
         CompositeServiceKeeperConfig config = MethodUtils.getCompositeConfig(method);
@@ -97,6 +119,20 @@ class MethodUtilsTest {
         then(config.getMethodConfig().getRateLimitConfig().getLimitForPeriod()).isEqualTo(500);
 
         then(config.getArgConfig().getArgConfigMap()).isEmpty();
+    }
+
+    @Test
+    void testRateLimitAliasSet() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodRateLimitAliasSet");
+        CompositeServiceKeeperConfig config = MethodUtils.getCompositeConfig(method);
+        assert config != null;
+        then(config.getMethodConfig().getRateLimitConfig().getLimitForPeriod()).isEqualTo(1);
+    }
+
+    @Test
+    void testRateLimitAliasSetError() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodRateLimitAliasSetError");
+        assertThrows(IllegalArgumentException.class, () -> MethodUtils.getCompositeConfig(method));
     }
 
     @Test
@@ -122,6 +158,52 @@ class MethodUtilsTest {
                 .isEqualTo(new Class[]{IllegalStateException.class, IllegalArgumentException.class});
 
         then(config.getArgConfig().getArgConfigMap()).isEmpty();
+    }
+
+    @Test
+    void testCircuitBreakerAliasSet() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodCircuitBreakerAliasSet");
+        CompositeServiceKeeperConfig config = MethodUtils.getCompositeConfig(method);
+
+        assert config != null;
+        then(config.getMethodConfig().getFallbackConfig()).isNull();
+        then(config.getMethodConfig().getCircuitBreakerConfig()).isNotNull();
+        then(config.getMethodConfig().getConcurrentLimitConfig()).isNull();
+        then(config.getMethodConfig().getRateLimitConfig()).isNull();
+
+        then(config.getMethodConfig().getCircuitBreakerConfig().getRingBufferSizeInClosedState()).isEqualTo(99);
+        then(config.getMethodConfig().getCircuitBreakerConfig().getRingBufferSizeInHalfOpenState()).isEqualTo(9);
+        then(config.getMethodConfig().getCircuitBreakerConfig().getWaitDurationInOpenState())
+                .isEqualTo(DurationUtils.parse("59s"));
+        then(config.getMethodConfig().getCircuitBreakerConfig().getPredicateStrategy())
+                .isEqualTo(PredicateByExceptionAndSpendTime.class);
+        then(config.getMethodConfig().getCircuitBreakerConfig().getMaxSpendTimeMs()).isEqualTo(50);
+        then(config.getMethodConfig().getCircuitBreakerConfig().getFailureRateThreshold()).isEqualTo(49.0f);
+        then(config.getMethodConfig().getCircuitBreakerConfig().getIgnoreExceptions())
+                .isEqualTo(new Class[]{IllegalStateException.class, IllegalArgumentException.class});
+
+        then(config.getArgConfig().getArgConfigMap()).isEmpty();
+    }
+
+    @Test
+    void testCircuitBreakerAliasSetError() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodCircuitBreakerAliasSetError");
+        assertThrows(IllegalArgumentException.class, () -> MethodUtils.getCompositeConfig(method));
+    }
+
+    @Test
+    void testRetryAliasSet() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodRetryAliasSet");
+        CompositeServiceKeeperConfig config = MethodUtils.getCompositeConfig(method);
+
+        assert config != null;
+        then(config.getMethodConfig().getRetryConfig().getMaxAttempts()).isEqualTo(5);
+    }
+
+    @Test
+    void testRetryAliasSetError() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodRetryAliasSetError");
+        assertThrows(IllegalArgumentException.class, () -> MethodUtils.getCompositeConfig(method));
     }
 
     @Test
@@ -159,6 +241,38 @@ class MethodUtilsTest {
     }
 
     @Test
+    void testArgsRateLimitAliasSet() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodArgRateLimitAliasSet", String.class);
+        CompositeServiceKeeperConfig config = MethodUtils.getCompositeConfig(method);
+
+        assert config != null;
+        then(config.getMethodConfig()).isNull();
+        then(config.getArgConfig().getArgConfigMap().size()).isEqualTo(1);
+        CompositeServiceKeeperConfig.CompositeArgConfig argConfig = config.getArgConfig().getArgConfigMap().get(0);
+        then(argConfig.getIndex()).isEqualTo(0);
+        then(argConfig.getArgName()).isEqualTo(ParameterUtils.defaultName(0));
+        then(argConfig.getTemplate().getFallbackConfig()).isNull();
+        then(argConfig.getTemplate().getRateLimitConfig()).isNotNull();
+        then(argConfig.getTemplate().getConcurrentLimitConfig()).isNull();
+        then(argConfig.getTemplate().getCircuitBreakerConfig()).isNull();
+
+        then(argConfig.getValueToConfig().get("LiMing").getCircuitBreakerConfig()).isNull();
+        then(argConfig.getValueToConfig().get("LiMing").getFallbackConfig()).isNull();
+        then(argConfig.getValueToConfig().get("LiMing").getConcurrentLimitConfig()).isNull();
+        then(argConfig.getValueToConfig().get("LiMing").getRateLimitConfig().getLimitForPeriod()).isEqualTo(20);
+        then(argConfig.getValueToConfig().get("ZhangSan").getCircuitBreakerConfig()).isNull();
+        then(argConfig.getValueToConfig().get("ZhangSan").getFallbackConfig()).isNull();
+        then(argConfig.getValueToConfig().get("ZhangSan").getConcurrentLimitConfig()).isNull();
+        then(argConfig.getValueToConfig().get("ZhangSan").getRateLimitConfig().getLimitForPeriod()).isEqualTo(60);
+    }
+
+    @Test
+    void testArgsRateLimitAliasSetError() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodArgRateLimitAliasSetError", String.class);
+        assertThrows(IllegalArgumentException.class, () -> MethodUtils.getCompositeConfig(method));
+    }
+
+    @Test
     void testGetOnlyArgsConcurrentLimitConfig() throws NoSuchMethodException {
         Method method = mockClass.getDeclaredMethod("methodOnlyArgConcurrentLimit", String.class);
         CompositeServiceKeeperConfig config = MethodUtils.getCompositeConfig(method);
@@ -190,6 +304,46 @@ class MethodUtilsTest {
                 .getRateLimitConfig()).isNull();
         then(config.getArgConfig().getArgConfigMap().get(0).getValueToConfig().get("LiSi")
                 .getFallbackConfig()).isNull();
+    }
+
+    @Test
+    void testArgsConcurrentLimitAliasSet() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodArgConcurrentLimitAliasSet", String.class);
+        CompositeServiceKeeperConfig config = MethodUtils.getCompositeConfig(method);
+
+        assert config != null;
+        then(config.getMethodConfig()).isNull();
+        then(config.getArgConfig().getArgConfigMap().size()).isEqualTo(1);
+
+        then(config.getArgConfig().getArgConfigMap().get(0).getArgName())
+                .isEqualTo(ParameterUtils.defaultName(0));
+        then(config.getArgConfig().getArgConfigMap().get(0).getIndex()).isEqualTo(0);
+        then(config.getArgConfig().getArgConfigMap().get(0).getTemplate()).isNull();
+        then(config.getArgConfig().getArgConfigMap().get(0).getValueToConfig().size()).isEqualTo(2);
+
+        then(config.getArgConfig().getArgConfigMap().get(0).getValueToConfig().get("ZhangSan")
+                .getConcurrentLimitConfig().getThreshold()).isEqualTo(56);
+        then(config.getArgConfig().getArgConfigMap().get(0).getValueToConfig().get("ZhangSan")
+                .getCircuitBreakerConfig()).isNull();
+        then(config.getArgConfig().getArgConfigMap().get(0).getValueToConfig().get("ZhangSan")
+                .getRateLimitConfig()).isNull();
+        then(config.getArgConfig().getArgConfigMap().get(0).getValueToConfig().get("ZhangSan")
+                .getFallbackConfig()).isNull();
+
+        then(config.getArgConfig().getArgConfigMap().get(0).getValueToConfig().get("LiSi")
+                .getConcurrentLimitConfig().getThreshold()).isEqualTo(23);
+        then(config.getArgConfig().getArgConfigMap().get(0).getValueToConfig().get("LiSi")
+                .getCircuitBreakerConfig()).isNull();
+        then(config.getArgConfig().getArgConfigMap().get(0).getValueToConfig().get("LiSi")
+                .getRateLimitConfig()).isNull();
+        then(config.getArgConfig().getArgConfigMap().get(0).getValueToConfig().get("LiSi")
+                .getFallbackConfig()).isNull();
+    }
+
+    @Test
+    void testArgsConcurrentLimitAliasSetError() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodArgConcurrentLimitAliasSetError", String.class);
+        assertThrows(IllegalArgumentException.class, () -> MethodUtils.getCompositeConfig(method));
     }
 
     @Test
@@ -248,6 +402,27 @@ class MethodUtilsTest {
                 .isEqualTo(Duration.ofSeconds(61));
         then(argConfig.getValueToConfig().get("ZhangSan").getCircuitBreakerConfig()
                 .getFailureRateThreshold()).isEqualTo(60.0f);
+    }
+
+    @Test
+    void testArgsCircuitBreakerAliasSet() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodArgCircuitBreakerAliasSet", String.class);
+        CompositeServiceKeeperConfig config = MethodUtils.getCompositeConfig(method);
+
+        assert config != null;
+        then(config.getMethodConfig()).isNull();
+        then(config.getArgConfig().getArgConfigMap().size()).isEqualTo(1);
+        CompositeServiceKeeperConfig.CompositeArgConfig argConfig = config.getArgConfig().getArgConfigMap().get(0);
+        then(argConfig.getValueToConfig().get("LiMing").getCircuitBreakerConfig()
+                .getFailureRateThreshold()).isEqualTo(20.0f);
+        then(argConfig.getValueToConfig().get("ZhangSan").getCircuitBreakerConfig()
+                .getFailureRateThreshold()).isEqualTo(60.0f);
+    }
+
+    @Test
+    void testArgsCircuitBreakerAliasSetError() throws NoSuchMethodException {
+        Method method = mockClass.getDeclaredMethod("methodArgCircuitBreakerAliasSetError", String.class);
+        assertThrows(IllegalArgumentException.class, () -> MethodUtils.getCompositeConfig(method));
     }
 
     @Test

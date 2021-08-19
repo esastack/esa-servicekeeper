@@ -27,10 +27,18 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited
 public @interface ConcurrentLimiter {
+
+    int DEFAULT_VALUE = 0;
+
+    /**
+     * alias for threshold
+     */
+    int value() default DEFAULT_VALUE;
+
     /**
      * The threshold of concurrentLimiter
      */
-    int threshold();
+    int threshold() default DEFAULT_VALUE;
 
 }
 
