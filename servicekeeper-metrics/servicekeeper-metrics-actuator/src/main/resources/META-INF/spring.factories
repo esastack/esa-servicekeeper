@@ -1,4 +1,4 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  esa.servicekeeper.metrics.actuator.configurator.EndpointsConfigurator,\
-  esa.servicekeeper.metrics.actuator.configurator.MetersConfigurator
+  esa.servicekeeper.metrics.actuator.configurator.EndpointsConfiguratorV1,\
+  esa.servicekeeper.metrics.actuator.configurator.EndpointsConfiguratorV2

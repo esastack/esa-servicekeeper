@@ -29,6 +29,7 @@ import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointPr
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,11 +37,17 @@ import org.springframework.context.annotation.DependsOn;
 
 import static esa.servicekeeper.adapter.spring.constant.BeanNames.DEFAULT_SERVICE_KEEPER;
 
+/**
+ * EndpointsConfiguratorV1 is a configurator for earlier versions of springBoot before 2.3.0,because
+ * {@link ConditionalOnEnabledEndpoint} was deleted after 2.3.0.
+ */
 @Configuration
 @AutoConfigureAfter(EndpointAutoConfiguration.class)
 @EnableConfigurationProperties(WebEndpointProperties.class)
-@ConditionalOnClass({ServiceKeeperEntry.class})
-public class EndpointsConfigurator {
+@ConditionalOnMissingClass(
+        "org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnAvailableEndpoint")
+@ConditionalOnClass({ServiceKeeperEntry.class, ConditionalOnEnabledEndpoint.class})
+public class EndpointsConfiguratorV1 {
 
     @Bean
     @ConditionalOnMissingBean
