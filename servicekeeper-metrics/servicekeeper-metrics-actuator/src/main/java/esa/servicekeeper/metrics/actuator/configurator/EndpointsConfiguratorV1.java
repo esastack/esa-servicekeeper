@@ -36,11 +36,15 @@ import org.springframework.context.annotation.DependsOn;
 
 import static esa.servicekeeper.adapter.spring.constant.BeanNames.DEFAULT_SERVICE_KEEPER;
 
+/**
+ * EndpointsConfiguratorV1 is a configurator for earlier versions of springBoot before 2.3.0,because
+ * {@link ConditionalOnEnabledEndpoint} was deleted after 2.3.0.
+ */
 @Configuration
 @AutoConfigureAfter(EndpointAutoConfiguration.class)
 @EnableConfigurationProperties(WebEndpointProperties.class)
-@ConditionalOnClass({ServiceKeeperEntry.class})
-public class EndpointsConfigurator {
+@ConditionalOnClass({ServiceKeeperEntry.class, ConditionalOnEnabledEndpoint.class})
+public class EndpointsConfiguratorV1 {
 
     @Bean
     @ConditionalOnMissingBean
