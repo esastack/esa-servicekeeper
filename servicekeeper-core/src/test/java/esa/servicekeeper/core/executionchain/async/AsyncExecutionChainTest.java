@@ -166,7 +166,8 @@ class AsyncExecutionChainTest {
         final int limitForPeriod = RandomUtils.randomInt(5);
         List<Moat<?>> moats = Collections.singletonList(new RateLimitMoat(
                 new MoatConfig(ResourceId.from(name)),
-                RateLimitConfig.builder().limitForPeriod(limitForPeriod).limitRefreshPeriod(Duration.ofSeconds(10L)).build(),
+                RateLimitConfig.builder().limitForPeriod(limitForPeriod)
+                        .limitRefreshPeriod(Duration.ofSeconds(10L)).build(),
                 null,
                 Collections.emptyList()));
         AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats,
