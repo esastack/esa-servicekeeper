@@ -41,6 +41,7 @@ import esa.servicekeeper.core.moats.ratelimit.RateLimitMoat;
 import esa.servicekeeper.core.utils.RandomUtils;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -165,7 +166,8 @@ class AsyncExecutionChainTest {
         final int limitForPeriod = RandomUtils.randomInt(5);
         List<Moat<?>> moats = Collections.singletonList(new RateLimitMoat(
                 new MoatConfig(ResourceId.from(name)),
-                RateLimitConfig.builder().limitForPeriod(limitForPeriod).build(), null,
+                RateLimitConfig.builder().limitForPeriod(limitForPeriod).limitRefreshPeriod(Duration.ofSeconds(10L)).build(),
+                null,
                 Collections.emptyList()));
         AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats,
                 new FallbackToException(fallbackException, false));
