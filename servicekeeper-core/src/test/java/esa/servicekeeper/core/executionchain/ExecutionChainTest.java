@@ -23,6 +23,11 @@ import esa.servicekeeper.core.config.MoatConfig;
 import esa.servicekeeper.core.config.RateLimitConfig;
 import esa.servicekeeper.core.exception.ConcurrentOverFlowException;
 import esa.servicekeeper.core.exception.RateLimitOverflowException;
+import esa.servicekeeper.core.fallback.FallbackHandler;
+import esa.servicekeeper.core.fallback.FallbackMethod;
+import esa.servicekeeper.core.fallback.FallbackToException;
+import esa.servicekeeper.core.fallback.FallbackToFunction;
+import esa.servicekeeper.core.fallback.FallbackToValue;
 import esa.servicekeeper.core.metrics.CircuitBreakerMetrics;
 import esa.servicekeeper.core.moats.Moat;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
@@ -34,7 +39,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -344,6 +351,40 @@ class ExecutionChainTest {
         moats.add(circuitBreakerMoat);
         SyncExecutionChain chain = new AsyncExecutionChainImpl(moats, null);
         then(chain.execute(new AsyncContext(name), null, executable)).isEqualTo(result);
+    }
+
+    @Test
+    void testFallbackApplyToBizException() throws Throwable {
+        Executable<String> executable = () -> {
+            throw new RuntimeException();
+        };
+        final String name = "testFallbackApplyToBizException";
+        List<Moat<?>> moats = new ArrayList<>(1);
+
+        //fallbackToValue
+        final String fallbackResult = "DEF";
+        FallbackHandler<String> fallbackToString = new FallbackToValue(fallbackResult, true);
+        final SyncExecutionChain fallbackToStringChain = new SyncExecutionChainImpl(moats, fallbackToString);
+        then(fallbackToStringChain.execute(new AsyncContext(name), null, executable)).isEqualTo(fallbackResult);
+
+        //fallbackToException
+        final IllegalStateException fallbackEx = new IllegalStateException("fallback");
+        FallbackHandler<?> fallbackToEx = new FallbackToException(fallbackEx, true);
+        final SyncExecutionChain fallbackToExChain = new SyncExecutionChainImpl(moats, fallbackToEx);
+        assertThrows(IllegalStateException.class, () -> fallbackToExChain.execute(new AsyncContext(name), null, executable));
+
+        final Set<FallbackMethod> fallbackMethods = new HashSet<>(1);
+        fallbackMethods.add(new FallbackMethod(ExecutionChainTest.class.getDeclaredMethod("fallbackMethod")));
+
+        //fallbackToFunction
+        FallbackHandler<String> fallbackToFunc = new FallbackToFunction<>(
+                new ExecutionChainTest(), fallbackMethods, true);
+        final SyncExecutionChain fallbackToFuncChain = new SyncExecutionChainImpl(moats, fallbackToFunc);
+        then(fallbackToFuncChain.execute(new AsyncContext(name), null, executable)).isEqualTo("fallbackMethod");
+    }
+
+    private String fallbackMethod() {
+        return "fallbackMethod";
     }
 
     private MoatConfig getConfig(String name) {
