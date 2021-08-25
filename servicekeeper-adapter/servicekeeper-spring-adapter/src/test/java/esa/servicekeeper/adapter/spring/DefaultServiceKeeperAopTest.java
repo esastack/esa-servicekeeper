@@ -71,6 +71,10 @@ class DefaultServiceKeeperAopTest {
 
         //ConcurrentLimiter
         new Thread(service::testConcurrentLimiter).start();
+        try {
+            Thread.sleep(20);
+        } catch (InterruptedException ignored) {
+        }
         assertThrows(ConcurrentOverFlowException.class, service::testConcurrentLimiter);
 
         //CircuitBreaker
@@ -101,7 +105,7 @@ class DefaultServiceKeeperAopTest {
         @ConcurrentLimiter(1)
         public void testConcurrentLimiter() {
             try {
-                Thread.sleep(30);
+                Thread.sleep(100);
             } catch (InterruptedException ignored) {
             }
         }
