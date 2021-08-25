@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esa.servicekeeper.adapter.springboot;
+package esa.servicekeeper.adapter.restlight;
 
+import esa.restlight.spring.shaded.org.springframework.web.bind.annotation.DeleteMapping;
+import esa.restlight.spring.shaded.org.springframework.web.bind.annotation.GetMapping;
+import esa.restlight.spring.shaded.org.springframework.web.bind.annotation.PatchMapping;
+import esa.restlight.spring.shaded.org.springframework.web.bind.annotation.PostMapping;
+import esa.restlight.spring.shaded.org.springframework.web.bind.annotation.PutMapping;
+import esa.restlight.spring.shaded.org.springframework.web.bind.annotation.RequestMapping;
+import esa.servicekeeper.adapter.restlight.aop.RestlightAutoSupportAop;
 import esa.servicekeeper.adapter.spring.aop.DefaultServiceKeeperAop;
-import esa.servicekeeper.adapter.spring.aop.WebAutoSupportAop;
-import esa.servicekeeper.core.annotation.Fallback;
-import esa.servicekeeper.core.annotation.RateLimiter;
 import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -34,8 +38,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@Import({ServiceKeeperConfigurator.class})
-class DefaultServiceKeeperAopTest {
+@Import({RestlightAutoSupportConfigurator.class})
+public class RestlightAopTest {
 
     private static AnnotationConfigApplicationContext ctx;
 
@@ -48,15 +52,15 @@ class DefaultServiceKeeperAopTest {
     static void setUp() {
         System.setProperty("servicekeeper.configurators.disable", "true");
         ctx = new AnnotationConfigApplicationContext();
-        ctx.register(DefaultServiceKeeperAopTest.class);
+        ctx.register(RestlightAopTest.class);
 
         ctx.refresh();
     }
 
     @Test
     void test() {
-        then(ctx.getBean(DefaultServiceKeeperAop.class)).isNotNull();
-        assertThrows(NoSuchBeanDefinitionException.class, () -> ctx.getBean(WebAutoSupportAop.class));
+        then(ctx.getBean(RestlightAutoSupportAop.class)).isNotNull();
+        assertThrows(NoSuchBeanDefinitionException.class, () -> ctx.getBean(DefaultServiceKeeperAop.class));
 
         final HelloService service = ctx.getBean(HelloService.class);
         then(service.testRequest()).isEqualTo("Request");
@@ -76,57 +80,38 @@ class DefaultServiceKeeperAopTest {
 
         then(service.testPatch()).isEqualTo("Patch");
         assertThrows(RateLimitOverflowException.class, service::testPatch);
-
-        assertThrows(RuntimeException.class, service::testFallbackWithoutApplyToBizException);
-        then(service.testFallbackWithoutApplyToBizException()).isEqualTo("fallback value");
-
-        then(service.testFallbackWithApplyToBizException()).isEqualTo("fallback value");
-        then(service.testFallbackWithApplyToBizException()).isEqualTo("fallback value");
     }
 
     public static class HelloService {
 
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @RequestMapping
         public String testRequest() {
             return "Request";
         }
 
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @GetMapping
         public String testGet() {
             return "Get";
         }
 
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @PostMapping
         public String testPost() {
             return "Post";
         }
 
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @PutMapping
         public String testPut() {
             return "Put";
         }
 
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @DeleteMapping
         public String testDelete() {
             return "Delete";
         }
 
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @PatchMapping
         public String testPatch() {
             return "Patch";
         }
-
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
-        @Fallback(fallbackValue = "fallback value")
-        public String testFallbackWithoutApplyToBizException() {
-            throw new RuntimeException("error occur");
-        }
-
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
-        @Fallback(fallbackValue = "fallback value", alsoApplyToBizException = true)
-        public String testFallbackWithApplyToBizException() {
-            throw new RuntimeException("error occur");
-        }
-
     }
 }

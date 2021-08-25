@@ -371,7 +371,8 @@ class ExecutionChainTest {
         final IllegalStateException fallbackEx = new IllegalStateException("fallback");
         FallbackHandler<?> fallbackToEx = new FallbackToException(fallbackEx, true);
         final SyncExecutionChain fallbackToExChain = new SyncExecutionChainImpl(moats, fallbackToEx);
-        assertThrows(IllegalStateException.class, () -> fallbackToExChain.execute(new AsyncContext(name), null, executable));
+        assertThrows(IllegalStateException.class,
+                () -> fallbackToExChain.execute(new AsyncContext(name), null, executable));
 
         final Set<FallbackMethod> fallbackMethods = new HashSet<>(1);
         fallbackMethods.add(new FallbackMethod(ExecutionChainTest.class.getDeclaredMethod("fallbackMethod")));
