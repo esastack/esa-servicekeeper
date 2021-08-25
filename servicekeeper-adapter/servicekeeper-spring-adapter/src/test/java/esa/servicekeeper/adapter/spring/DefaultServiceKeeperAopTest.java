@@ -101,7 +101,7 @@ class DefaultServiceKeeperAopTest {
         @ConcurrentLimiter(1)
         public void testConcurrentLimiter() {
             try {
-                Thread.sleep(20);
+                Thread.sleep(30);
             } catch (InterruptedException ignored) {
             }
         }
