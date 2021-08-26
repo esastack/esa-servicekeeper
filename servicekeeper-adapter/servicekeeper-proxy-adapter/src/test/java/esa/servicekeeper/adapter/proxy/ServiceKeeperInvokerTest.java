@@ -47,7 +47,7 @@ public class ServiceKeeperInvokerTest {
     void testInvoke() throws Throwable {
 
         HelloService helloService = new HelloServiceHasInterface();
-        Method helloMethod = HelloService.class.getDeclaredMethod("hello");
+        Method helloMethod = HelloService.class.getDeclaredMethod("helloV1");
         then(ServiceKeeperInvoker.invoke(helloMethod,
                 helloService, null)).isEqualTo(HelloServiceHasInterface.HELLO);
 

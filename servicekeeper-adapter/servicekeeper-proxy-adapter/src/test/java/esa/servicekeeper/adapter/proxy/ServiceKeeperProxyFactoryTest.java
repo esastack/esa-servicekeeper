@@ -39,8 +39,8 @@ public class ServiceKeeperProxyFactoryTest {
         HelloService proxyHasInterface =
                 ServiceKeeperProxyFactory.createProxyHasInterface(new HelloServiceHasInterface());
 
-        then(proxyHasInterface.hello()).isEqualTo(HelloServiceNoInterface.HELLO);
-        assertThrows(RateLimitOverflowException.class, proxyHasInterface::hello);
+        then(proxyHasInterface.helloV2()).isEqualTo(HelloServiceNoInterface.HELLO);
+        assertThrows(RateLimitOverflowException.class, proxyHasInterface::helloV2);
     }
 
 }

@@ -16,5 +16,7 @@
 package esa.servicekeeper.adapter.proxy;
 
 public interface HelloService {
-    String hello();
+    String helloV1();
+
+    String helloV2();
 }

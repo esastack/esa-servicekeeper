@@ -19,7 +19,12 @@ public class HelloServiceHasInterface implements HelloService {
     public static final String HELLO = "hello";
 
     @Override
-    public String hello() {
+    public String helloV1() {
+        return HELLO;
+    }
+
+    @Override
+    public String helloV2() {
         return HELLO;
     }
 }
