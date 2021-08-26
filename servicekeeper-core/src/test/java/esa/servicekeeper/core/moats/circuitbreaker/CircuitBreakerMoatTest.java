@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.CLOSED;
 import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.FORCED_DISABLED;
@@ -88,21 +89,25 @@ class CircuitBreakerMoatTest {
                 Collections.singletonList(new MoatEventProcessor() {
                     @Override
                     public void process(String name, MoatEvent event) {
-
                     }
                 }), null);
         then(breakerMoat0.config()).isEqualTo(config);
         final MoatConfig moatConfig1 = mock(MoatConfig.class);
         when(moatConfig1.getResourceId()).thenReturn(ResourceId.from("CircuitBreakerMoat-Test1"));
         PredicateStrategy predicateStrategy1 = new PredicateByException(null);
+        AtomicBoolean isOpen = new AtomicBoolean(false);
         final CircuitBreakerMoat breakerMoat1 = new CircuitBreakerMoat(moatConfig1,
                 config, null, predicateStrategy1,
                 Collections.singletonList(new MoatEventProcessor() {
                     @Override
                     public void process(String name, MoatEvent event) {
-
                     }
-                }), null);
+                }),
+                Collections.singletonList((name, event) -> {
+                    if (event.currentState() == CircuitBreaker.State.OPEN) {
+                        isOpen.getAndSet(true);
+                    }
+                }));
 
         final Context ctx = mock(Context.class);
 
@@ -113,7 +118,7 @@ class CircuitBreakerMoatTest {
             breakerMoat0.exit(ctx);
             breakerMoat1.exit(ctx);
         }
-
+        then(isOpen.get()).isTrue();
         assertDoesNotThrow(() -> breakerMoat0.enter(ctx));
         try {
             breakerMoat1.enter(ctx);
