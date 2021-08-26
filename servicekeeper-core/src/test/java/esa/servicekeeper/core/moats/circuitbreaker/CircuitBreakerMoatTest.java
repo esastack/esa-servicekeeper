@@ -42,6 +42,7 @@ import static esa.servicekeeper.core.moats.circuitbreaker.CircuitBreaker.State.F
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -79,26 +80,29 @@ class CircuitBreakerMoatTest {
 
         final MoatConfig moatConfig0 = mock(MoatConfig.class);
         when(moatConfig0.getResourceId()).thenReturn(ResourceId.from("CircuitBreakerMoat-Test0"));
+        CircuitBreakerConfig config = CircuitBreakerConfig.builder()
+                .ringBufferSizeInClosedState(ringBufferSizeInClosedOpen)
+                .failureRateThreshold(failureRateThreshold).build();
         final CircuitBreakerMoat breakerMoat0 = new CircuitBreakerMoat(moatConfig0,
-                CircuitBreakerConfig.builder()
-                        .ringBufferSizeInClosedState(ringBufferSizeInClosedOpen)
-                        .failureRateThreshold(failureRateThreshold).build(), null,
-                predicateStrategy0,
+                config, null, predicateStrategy0,
                 Collections.singletonList(new MoatEventProcessor() {
                     @Override
                     public void process(String name, MoatEvent event) {
 
                     }
                 }), null);
-
+        then(breakerMoat0.config()).isEqualTo(config);
         final MoatConfig moatConfig1 = mock(MoatConfig.class);
         when(moatConfig1.getResourceId()).thenReturn(ResourceId.from("CircuitBreakerMoat-Test1"));
         PredicateStrategy predicateStrategy1 = new PredicateByException(null);
         final CircuitBreakerMoat breakerMoat1 = new CircuitBreakerMoat(moatConfig1,
-                CircuitBreakerConfig.builder()
-                        .ringBufferSizeInClosedState(ringBufferSizeInClosedOpen)
-                        .failureRateThreshold(failureRateThreshold).build(),
-                null, predicateStrategy1);
+                config, null, predicateStrategy1,
+                Collections.singletonList(new MoatEventProcessor() {
+                    @Override
+                    public void process(String name, MoatEvent event) {
+
+                    }
+                }), null);
 
         final Context ctx = mock(Context.class);
 
@@ -111,8 +115,18 @@ class CircuitBreakerMoatTest {
         }
 
         assertDoesNotThrow(() -> breakerMoat0.enter(ctx));
-        assertThrows(CircuitBreakerNotPermittedException.class,
-                () -> breakerMoat1.enter(ctx));
+        try {
+            breakerMoat1.enter(ctx);
+            fail("CircuitBreakerNotPermittedException should be throw!");
+        } catch (CircuitBreakerNotPermittedException e) {
+            then(e.getMetrics().failureRateThreshold()).isEqualTo(100.0f);
+            then(e.getMetrics().numberOfBufferedCalls()).isEqualTo(ringBufferSizeInClosedOpen);
+            then(e.getMetrics().numberOfFailedCalls()).isEqualTo(ringBufferSizeInClosedOpen);
+            then(e.getMetrics().numberOfNotPermittedCalls()).isEqualTo(1);
+            then(e.getMetrics().maxNumberOfBufferedCalls()).isEqualTo(ringBufferSizeInClosedOpen);
+            then(e.getMetrics().numberOfSuccessfulCalls()).isEqualTo(0);
+            then(e.getMetrics().state()).isEqualTo(CircuitBreaker.State.OPEN);
+        }
     }
 
     @Test
