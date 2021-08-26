@@ -62,6 +62,7 @@ public class JaxRsAopTest {
         assertThrows(RateLimitOverflowException.class, service::testPath);
     }
 
+    //RateLimit is configured through RateLimitConfigSourcesFactory
     public static class HelloService {
         @Path("aaa")
         public String testPath() {

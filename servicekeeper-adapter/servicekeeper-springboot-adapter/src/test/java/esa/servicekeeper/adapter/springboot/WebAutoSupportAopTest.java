@@ -83,9 +83,7 @@ class WebAutoSupportAopTest {
         assertThrows(RateLimitOverflowException.class, service::testPatch);
     }
 
-    /**
-     * RateLimit is configured through {@link RateLimitConfigSourcesFactory}
-     */
+    //RateLimit is configured through RateLimitConfigSourcesFactory
     public static class HelloService {
 
         @RequestMapping
