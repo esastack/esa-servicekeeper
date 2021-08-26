@@ -26,7 +26,8 @@ public class ServiceKeeperProxyFactoryTest {
     //RateLimit is configured through RateLimitConfigSourcesFactory
     @Test
     void testCreateProxyNoInterface() {
-        HelloServiceNoInterface proxyNoInterface = ServiceKeeperProxyFactory.createProxyNoInterface(new HelloServiceNoInterface());
+        HelloServiceNoInterface proxyNoInterface =
+                ServiceKeeperProxyFactory.createProxyNoInterface(new HelloServiceNoInterface());
 
         then(proxyNoInterface.hello()).isEqualTo(HelloServiceNoInterface.HELLO);
         assertThrows(RateLimitOverflowException.class, proxyNoInterface::hello);
@@ -35,7 +36,8 @@ public class ServiceKeeperProxyFactoryTest {
     //RateLimit is configured through RateLimitConfigSourcesFactory
     @Test
     void testCreateProxyHasInterface() {
-        HelloService proxyHasInterface = ServiceKeeperProxyFactory.createProxyHasInterface(new HelloServiceHasInterface());
+        HelloService proxyHasInterface =
+                ServiceKeeperProxyFactory.createProxyHasInterface(new HelloServiceHasInterface());
 
         then(proxyHasInterface.hello()).isEqualTo(HelloServiceNoInterface.HELLO);
         assertThrows(RateLimitOverflowException.class, proxyHasInterface::hello);

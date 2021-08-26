@@ -41,7 +41,8 @@ public class ServiceKeeperAsyncInvokerTest {
         then(handle.isAllowed()).isFalse();
         then(handle.getNotAllowedCause()).isInstanceOf(RateLimitOverflowException.class);
         RequestHandle finalHandle = handle;
-        assertThrows(RateLimitOverflowException.class, () -> ServiceKeeperAsyncInvoker.handleWhenNotAllowed(finalHandle));
+        assertThrows(RateLimitOverflowException.class,
+                () -> ServiceKeeperAsyncInvoker.handleWhenNotAllowed(finalHandle));
     }
 
     //RateLimit is configured through RateLimitConfigSourcesFactory
@@ -56,7 +57,8 @@ public class ServiceKeeperAsyncInvokerTest {
         then(handle.isAllowed()).isFalse();
         then(handle.getNotAllowedCause()).isInstanceOf(RateLimitOverflowException.class);
         RequestHandle finalHandle = handle;
-        assertThrows(RateLimitOverflowException.class, () -> ServiceKeeperAsyncInvoker.handleWhenNotAllowed(finalHandle));
+        assertThrows(RateLimitOverflowException.class,
+                () -> ServiceKeeperAsyncInvoker.handleWhenNotAllowed(finalHandle));
     }
 
     //RateLimit is configured through RateLimitConfigSourcesFactory
@@ -71,7 +73,8 @@ public class ServiceKeeperAsyncInvokerTest {
         then(handle.isAllowed()).isFalse();
         then(handle.getNotAllowedCause()).isInstanceOf(RateLimitOverflowException.class);
         RequestHandle finalHandle = handle;
-        assertThrows(RateLimitOverflowException.class, () -> ServiceKeeperAsyncInvoker.handleWhenNotAllowed(finalHandle));
+        assertThrows(RateLimitOverflowException.class,
+                () -> ServiceKeeperAsyncInvoker.handleWhenNotAllowed(finalHandle));
     }
 
     @Test
@@ -89,7 +92,8 @@ public class ServiceKeeperAsyncInvokerTest {
         then(handle.isAllowed()).isFalse();
         then(handle.getNotAllowedCause()).isInstanceOf(RateLimitOverflowException.class);
         RequestHandle finalHandle = handle;
-        assertThrows(RateLimitOverflowException.class, () -> ServiceKeeperAsyncInvoker.handleWhenNotAllowed(finalHandle));
+        assertThrows(RateLimitOverflowException.class,
+                () -> ServiceKeeperAsyncInvoker.handleWhenNotAllowed(finalHandle));
     }
 
     @Test
@@ -107,7 +111,8 @@ public class ServiceKeeperAsyncInvokerTest {
         then(handle.isAllowed()).isFalse();
         then(handle.getNotAllowedCause()).isInstanceOf(RateLimitOverflowException.class);
         RequestHandle finalHandle = handle;
-        assertThrows(RateLimitOverflowException.class, () -> ServiceKeeperAsyncInvoker.handleWhenNotAllowed(finalHandle));
+        assertThrows(RateLimitOverflowException.class,
+                () -> ServiceKeeperAsyncInvoker.handleWhenNotAllowed(finalHandle));
     }
 
 }
