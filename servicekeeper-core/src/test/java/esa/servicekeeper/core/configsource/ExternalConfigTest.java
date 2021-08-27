@@ -161,4 +161,38 @@ class ExternalConfigTest {
         then(config.isAllEmpty()).isTrue();
     }
 
+    @Test
+    void testToString() {
+        final ExternalConfig config = new ExternalConfig();
+        config.setAlsoApplyFallbackToBizException(true);
+        then(config.toString()).isEqualTo("ExternalConfig{alsoApplyFallbackToBizException=true, null}");
+        config.setFallbackExceptionClass(RuntimeException.class);
+        then(config.toString()).isEqualTo(
+                "ExternalConfig{fallbackExceptionClass=class java.lang.RuntimeException, " +
+                        "alsoApplyFallbackToBizException=true, null}");
+        config.setFallbackValue("aaa");
+        then(config.toString()).isEqualTo("ExternalConfig{fallbackValue=aaa, " +
+                "fallbackExceptionClass=class java.lang.RuntimeException, " +
+                "alsoApplyFallbackToBizException=true, null}");
+        config.setFallbackClass(ExternalConfigTest.class);
+        then(config.toString()).isEqualTo("ExternalConfig{" +
+                "fallbackClass=class esa.servicekeeper.core.configsource.ExternalConfigTest, " +
+                "fallbackValue=aaa, fallbackExceptionClass=class java.lang.RuntimeException, " +
+                "alsoApplyFallbackToBizException=true, null}");
+        config.setFallbackMethodName("bbb");
+        then(config.toString()).isEqualTo("ExternalConfig{fallbackMethodName=bbb, " +
+                "fallbackClass=class esa.servicekeeper.core.configsource.ExternalConfigTest, " +
+                "fallbackValue=aaa, " +
+                "fallbackExceptionClass=class java.lang.RuntimeException, " +
+                "alsoApplyFallbackToBizException=true, null}");
+        config.setPredicateStrategy(PredicateByException.class);
+        then(config.toString()).isEqualTo("ExternalConfig{" +
+                "predicateStrategy=" +
+                "class esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByException, " +
+                "fallbackMethodName=bbb, " +
+                "fallbackClass=class esa.servicekeeper.core.configsource.ExternalConfigTest, " +
+                "fallbackValue=aaa, fallbackExceptionClass=class java.lang.RuntimeException, " +
+                "alsoApplyFallbackToBizException=true, null}");
+    }
+
 }
