@@ -138,7 +138,7 @@ io.esastack.servicekeeper.TestController.list.maxSpendTimeMs=100
 
 #判定方法是否执行成功的策略
 io.esastack.servicekeeper.TestController.list.predicateStrategy=\
-  PredicateByExceptionAndSpendTime
+  io.esastack.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByExceptionAndSpendTime
 ```
 
 其中，`io.esastack.servicekeeper.TestController.list`为原始方法的名称（类全限定名+方法名）。

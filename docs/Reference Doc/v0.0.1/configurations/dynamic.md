@@ -42,7 +42,7 @@ com.example.service.DemoClass.demoMethod.multiplier=1.1
 #参数级动态配置规则：方法别名.参数别名.配置名称=配置值列表
 com.example.service.DemoClass.demoMethod.arg0.limitForPeriod={LiSi:20,ZhangSan:50}
 ```
-使用时，通过`Alias`注解设置方法和参数的别名，如果不设置或设置的值为空，则使用默认值。方法别名默值为方法的全限定名，参数别名默认值为：arg0，arg1，arg2...，上述配置文件为方法和参数均为未配置别名时的配置格式。
+使用时，通过`io.esastack.servicekeeper.core.annotation.Alias`注解设置方法和参数的别名，如果不设置或设置的值为空，则使用默认值。方法别名默值为方法的全限定名，参数别名默认值为：arg0，arg1，arg2...，上述配置文件为方法和参数均为未配置别名时的配置格式。
 使用`@Alias`自定义方法和参数别名的示例如下：
 ```java
 @ConcurrentLimiter(threshold = 500)

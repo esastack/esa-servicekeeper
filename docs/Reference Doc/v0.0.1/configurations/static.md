@@ -13,7 +13,7 @@ sort: 2
 |  ringBufferSizeInHalfOpenState  |  int  |      熔断器关闭状态下ring buffer大小     |   10 |10   |   |
 |  waitDurationInOpenState        |  String  |      熔断器从打开切换到半开的时长     |  60s |10ms,10s,10m,10h...|  | 
 |  ignoreExceptions    |  Class<? extends Throwable  |      可以忽略的异常      |  Class[0] |     [java.lang.RuntimeException, java.lang.IllegalArgumentException]            |           |
-|  predicateStrategy   |  Class<? extends PredicateStrategy  |       熔断策略     |   PredicateByException |PredicateByExceptionAndSpendTime |    |  
+|  predicateStrategy   |  Class<? extends PredicateStrategy  |       熔断策略     |   io.esastack.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByException |io.esastack.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByExceptionAndSpendTime |    |  
 |  fallbackMethod      |  String     |       降级方法名       |  ""  |   list    |    |  
 |  fallbackClass       |  Class<?>   |        降级类全限定名    |   null  |   CustomizeFallback.class  |  | 
 |  fallbackValue       |  String     |      指定的降级值        |   null  |   Fallback    |        |
@@ -36,7 +36,7 @@ io.esastack.servicekeeper.TestController.list.ignoreExceptions=[java.lang.Runtim
 
 io.esastack.servicekeeper.TestController.list.maxSpendTimeMs=100
 io.esastack.servicekeeper.TestController.list.predicateStrategy=\
-  PredicateByExceptionAndSpendTime
+  io.esastack.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByExceptionAndSpendTime
 io.esastack.servicekeeper.TestController.list.fallbackClass=\
   io.esastack.servicekeeper.keepered.test.controller.fallback.CustomizeFallback
 
