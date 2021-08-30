@@ -35,10 +35,10 @@ public Employee list() {
 
 ```properties
 #并发数限制为10
-esa.servicekeeper.demo.ConcurrentLimitDemo.demoMethod.maxConcurrentLimit=10
+io.esastack.servicekeeper.demo.ConcurrentLimitDemo.demoMethod.maxConcurrentLimit=10
 ```
 
-其中，`esa.servicekeeper.demo.ConcurrentLimitDemo.demoMethod`原始方法的名称（类全限定名+方法名）。
+其中，`io.esastack.servicekeeper.demo.ConcurrentLimitDemo.demoMethod`原始方法的名称（类全限定名+方法名）。
 ```note
 通过配置文件配置并发数限制时 `maxConcurrentLimit`为必需配置。
 ```

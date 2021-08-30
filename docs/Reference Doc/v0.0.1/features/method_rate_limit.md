@@ -38,13 +38,13 @@ public Employee list() {
 如前文所述，只要原始方法可以被`ServiceKeeper`拦截到，你可以不使用`@RateLimiter`注解，直接在配置文件中配限流规则即可完成对原始方法的QPS限制。示例如下：
 ```properties
 #周期内QPS阈值为500
-esa.servicekeeper.demo.QpsLimitDemo.demoMethod.limitForPeriod=500
+io.esastack.servicekeeper.demo.QpsLimitDemo.demoMethod.limitForPeriod=500
 
 #限流周期每10分钟更新一次，单位为：ms(毫秒)、s(秒)、m(分钟)等
-esa.servicekeeper.demo.QpsLimitDemo.demoMethod.limitRefreshPeriod=10m
+io.esastack.servicekeeper.demo.QpsLimitDemo.demoMethod.limitRefreshPeriod=10m
 ```
 
-其中，`esa.servicekeeper.demo.QpsLimitDemo.demoMethod`为原始方法的名称（类全限定名+方法名）。
+其中，`io.esastack.servicekeeper.demo.QpsLimitDemo.demoMethod`为原始方法的名称（类全限定名+方法名）。
 ```note
 通过配置文件配置限流规则时周期内流量阈值 `limitForPeriod`为必需配置，限流周期`limitRefreshPeriod`如不配置默认为1s。
 ```

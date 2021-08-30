@@ -13,7 +13,7 @@ sort: 2
 |  ringBufferSizeInHalfOpenState  |  int  |      熔断器关闭状态下ring buffer大小     |   10 |10   |   |
 |  waitDurationInOpenState        |  String  |      熔断器从打开切换到半开的时长     |  60s |10ms,10s,10m,10h...|  | 
 |  ignoreExceptions    |  Class<? extends Throwable  |      可以忽略的异常      |  Class[0] |     [java.lang.RuntimeException, java.lang.IllegalArgumentException]            |           |
-|  predicateStrategy   |  Class<? extends PredicateStrategy  |       熔断策略     |   esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByException |esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByExceptionAndSpendTime |    |  
+|  predicateStrategy   |  Class<? extends PredicateStrategy  |       熔断策略     |   PredicateByException |PredicateByExceptionAndSpendTime |    |  
 |  fallbackMethod      |  String     |       降级方法名       |  ""  |   list    |    |  
 |  fallbackClass       |  Class<?>   |        降级类全限定名    |   null  |   CustomizeFallback.class  |  | 
 |  fallbackValue       |  String     |      指定的降级值        |   null  |   Fallback    |        |
@@ -22,26 +22,26 @@ sort: 2
 
 完整的配置文件示例如下：
 ```properties
-esa.servicekeeper.TestController.list.limitForPeriod=10000
-esa.servicekeeper.TestController.list.maxConcurrentLimit=1000
-esa.servicekeeper.TestController.list.limitRefreshPeriod=60s
+io.esastack.servicekeeper.TestController.list.limitForPeriod=10000
+io.esastack.servicekeeper.TestController.list.maxConcurrentLimit=1000
+io.esastack.servicekeeper.TestController.list.limitRefreshPeriod=60s
 
-esa.servicekeeper.TestController.list.maxTimeoutDuration=0s
-esa.servicekeeper.TestController.list.failureRateThreshold=1
-esa.servicekeeper.TestController.list.ringBufferSizeInClosedState=2
+io.esastack.servicekeeper.TestController.list.maxTimeoutDuration=0s
+io.esastack.servicekeeper.TestController.list.failureRateThreshold=1
+io.esastack.servicekeeper.TestController.list.ringBufferSizeInClosedState=2
 
-esa.servicekeeper.TestController.list.ringBufferSizeInHalfOpenState=2
-esa.servicekeeper.TestController.list.waitDurationInOpenState=59s
-esa.servicekeeper.TestController.list.ignoreExceptions=[java.lang.RuntimeException, java.lang.IllegalArgumentException]
+io.esastack.servicekeeper.TestController.list.ringBufferSizeInHalfOpenState=2
+io.esastack.servicekeeper.TestController.list.waitDurationInOpenState=59s
+io.esastack.servicekeeper.TestController.list.ignoreExceptions=[java.lang.RuntimeException, java.lang.IllegalArgumentException]
 
-esa.servicekeeper.TestController.list.maxSpendTimeMs=100
-esa.servicekeeper.TestController.list.predicateStrategy=\
-  esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByExceptionAndSpendTime
-esa.servicekeeper.TestController.list.fallbackClass=\
-  esa.servicekeeper.keepered.test.controller.fallback.CustomizeFallback
+io.esastack.servicekeeper.TestController.list.maxSpendTimeMs=100
+io.esastack.servicekeeper.TestController.list.predicateStrategy=\
+  PredicateByExceptionAndSpendTime
+io.esastack.servicekeeper.TestController.list.fallbackClass=\
+  io.esastack.servicekeeper.keepered.test.controller.fallback.CustomizeFallback
 
-esa.servicekeeper.TestController.list.fallbackMethod=fallback
+io.esastack.servicekeeper.TestController.list.fallbackMethod=fallback
 
-esa.servicekeeper.TestController.list.fallbackValue=Hello ServiceKeeper!
-esa.servicekeeper.TestController.list.fallbackExceptionClass=java.lang.RuntimeException
+io.esastack.servicekeeper.TestController.list.fallbackValue=Hello ServiceKeeper!
+io.esastack.servicekeeper.TestController.list.fallbackExceptionClass=java.lang.RuntimeException
 ```

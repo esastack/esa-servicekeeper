@@ -11,7 +11,7 @@ sort: 5
 ### 配置文件配置
 在配置文件中加入如下配置：
 ```properties
-esa.servicekeeper.TestController.list.forcedOpen=true
+io.esastack.servicekeeper.TestController.list.forcedOpen=true
 ```
 ```note
 1. 当该值为true或未配置时，表示正常开启方法重试

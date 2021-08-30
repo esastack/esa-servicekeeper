@@ -52,7 +52,7 @@
                             <classifier>cabin-classifier</classifier>
                             <exported>
                                 <packages>
-                                    <package>esa.servicekeeper.ext.listenablefuture</package>
+                                    <package>io.esastack.servicekeeper.ext.listenablefuture</package>
                                 </packages>
                             </exported>
                             <excludes>

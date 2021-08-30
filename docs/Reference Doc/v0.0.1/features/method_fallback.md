@@ -105,17 +105,17 @@ public String list() {
 `@Fallback`注解中的所有参数均支持通过配置文件进行配置，但**暂不支持实时生效**，也就是说如果你需要通过此种方式进行方法的降级配置，必须在程序启动前在配置文件中完成相应的配置。示例如下：
 ```properties
 #降级方法所在类名
-esa.servicekeeper.TestController.list.fallbackClass=\
-  esa.servicekeeper.keepered.test.controller.fallback.CustomizeFallback
+io.esastack.servicekeeper.TestController.list.fallbackClass=\
+  io.esastack.servicekeeper.keepered.test.controller.fallback.CustomizeFallback
 
 #降级方法名称
-esa.servicekeeper.TestController.list.fallbackMethod=fallback
+io.esastack.servicekeeper.TestController.list.fallbackMethod=fallback
 
 #降级到指定值
-esa.servicekeeper.TestController.list.fallbackValue=Hello ServiceKeeper!
+io.esastack.servicekeeper.TestController.list.fallbackValue=Hello ServiceKeeper!
 
 #降级到指定异常
-esa.servicekeeper.TestController.list.fallbackExceptionClass=java.lang.RuntimeException
+io.esastack.servicekeeper.TestController.list.fallbackExceptionClass=java.lang.RuntimeException
 ```
 ```note
 如前文所述，不同策略的优先级为：降级到指定方法 > 降级到指定值 > 降级到指定异常

@@ -40,5 +40,5 @@ Spring Boot应用默认开启了拦截所有带`@RequestMapping`、`@GetMapping`
 ```
 
 ```properties
-esa.servicekeeper.adapter.aop.websupport.enable=false
+io.esastack.servicekeeper.adapter.aop.websupport.enable=false
 ```

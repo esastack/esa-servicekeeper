@@ -32,18 +32,18 @@ sort: 1
 @Component
 public class CustomizeServiceKeeperAop extends AbstractServiceKeeperAop {
 
-    @Pointcut("execution(public * esa.servicekeeper.test.service.*.*(..))")
+    @Pointcut("execution(public * io.esastack.servicekeeper.test.service.*.*(..))")
     private void serviceKeeper() {
     }
 
-    @Around("esa.servicekeeper.test.CustomizeServiceKeeperAop.serviceKeeper() ")
+    @Around("io.esastack.servicekeeper.test.CustomizeServiceKeeperAop.serviceKeeper() ")
     public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
         return super.doInvoke(pjp);
     }
 
 }
 ```
-如上所示AOP表示，代理`esa.servicekeeper.test.service`包下的所有方法并织入服务治理的功能。使用过程中需要注意地是，`ServiceKeeper`已经完成了对带有指定注解方法的代理功能，*自定义AOP时需要避免重复代理的情况*，否则一个方法执行可能会多次执行服务治理逻辑。
+如上所示AOP表示，代理`io.esastack.servicekeeper.test.service`包下的所有方法并织入服务治理的功能。使用过程中需要注意地是，`ServiceKeeper`已经完成了对带有指定注解方法的代理功能，*自定义AOP时需要避免重复代理的情况*，否则一个方法执行可能会多次执行服务治理逻辑。
 
 #### 自定义AOP顺序
 示例如下：

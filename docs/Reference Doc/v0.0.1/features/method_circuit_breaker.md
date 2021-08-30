@@ -119,29 +119,29 @@ public class CustomizePredicateStrategy implements PredicateStrategy {
 示例如下：
 ```properties
 #方法熔断的失败率阈值百分比，默认为50.0f
-esa.servicekeeper.TestController.failureRateThreshold=80.0f
+io.esastack.servicekeeper.TestController.failureRateThreshold=80.0f
 
 #熔断器关闭状态下ringBuffer大小，默认为100
-esa.servicekeeper.TestController.list.ringBufferSizeInClosedState=2
+io.esastack.servicekeeper.TestController.list.ringBufferSizeInClosedState=2
 
 #熔断器半开状态下ringBuffer大小，默认为10
-esa.servicekeeper.TestController.list.ringBufferSizeInHalfOpenState=2
+io.esastack.servicekeeper.TestController.list.ringBufferSizeInHalfOpenState=2
 
 #熔断器从打开切换到半开状态的等待时间，默认为60s[单位为：毫秒(ms)、秒(m)、分钟(min)]
-esa.servicekeeper.TestController.list.waitDurationInOpenState=59s
+io.esastack.servicekeeper.TestController.list.waitDurationInOpenState=59s
 
 #忽略异常（抛出此类异常及其子类异常时仍认定原始方法执行正确）
-esa.servicekeeper.TestController.list.ignoreExceptions=[java.lang.RuntimeException, java.lang.IllegalArgumentException]
+io.esastack.servicekeeper.TestController.list.ignoreExceptions=[java.lang.RuntimeException, java.lang.IllegalArgumentException]
 
 #方法最大耗时
-esa.servicekeeper.TestController.list.maxSpendTimeMs=100
+io.esastack.servicekeeper.TestController.list.maxSpendTimeMs=100
 
 #判定方法是否执行成功的策略
-esa.servicekeeper.TestController.list.predicateStrategy=\
-  esa.servicekeeper.core.moats.circuitbreaker.predicate.PredicateByExceptionAndSpendTime
+io.esastack.servicekeeper.TestController.list.predicateStrategy=\
+  PredicateByExceptionAndSpendTime
 ```
 
-其中，`esa.servicekeeper.TestController.list`为原始方法的名称（类全限定名+方法名）。
+其中，`io.esastack.servicekeeper.TestController.list`为原始方法的名称（类全限定名+方法名）。
 ```note
 通过配置文件配置方法熔断阈值 `failureRateThreshold`为必需配置，其余参数如不配置将使用默认值。
 ```

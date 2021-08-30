@@ -43,7 +43,7 @@
                             <classifier>cabin-classifier</classifier>
                             <exported>
                                 <packages>
-                                    <package>esa.servicekeeper.configsource</package>
+                                    <package>io.esastack.servicekeeper.configsource</package>
                                 </packages>
                                 <!-- configure exported resource -->
                                 <resources>

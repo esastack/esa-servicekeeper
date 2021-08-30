@@ -76,7 +76,7 @@
                             <classifier>cabin-classifier</classifier>
                             <exported>
                                 <packages>
-                                    <package>esa.servicekeeper.adapter.spring</package>
+                                    <package>io.esastack.servicekeeper.adapter.spring</package>
                                 </packages>
                             </exported>
                             <imported>

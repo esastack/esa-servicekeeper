@@ -1,7 +1,7 @@
 {
   "properties": [
     {
-      "name": "esa.servicekeeper.adapter.aop.websupport.enable",
+      "name": "io.esastack.servicekeeper.adapter.aop.websupport.enable",
       "type": "java.lang.Boolean",
       "defaultValue": "true",
       "description": "Whether to add servicekeeper for controller method."

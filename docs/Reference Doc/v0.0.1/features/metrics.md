@@ -23,7 +23,7 @@ sort: 14
 返回结果示例：
 ```json
 {
-    "esa.servicekeeper.keepered.test.controller.composite.CompositeTestController.list": {
+    "io.esastack.servicekeeper.keepered.test.controller.composite.CompositeTestController.list": {
         "concurrentLimitMetrics": {
             "maxConcurrentLimit": 1000,
             "currentCallCounter": 0
@@ -55,7 +55,7 @@ sort: 14
 返回结果示例：
 ```json
 {
-    "esa.servicekeeper.keepered.test.controller.composite.CompositeTestController.list": {
+    "io.esastack.servicekeeper.keepered.test.controller.composite.CompositeTestController.list": {
         "circuitBreakerConfig": null,
         "concurrentLimitConfig": {
             "threshold": 1000
@@ -67,7 +67,7 @@ sort: 14
         },
         "fallbackConfig": {
             "methodName": "fallback",
-            "targetClass": "esa.servicekeeper.keepered.test.controller.fallback.CustomizeFallback",
+            "targetClass": "io.esastack.servicekeeper.keepered.test.controller.fallback.CustomizeFallback",
             "specifiedValue": "Hello ServiceKeeper!",
             "specifiedExceptionClass": "java.lang.RuntimeException",
             "scope": "ALL"

@@ -37,5 +37,5 @@ Step 1: 引入maven依赖
 ```
 
 ```properties
-esa.servicekeeper.adapter.aop.restlight.support.enable=false
+io.esastack.servicekeeper.adapter.aop.restlight.support.enable=false
 ```
