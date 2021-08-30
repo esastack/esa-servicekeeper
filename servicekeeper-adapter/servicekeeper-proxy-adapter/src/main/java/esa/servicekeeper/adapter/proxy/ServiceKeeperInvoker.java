@@ -22,7 +22,6 @@ import esa.servicekeeper.core.annotation.ConcurrentLimiter;
 import esa.servicekeeper.core.annotation.RateLimiter;
 import esa.servicekeeper.core.annotation.Retryable;
 import esa.servicekeeper.core.asynchandle.AsyncResultHandler;
-import esa.servicekeeper.core.asynchandle.RequestHandle;
 import esa.servicekeeper.core.common.OriginalInvocation;
 import esa.servicekeeper.core.entry.CompositeServiceKeeperConfig;
 
@@ -173,16 +172,5 @@ public final class ServiceKeeperInvoker {
      */
     public static void init(List<AsyncResultHandler<?>> asyncResultHandlers) {
         Bootstrap.init(BootstrapContext.singleton(asyncResultHandlers));
-    }
-
-    /**
-     * Handle the requestHandle when not allowed.
-     *
-     * @param requestHandle request handle
-     * @return fallback object
-     * @throws Throwable throwable
-     */
-    public static Object handleWhenNotAllowed(final RequestHandle requestHandle) throws Throwable {
-        return requestHandle.fallback(requestHandle.getNotAllowedCause());
     }
 }

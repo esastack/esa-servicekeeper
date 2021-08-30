@@ -17,8 +17,6 @@ package esa.servicekeeper.adapter.springboot;
 
 import esa.servicekeeper.adapter.spring.aop.DefaultServiceKeeperAop;
 import esa.servicekeeper.adapter.spring.aop.WebAutoSupportAop;
-import esa.servicekeeper.core.annotation.Fallback;
-import esa.servicekeeper.core.annotation.RateLimiter;
 import esa.servicekeeper.core.exception.RateLimitOverflowException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -28,14 +26,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@Import({ServiceKeeperConfigurator.class})
-class DefaultServiceKeeperAopTest {
+@Import({WebAutoSupportConfigurator.class})
+class WebAutoSupportAopTest {
 
     private static AnnotationConfigApplicationContext ctx;
 
@@ -48,17 +52,18 @@ class DefaultServiceKeeperAopTest {
     static void setUp() {
         System.setProperty("servicekeeper.configurators.disable", "true");
         ctx = new AnnotationConfigApplicationContext();
-        ctx.register(DefaultServiceKeeperAopTest.class);
+        ctx.register(WebAutoSupportAopTest.class);
 
         ctx.refresh();
     }
 
     @Test
     void test() {
-        then(ctx.getBean(DefaultServiceKeeperAop.class)).isNotNull();
-        assertThrows(NoSuchBeanDefinitionException.class, () -> ctx.getBean(WebAutoSupportAop.class));
+        then(ctx.getBean(WebAutoSupportAop.class)).isNotNull();
+        assertThrows(NoSuchBeanDefinitionException.class, () -> ctx.getBean(DefaultServiceKeeperAop.class));
 
         final HelloService service = ctx.getBean(HelloService.class);
+
         then(service.testRequest()).isEqualTo("Request");
         assertThrows(RateLimitOverflowException.class, service::testRequest);
 
@@ -76,57 +81,39 @@ class DefaultServiceKeeperAopTest {
 
         then(service.testPatch()).isEqualTo("Patch");
         assertThrows(RateLimitOverflowException.class, service::testPatch);
-
-        assertThrows(RuntimeException.class, service::testFallbackWithoutApplyToBizException);
-        then(service.testFallbackWithoutApplyToBizException()).isEqualTo("fallback value");
-
-        then(service.testFallbackWithApplyToBizException()).isEqualTo("fallback value");
-        then(service.testFallbackWithApplyToBizException()).isEqualTo("fallback value");
     }
 
+    //RateLimit is configured through RateLimitConfigSourcesFactory
     public static class HelloService {
 
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @RequestMapping
         public String testRequest() {
             return "Request";
         }
 
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @GetMapping
         public String testGet() {
             return "Get";
         }
 
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @PostMapping
         public String testPost() {
             return "Post";
         }
 
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @PutMapping
         public String testPut() {
             return "Put";
         }
 
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @DeleteMapping
         public String testDelete() {
             return "Delete";
         }
 
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
+        @PatchMapping
         public String testPatch() {
             return "Patch";
         }
-
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
-        @Fallback(fallbackValue = "fallback value")
-        public String testFallbackWithoutApplyToBizException() {
-            throw new RuntimeException("error occur");
-        }
-
-        @RateLimiter(limitForPeriod = 1, limitRefreshPeriod = "10s")
-        @Fallback(fallbackValue = "fallback value", alsoApplyToBizException = true)
-        public String testFallbackWithApplyToBizException() {
-            throw new RuntimeException("error occur");
-        }
-
     }
 }

@@ -122,7 +122,7 @@
         <junit.version>5.7.1</junit.version>
         <assertj.version>3.19.0</assertj.version>
         <mockito.version>3.6.0</mockito.version>
-        <cabin.version>0.1.0-SNAPSHOT</cabin.version>
+        <cabin.version>0.1.0</cabin.version>
         <jacoco.version>0.8.6</jacoco.version>
         <guava.version>29.0-jre</guava.version>
     </properties>

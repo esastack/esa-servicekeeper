@@ -28,7 +28,10 @@ import esa.servicekeeper.core.executionchain.AsyncContext;
 import esa.servicekeeper.core.executionchain.AsyncExecutionChain;
 import esa.servicekeeper.core.executionchain.AsyncExecutionChainImpl;
 import esa.servicekeeper.core.executionchain.Executable;
+import esa.servicekeeper.core.fallback.FallbackHandler;
+import esa.servicekeeper.core.fallback.FallbackMethod;
 import esa.servicekeeper.core.fallback.FallbackToException;
+import esa.servicekeeper.core.fallback.FallbackToFunction;
 import esa.servicekeeper.core.fallback.FallbackToValue;
 import esa.servicekeeper.core.moats.Moat;
 import esa.servicekeeper.core.moats.circuitbreaker.CircuitBreakerMoat;
@@ -38,14 +41,20 @@ import esa.servicekeeper.core.moats.ratelimit.RateLimitMoat;
 import esa.servicekeeper.core.utils.RandomUtils;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class AsyncExecutionChainTest {
@@ -157,7 +166,9 @@ class AsyncExecutionChainTest {
         final int limitForPeriod = RandomUtils.randomInt(5);
         List<Moat<?>> moats = Collections.singletonList(new RateLimitMoat(
                 new MoatConfig(ResourceId.from(name)),
-                RateLimitConfig.builder().limitForPeriod(limitForPeriod).build(), null,
+                RateLimitConfig.builder().limitForPeriod(limitForPeriod)
+                        .limitRefreshPeriod(Duration.ofSeconds(10L)).build(),
+                null,
                 Collections.emptyList()));
         AsyncExecutionChain chain = new AsyncExecutionChainImpl(moats,
                 new FallbackToException(fallbackException, false));
@@ -283,6 +294,37 @@ class AsyncExecutionChainTest {
             }
         }
         then(circuitBreakerNotPermittedCount).isLessThanOrEqualTo(ringBufferSizeInClosedState);
+    }
+
+    @Test
+    void testFallbackApplyToBizException() throws Throwable {
+        Executable<CompletionStage<String>> executable = () -> {
+            throw new RuntimeException();
+        };
+        final String name = "testFallbackApplyToBizException";
+        List<Moat<?>> moats = new ArrayList<>(1);
+
+        //fallbackToException
+        final IllegalStateException fallbackEx = new IllegalStateException("fallback");
+        FallbackHandler<?> fallbackToEx = new FallbackToException(fallbackEx, true);
+        final AsyncExecutionChain fallbackToExChain = new AsyncExecutionChainImpl(moats, fallbackToEx);
+        assertThrows(IllegalStateException.class, () -> fallbackToExChain.asyncExecute(new AsyncContext(name),
+                null, executable, new CompletableStageHandler<>()).toCompletableFuture().get());
+
+        final Set<FallbackMethod> fallbackMethods = new HashSet<>(1);
+        fallbackMethods.add(new FallbackMethod(AsyncExecutionChainTest.class.getDeclaredMethod("fallbackMethod")));
+
+        //fallbackToFunction
+        FallbackHandler<String> fallbackToFunc = new FallbackToFunction<>(
+                new AsyncExecutionChainTest(), fallbackMethods, true);
+        final AsyncExecutionChain fallbackToFuncChain = new AsyncExecutionChainImpl(moats, fallbackToFunc);
+        then(fallbackToFuncChain.asyncExecute(new AsyncContext(name),
+                null, executable, new CompletableStageHandler<>()).toCompletableFuture().get())
+                .isEqualTo("fallbackMethod");
+    }
+
+    private CompletionStage<String> fallbackMethod() {
+        return CompletableFuture.completedFuture("fallbackMethod");
     }
 
     private MoatConfig getConfig(String name) {
