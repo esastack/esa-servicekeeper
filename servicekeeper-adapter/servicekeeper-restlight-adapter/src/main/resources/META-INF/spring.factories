@@ -1,5 +1,5 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-esa.servicekeeper.adapter.restlight.ServiceKeeperConfigurator,\
-esa.servicekeeper.adapter.restlight.RestlightAutoSupportConfigurator,\
-esa.servicekeeper.adapter.restlight.ListenableFutureConfigurator
+io.esastack.servicekeeper.adapter.restlight.ServiceKeeperConfigurator,\
+io.esastack.servicekeeper.adapter.restlight.RestlightAutoSupportConfigurator,\
+io.esastack.servicekeeper.adapter.restlight.ListenableFutureConfigurator

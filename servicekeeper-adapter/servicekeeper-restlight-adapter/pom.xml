@@ -103,15 +103,16 @@
                             <classifier>cabin-classifier</classifier>
                             <exported>
                                 <packages>
-                                    <package>esa.servicekeeper.adapter.restlight</package>
+                                    <package>io.esastack.servicekeeper.adapter.restlight</package>
                                 </packages>
                                 <!-- configure exported resource -->
                                 <resources>
                                     <resource>META-INF/spring.factories</resource>
-                                    <resource>esa/servicekeeper/adapter/restlight/ServiceKeeperConfigurator.class
+                                    <resource>
+                                        io/esastack/servicekeeper/adapter/restlight/ServiceKeeperConfigurator.class
                                     </resource>
                                     <resource>
-                                        esa/servicekeeper/adapter/restlight/RestlightAutoSupportConfigurator.class
+                                        io/esastack/servicekeeper/adapter/restlight/RestlightAutoSupportConfigurator.class
                                     </resource>
                                 </resources>
                             </exported>

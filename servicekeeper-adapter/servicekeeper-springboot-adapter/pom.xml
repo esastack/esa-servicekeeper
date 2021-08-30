@@ -82,7 +82,7 @@
                             <classifier>cabin-classifier</classifier>
                             <exported>
                                 <packages>
-                                    <package>esa.servicekeeper.adapter.springboot</package>
+                                    <package>io.esastack.servicekeeper.adapter.springboot</package>
                                 </packages>
                                 <!-- configure exported resource -->
                                 <resources>

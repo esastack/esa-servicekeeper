@@ -1,5 +1,5 @@
 
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-esa.servicekeeper.adapter.springboot.ServiceKeeperConfigurator,\
-esa.servicekeeper.adapter.springboot.WebAutoSupportConfigurator
+io.esastack.servicekeeper.adapter.springboot.ServiceKeeperConfigurator,\
+io.esastack.servicekeeper.adapter.springboot.WebAutoSupportConfigurator

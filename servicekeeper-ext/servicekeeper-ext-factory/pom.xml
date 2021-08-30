@@ -59,7 +59,7 @@
                             <classifier>cabin-classifier</classifier>
                             <exported>
                                 <packages>
-                                    <package>esa.servicekeeper.ext.factory.spring</package>
+                                    <package>io.esastack.servicekeeper.ext.factory.spring</package>
                                 </packages>
                                 <!-- configure exported resource -->
                                 <resources>

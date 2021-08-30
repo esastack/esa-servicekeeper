@@ -74,7 +74,7 @@
                                 <relocation>
                                     <pattern>com.github.benmanes.caffeine</pattern>
                                     <shadedPattern>
-                                        esa.servicekeeper.cache.shaded.com.github.benmanes.caffeine
+                                        io.esastack.servicekeeper.cache.shaded.com.github.benmanes.caffeine
                                     </shadedPattern>
                                 </relocation>
                             </relocations>
@@ -99,7 +99,7 @@
                             <classifier>cabin-classifier</classifier>
                             <exported>
                                 <packages>
-                                    <package>esa.servicekeeper.core</package>
+                                    <package>io.esastack.servicekeeper.core</package>
                                 </packages>
                                 <!-- configure exported resource -->
                                 <resources>

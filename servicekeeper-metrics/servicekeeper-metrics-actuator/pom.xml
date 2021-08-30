@@ -65,7 +65,7 @@
                             <classifier>cabin-classifier</classifier>
                             <exported>
                                 <packages>
-                                    <package>esa.servicekeeper.metrics.actuator</package>
+                                    <package>io.esastack.servicekeeper.metrics.actuator</package>
                                 </packages>
                                 <!-- configure exported resource -->
                                 <resources>

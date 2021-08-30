@@ -52,7 +52,7 @@
                             <classifier>cabin-classifier</classifier>
                             <exported>
                                 <packages>
-                                    <package>esa.servicekeeper.adapter.proxy</package>
+                                    <package>io.esastack.servicekeeper.adapter.proxy</package>
                                 </packages>
                                 <!-- configure exported resource -->
                                 <resources>

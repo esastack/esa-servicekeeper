@@ -51,10 +51,10 @@ public class ServiceKeeperConfiguration {
 在xml文件中配置如下内容：
 
 ```xml
-<context:component-scan base-package="esa.servicekeeper.adapter.spring"/>
+<context:component-scan base-package="io.esastack.servicekeeper.adapter.spring"/>
 
 // Spring Web项目可以根据需要添加WebAutoSupportAop
-<bean class="esa.servicekeeper.adapter.spring.aop.WebAutoSupportAop"/>
+<bean class="io.esastack.servicekeeper.adapter.spring.aop.WebAutoSupportAop"/>
 ```
 
 ```note

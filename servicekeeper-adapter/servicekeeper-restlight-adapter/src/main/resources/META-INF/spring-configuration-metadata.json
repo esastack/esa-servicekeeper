@@ -1,7 +1,7 @@
 {
   "properties": [
     {
-      "name": "esa.servicekeeper.adapter.aop.restlight.support.enable",
+      "name": "io.esastack.servicekeeper.adapter.aop.restlight.support.enable",
       "type": "java.lang.Boolean",
       "defaultValue": "true",
       "description": "Whether to add servicekeeper for restlight controller method."

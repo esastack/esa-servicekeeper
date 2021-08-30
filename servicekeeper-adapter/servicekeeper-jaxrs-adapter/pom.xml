@@ -68,7 +68,7 @@
                             <classifier>cabin-classifier</classifier>
                             <exported>
                                 <packages>
-                                    <package>esa.servicekeeper.adapter.jaxrs</package>
+                                    <package>io.esastack.servicekeeper.adapter.jaxrs</package>
                                 </packages>
                             </exported>
                             <imported>
