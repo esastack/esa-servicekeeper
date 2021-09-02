@@ -46,6 +46,7 @@ class FallbackMethodTest {
         then(method0.canApplyTo(CauseType.CONCURRENT_LIMIT)).isFalse();
         then(method0.canApplyTo(CauseType.SERVICE_KEEPER_NOT_PERMIT)).isFalse();
         then(method0.canApplyTo(CauseType.RETRY)).isFalse();
+        then(method0.canApplyTo(CauseType.BIZ)).isFalse();
 
         final FallbackMethod method1 = new FallbackMethod(Foo.class.getDeclaredMethod("method1",
                 RateLimitOverflowException.class));
@@ -54,6 +55,7 @@ class FallbackMethodTest {
         then(method1.canApplyTo(CauseType.CONCURRENT_LIMIT)).isFalse();
         then(method1.canApplyTo(CauseType.SERVICE_KEEPER_NOT_PERMIT)).isFalse();
         then(method1.canApplyTo(CauseType.RETRY)).isFalse();
+        then(method1.canApplyTo(CauseType.BIZ)).isFalse();
 
         final FallbackMethod method2 = new FallbackMethod(Foo.class.getDeclaredMethod("method2",
                 ConcurrentOverFlowException.class));
@@ -62,6 +64,7 @@ class FallbackMethodTest {
         then(method2.canApplyTo(CauseType.CONCURRENT_LIMIT)).isTrue();
         then(method2.canApplyTo(CauseType.SERVICE_KEEPER_NOT_PERMIT)).isFalse();
         then(method2.canApplyTo(CauseType.RETRY)).isFalse();
+        then(method2.canApplyTo(CauseType.BIZ)).isFalse();
 
         final FallbackMethod method3 = new FallbackMethod(Foo.class.getDeclaredMethod("method3",
                 ServiceKeeperNotPermittedException.class));
@@ -70,6 +73,7 @@ class FallbackMethodTest {
         then(method3.canApplyTo(CauseType.CONCURRENT_LIMIT)).isTrue();
         then(method3.canApplyTo(CauseType.SERVICE_KEEPER_NOT_PERMIT)).isTrue();
         then(method3.canApplyTo(CauseType.RETRY)).isFalse();
+        then(method3.canApplyTo(CauseType.BIZ)).isFalse();
 
         final FallbackMethod method4 = new FallbackMethod(Foo.class.getDeclaredMethod("method4"));
         then(method4.canApplyTo(CauseType.CIRCUIT_BREAKER)).isTrue();
@@ -77,6 +81,7 @@ class FallbackMethodTest {
         then(method4.canApplyTo(CauseType.CONCURRENT_LIMIT)).isTrue();
         then(method4.canApplyTo(CauseType.SERVICE_KEEPER_NOT_PERMIT)).isTrue();
         then(method4.canApplyTo(CauseType.RETRY)).isTrue();
+        then(method4.canApplyTo(CauseType.BIZ)).isTrue();
 
         final FallbackMethod method5 = new FallbackMethod(Foo.class.getDeclaredMethod("method5",
                 ServiceRetryException.class));
@@ -85,6 +90,7 @@ class FallbackMethodTest {
         then(method5.canApplyTo(CauseType.CONCURRENT_LIMIT)).isFalse();
         then(method5.canApplyTo(CauseType.SERVICE_KEEPER_NOT_PERMIT)).isFalse();
         then(method5.canApplyTo(CauseType.RETRY)).isTrue();
+        then(method5.canApplyTo(CauseType.BIZ)).isFalse();
 
         final FallbackMethod method6 = new FallbackMethod(Foo.class.getDeclaredMethod("method6",
                 ServiceKeeperException.class));
@@ -93,6 +99,16 @@ class FallbackMethodTest {
         then(method6.canApplyTo(CauseType.CONCURRENT_LIMIT)).isTrue();
         then(method6.canApplyTo(CauseType.SERVICE_KEEPER_NOT_PERMIT)).isTrue();
         then(method6.canApplyTo(CauseType.RETRY)).isTrue();
+        then(method6.canApplyTo(CauseType.BIZ)).isFalse();
+
+        final FallbackMethod method7 = new FallbackMethod(Foo.class.getDeclaredMethod("method7",
+                Throwable.class));
+        then(method7.canApplyTo(CauseType.CIRCUIT_BREAKER)).isTrue();
+        then(method7.canApplyTo(CauseType.RATE_LIMIT)).isTrue();
+        then(method7.canApplyTo(CauseType.CONCURRENT_LIMIT)).isTrue();
+        then(method7.canApplyTo(CauseType.SERVICE_KEEPER_NOT_PERMIT)).isTrue();
+        then(method7.canApplyTo(CauseType.RETRY)).isTrue();
+        then(method7.canApplyTo(CauseType.BIZ)).isTrue();
     }
 
     private static class Foo {
@@ -122,6 +138,10 @@ class FallbackMethodTest {
         }
 
         private void method6(ServiceKeeperException ex) {
+
+        }
+
+        private void method7(Throwable e) {
 
         }
 
