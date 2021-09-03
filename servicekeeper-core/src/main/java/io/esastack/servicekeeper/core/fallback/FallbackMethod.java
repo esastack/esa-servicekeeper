@@ -64,22 +64,22 @@ public class FallbackMethod {
         if (!causeAtFirst) {
             return true;
         }
-        final Class<?> causeType = method.getParameterTypes()[0];
+        final Class<?> causeClass = method.getParameterTypes()[0];
         switch (type) {
             case CONCURRENT_LIMIT:
-                return causeType.isAssignableFrom(ConcurrentOverFlowException.class);
+                return causeClass.isAssignableFrom(ConcurrentOverFlowException.class);
             case RATE_LIMIT:
-                return causeType.isAssignableFrom(RateLimitOverflowException.class);
+                return causeClass.isAssignableFrom(RateLimitOverflowException.class);
             case CIRCUIT_BREAKER:
-                return causeType.isAssignableFrom(CircuitBreakerNotPermittedException.class);
+                return causeClass.isAssignableFrom(CircuitBreakerNotPermittedException.class);
             case RETRY:
-                return causeType.isAssignableFrom(ServiceRetryException.class);
+                return causeClass.isAssignableFrom(ServiceRetryException.class);
             case SERVICE_KEEPER_NOT_PERMIT:
-                return causeType.isAssignableFrom(ServiceKeeperNotPermittedException.class);
+                return causeClass.isAssignableFrom(ServiceKeeperNotPermittedException.class);
             case SERVICE_KEEPER:
-                return causeType.isAssignableFrom(ServiceKeeperException.class);
+                return causeClass.isAssignableFrom(ServiceKeeperException.class);
             case BIZ:
-                return true;
+                return causeClass.equals(Throwable.class);
             default:
                 return false;
         }
