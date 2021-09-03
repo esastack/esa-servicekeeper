@@ -79,7 +79,7 @@ public class FallbackMethod {
             case SERVICE_KEEPER:
                 return causeClass.isAssignableFrom(ServiceKeeperException.class);
             case BIZ:
-                return !(ServiceKeeperException.class.isAssignableFrom(causeClass));
+                return causeClass.equals(Throwable.class);
             default:
                 return false;
         }
