@@ -38,7 +38,7 @@ public class ConfigCacheImp implements ConfigCache {
 
     @Override
     public ExternalConfig configOf(ResourceId resourceId) {
-        final ExternalConfig config = configs.get(resourceId);
+        ExternalConfig config = configs.get(resourceId);
         if (config != null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Obtained {}'s config: {}", resourceId, config);
@@ -52,12 +52,22 @@ public class ConfigCacheImp implements ConfigCache {
             final ArgResourceId matchAllId = new ArgResourceId(argId.getMethodId(),
                     argId.getArgName(), VALUE_MATCH_ALL);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Obtained {}'s config: {}", matchAllId, configs.get(matchAllId));
+            config = configs.get(matchAllId);
+            if (config == null) {
+                // fallback to get arg config which name is (argId.getMethodId() + "." + argId.getArgName())
+                config = configs.get(ResourceId.from(argId.getMethodId() + "." + argId.getArgName()));
             }
-            return configs.get(matchAllId);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Obtained {}'s config: {}", resourceId, config);
+            }
+            return config;
         }
 
+        if (logger.isDebugEnabled()) {
+            logger.debug("Obtained {}'s config: {}",
+                    resourceId, null);
+        }
         return null;
     }
 

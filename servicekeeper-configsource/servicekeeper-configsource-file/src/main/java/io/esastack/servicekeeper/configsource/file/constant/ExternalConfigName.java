@@ -41,6 +41,11 @@ public enum ExternalConfigName {
                     this.buildErrorMsg("must not be an negative number", maxConcurrentLimit));
             config.setMaxConcurrentLimit(maxConcurrentLimit);
         }
+
+        @Override
+        public boolean valueCanBeMap() {
+            return true;
+        }
     },
 
     /**
@@ -53,6 +58,11 @@ public enum ExternalConfigName {
             ParamCheckUtils.positiveInt(limitForPeriod,
                     this.buildErrorMsg("must greater than 0", limitForPeriod));
             config.setLimitForPeriod(Integer.valueOf(value));
+        }
+
+        @Override
+        public boolean valueCanBeMap() {
+            return true;
         }
     },
 
@@ -76,6 +86,11 @@ public enum ExternalConfigName {
             ParamCheckUtils.legalFailureThreshold(failureRateThreshold,
                     this.buildErrorMsg("must between [0, 100]", failureRateThreshold));
             config.setFailureRateThreshold(Float.valueOf(value));
+        }
+
+        @Override
+        public boolean valueCanBeMap() {
+            return true;
         }
     },
 
@@ -331,6 +346,10 @@ public enum ExternalConfigName {
     }
 
     public abstract void applyConfigValue(ExternalConfig config, String value);
+
+    public boolean valueCanBeMap() {
+        return false;
+    }
 
     /**
      * build error message with a template

@@ -73,45 +73,11 @@ public final class PropertiesUtils {
 
         for (String name : properties.stringPropertyNames()) {
             final String trimmedName = StringUtils.trim(name);
-            if (isGlobalConfig(trimmedName)) {
-                continue;
-            }
-
-            final String stringConfigName = propName(trimmedName);
-            final ExternalConfigName configName = ExternalConfigName.getByName(stringConfigName);
+            final ExternalConfigName configName = extractConfigName(trimmedName);
             if (configName == null) {
-                if (!INTERNAL_CONFIG_NAMES.contains(stringConfigName)) {
-                    logger.error("Unsupported config name: " + name);
-                }
                 continue;
             }
-
-            final String configValue = StringUtils.trim(properties.getProperty(name));
-            final Map<ResourceId, String> valueMap = new HashMap<>(8);
-            if (isGroupConfig(trimmedName)) {
-                valueMap.putIfAbsent(GroupResourceId.from(groupName(trimmedName)), configValue);
-            } else if (isMethodConfig(configValue)) {
-                valueMap.putIfAbsent(parseWithSuffix(trimmedName), configValue);
-            } else {
-                valueMap.putAll(parseToArgConfigs(parseWithSuffix(trimmedName), configValue));
-            }
-
-            for (Map.Entry<ResourceId, String> entry : valueMap.entrySet()) {
-                ExternalConfig config = configMap.computeIfAbsent(entry.getKey(), (key) -> {
-                    if (key instanceof GroupResourceId) {
-                        return new ExternalGroupConfig();
-                    } else {
-                        return new ExternalConfig();
-                    }
-                });
-
-                try {
-                    setConfigValue(config, configName, entry.getValue());
-                } catch (Exception ex) {
-                    logger.error("Failed to parse {}'s {}, the original value: {}", entry.getKey().getName(),
-                            configName, entry.getValue(), ex);
-                }
-            }
+            putConfig(configName, extractValueMap(name, trimmedName, configName, properties), configMap);
         }
 
         return filterArgTemplate(configMap);
@@ -204,7 +170,7 @@ public final class PropertiesUtils {
      * @param propValue prop Value
      * @return true or false
      */
-    private static boolean isMethodConfig(String propValue) {
+    private static boolean isNotMapConfig(String propValue) {
         String value = StringUtils.trim(propValue);
         if (value == null || value.isEmpty()) {
             return true;
@@ -309,6 +275,59 @@ public final class PropertiesUtils {
             filteredConfigMaps.remove(resourceId);
         }
         return filteredConfigMaps;
+    }
+
+    private static void putConfig(ExternalConfigName configName, Map<ResourceId, String> valueMap, Map<ResourceId, ExternalConfig> configMap) {
+        for (Map.Entry<ResourceId, String> entry : valueMap.entrySet()) {
+            ExternalConfig config = configMap.computeIfAbsent(entry.getKey(), (key) -> {
+                if (key instanceof GroupResourceId) {
+                    return new ExternalGroupConfig();
+                } else {
+                    return new ExternalConfig();
+                }
+            });
+
+            try {
+                setConfigValue(config, configName, entry.getValue());
+            } catch (Exception ex) {
+                logger.error("Failed to parse {}'s {}, the original value: {}", entry.getKey().getName(),
+                        configName, entry.getValue(), ex);
+            }
+        }
+    }
+
+    private static ExternalConfigName extractConfigName(final String trimmedName) {
+        if (isGlobalConfig(trimmedName)) {
+            return null;
+        }
+
+        final String stringConfigName = propName(trimmedName);
+        final ExternalConfigName configName = ExternalConfigName.getByName(stringConfigName);
+        if (configName == null) {
+            if (!INTERNAL_CONFIG_NAMES.contains(stringConfigName)) {
+                logger.error("Unsupported config name: " + trimmedName);
+            }
+        }
+        return configName;
+    }
+
+    private static Map<ResourceId, String> extractValueMap(final String name, final String trimmedName,
+                                                           final ExternalConfigName configName,
+                                                           final Properties properties) {
+        final String configValue = StringUtils.trim(properties.getProperty(name));
+        final Map<ResourceId, String> valueMap = new HashMap<>(8);
+        if (isGroupConfig(trimmedName)) {
+            valueMap.putIfAbsent(GroupResourceId.from(groupName(trimmedName)), configValue);
+        } else if (isNotMapConfig(configValue)) {
+            valueMap.putIfAbsent(parseWithSuffix(trimmedName), configValue);
+        } else {
+            if (configName.valueCanBeMap()) {
+                valueMap.putAll(parseToArgConfigs(parseWithSuffix(trimmedName), configValue));
+            } else {
+                logger.error("This config's value can,t be map!configName:{},configValue:{}", name, configValue);
+            }
+        }
+        return valueMap;
     }
 
     /**
