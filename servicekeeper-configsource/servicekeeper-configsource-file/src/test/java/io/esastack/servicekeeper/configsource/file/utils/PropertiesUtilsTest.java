@@ -116,7 +116,7 @@ class PropertiesUtilsTest {
     @Test
     void testConfigs() {
         final Map<ResourceId, ExternalConfig> configs = PropertiesUtils.configs(properties);
-        then(configs.size()).isEqualTo(6);
+        then(configs.size()).isEqualTo(7);
         final ResourceId resourceId1 = ResourceId.from("com.example.service.DemoClass.demoMethod");
         then(configs.get(resourceId1).getMaxConcurrentLimit()).isEqualTo(20);
         then(Arrays.equals(new Class[]{IllegalArgumentException.class, IllegalStateException.class},
@@ -209,7 +209,7 @@ class PropertiesUtilsTest {
     @Test
     void testGroupConfig() {
         final Map<ResourceId, ExternalConfig> configs = PropertiesUtils.configs(properties);
-        then(configs.size()).isEqualTo(6);
+        then(configs.size()).isEqualTo(7);
         final GroupResourceId groupId = GroupResourceId.from("groupA");
         ExternalGroupConfig groupConfig = (ExternalGroupConfig) configs.get(groupId);
         then(groupConfig.getMaxConcurrentLimit()).isEqualTo(20);
@@ -243,7 +243,7 @@ class PropertiesUtilsTest {
         final ExternalConfig template1 = new ExternalConfig();
         final ExternalConfig argConfig1 = new ExternalConfig();
 
-        then(PropertiesUtils.tryToFillArgConfigWithTemplate(template1, argConfig1)).isSameAs(argConfig1);
+        PropertiesUtils.tryToFillArgConfigWithTemplate(template1, argConfig1);
         then(argConfig1.getLimitRefreshPeriod()).isNull();
         then(argConfig1.getRingBufferSizeInClosedState()).isNull();
         then(argConfig1.getRingBufferSizeInHalfOpenState()).isNull();
@@ -260,7 +260,7 @@ class PropertiesUtilsTest {
         template1.setPredicateStrategy(PredicateByExceptionAndSpendTime.class);
         template1.setMaxSpendTimeMs(66L);
 
-        then(PropertiesUtils.tryToFillArgConfigWithTemplate(template1, argConfig1)).isSameAs(argConfig1);
+        PropertiesUtils.tryToFillArgConfigWithTemplate(template1, argConfig1);
         then(argConfig1.getLimitRefreshPeriod()).isEqualTo(Duration.ofSeconds(20L));
         then(argConfig1.getRingBufferSizeInClosedState()).isEqualTo(101);
         then(argConfig1.getRingBufferSizeInHalfOpenState()).isEqualTo(99);
@@ -288,7 +288,7 @@ class PropertiesUtilsTest {
         template2.setPredicateStrategy(PredicateByException.class);
         template2.setMaxSpendTimeMs(660L);
 
-        then(PropertiesUtils.tryToFillArgConfigWithTemplate(template2, argConfig2)).isSameAs(argConfig2);
+        PropertiesUtils.tryToFillArgConfigWithTemplate(template2, argConfig2);
         then(argConfig2.getLimitRefreshPeriod()).isEqualTo(Duration.ofSeconds(20L));
         then(argConfig2.getRingBufferSizeInClosedState()).isEqualTo(101);
         then(argConfig2.getRingBufferSizeInHalfOpenState()).isEqualTo(99);
