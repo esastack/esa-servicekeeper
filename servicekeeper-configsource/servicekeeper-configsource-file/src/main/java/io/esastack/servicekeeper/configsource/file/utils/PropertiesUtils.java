@@ -311,7 +311,7 @@ public final class PropertiesUtils {
             if (configName.valueCanBeMap()) {
                 valueMap.putAll(parseToArgConfigs(parseWithSuffix(trimmedName), configValue));
             } else {
-                logger.error("This config's value can,t be map!configName:{},configValue:{}", name, configValue);
+                logger.error("This config's value can't be map! configName: {}, configValue: {}", name, configValue);
             }
         }
         return valueMap;
