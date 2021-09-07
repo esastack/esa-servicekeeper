@@ -77,7 +77,7 @@ public final class PropertiesUtils {
             if (configName == null) {
                 continue;
             }
-            putConfig(configName, extractValueMap(name, trimmedName, configName, properties), configMap);
+            combineToConfigMap(configName, extractValueMap(name, trimmedName, configName, properties), configMap);
         }
 
         fillArgConfigsWithTemplate(configMap);
@@ -263,8 +263,8 @@ public final class PropertiesUtils {
         }
     }
 
-    private static void putConfig(ExternalConfigName configName,
-                                  Map<ResourceId, String> valueMap, Map<ResourceId, ExternalConfig> configMap) {
+    private static void combineToConfigMap(ExternalConfigName configName,
+                                           Map<ResourceId, String> valueMap, Map<ResourceId, ExternalConfig> configMap) {
         for (Map.Entry<ResourceId, String> entry : valueMap.entrySet()) {
             ExternalConfig config = configMap.computeIfAbsent(entry.getKey(), (key) -> {
                 if (key instanceof GroupResourceId) {
