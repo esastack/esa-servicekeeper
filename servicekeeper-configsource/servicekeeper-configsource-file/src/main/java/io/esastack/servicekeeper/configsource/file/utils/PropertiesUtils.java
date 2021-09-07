@@ -80,7 +80,8 @@ public final class PropertiesUtils {
             putConfig(configName, extractValueMap(name, trimmedName, configName, properties), configMap);
         }
 
-        return filterArgTemplate(configMap);
+        fillArgConfigsWithTemplate(configMap);
+        return configMap;
     }
 
     public static Map<ArgConfigKey, Integer> maxSizeLimits(final Properties properties) {
@@ -249,35 +250,21 @@ public final class PropertiesUtils {
      * Filter config map.
      *
      * @param configMap original configMap
-     * @return config map without template
      */
-    private static Map<ResourceId, ExternalConfig> filterArgTemplate(final Map<ResourceId, ExternalConfig> configMap) {
-        final Set<ResourceId> argTemplateIdsToRemove = new HashSet<>(36);
-        final Map<ResourceId, ExternalConfig> filteredConfigMaps = new ConcurrentHashMap<>(configMap.size());
+    private static void fillArgConfigsWithTemplate(final Map<ResourceId, ExternalConfig> configMap) {
         for (Map.Entry<ResourceId, ExternalConfig> entry : configMap.entrySet()) {
             if (entry.getKey() instanceof ArgResourceId) {
                 final ArgResourceId argResourceId = (ArgResourceId) entry.getKey();
-                argTemplateIdsToRemove.add(argResourceId.getMethodAndArgId());
                 final ExternalConfig argTemplate = configMap.get(argResourceId.getMethodAndArgId());
-                if (argTemplate == null) {
-                    filteredConfigMaps.putIfAbsent(argResourceId, entry.getValue());
-                } else {
-                    //If arg config template exists, try to fill argConfig with the template.
-                    filteredConfigMaps.putIfAbsent(argResourceId, tryToFillArgConfigWithTemplate(argTemplate,
-                            entry.getValue()));
+                if (argTemplate != null) {
+                    tryToFillArgConfigWithTemplate(argTemplate, entry.getValue());
                 }
-            } else {
-                filteredConfigMaps.putIfAbsent(entry.getKey(), entry.getValue());
             }
         }
-
-        for (ResourceId resourceId : argTemplateIdsToRemove) {
-            filteredConfigMaps.remove(resourceId);
-        }
-        return filteredConfigMaps;
     }
 
-    private static void putConfig(ExternalConfigName configName, Map<ResourceId, String> valueMap, Map<ResourceId, ExternalConfig> configMap) {
+    private static void putConfig(ExternalConfigName configName,
+                                  Map<ResourceId, String> valueMap, Map<ResourceId, ExternalConfig> configMap) {
         for (Map.Entry<ResourceId, String> entry : valueMap.entrySet()) {
             ExternalConfig config = configMap.computeIfAbsent(entry.getKey(), (key) -> {
                 if (key instanceof GroupResourceId) {
@@ -335,10 +322,9 @@ public final class PropertiesUtils {
      *
      * @param template  template, which must not be null.
      * @param argConfig argConfig, which must not be null.
-     * @return config after combined
      */
-    static ExternalConfig tryToFillArgConfigWithTemplate(final ExternalConfig template,
-                                                         final ExternalConfig argConfig) {
+    static void tryToFillArgConfigWithTemplate(final ExternalConfig template,
+                                               final ExternalConfig argConfig) {
         // Fill argConfig's (RateLimitConfig) with template
         if (argConfig.getLimitRefreshPeriod() == null && template.getLimitRefreshPeriod() != null) {
             argConfig.setLimitRefreshPeriod(template.getLimitRefreshPeriod());
@@ -365,8 +351,6 @@ public final class PropertiesUtils {
         if (argConfig.getMaxSpendTimeMs() == null && template.getMaxSpendTimeMs() != null) {
             argConfig.setMaxSpendTimeMs(template.getMaxSpendTimeMs());
         }
-
-        return argConfig;
     }
 
 }

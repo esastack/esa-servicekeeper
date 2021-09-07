@@ -54,8 +54,8 @@ public class ConfigCacheImp implements ConfigCache {
 
             config = configs.get(matchAllId);
             if (config == null) {
-                // fallback to get arg config which name is (argId.getMethodId() + "." + argId.getArgName())
-                config = configs.get(ResourceId.from(argId.getMethodId() + "." + argId.getArgName()));
+                // fallback to get arg config which name is argId.getMethodAndArgId()
+                config = configs.get(argId.getMethodAndArgId());
             }
 
             if (logger.isDebugEnabled()) {
