@@ -38,26 +38,42 @@ public class ConfigCacheImp implements ConfigCache {
 
     @Override
     public ExternalConfig configOf(ResourceId resourceId) {
-        final ExternalConfig config = configs.get(resourceId);
+        ExternalConfig config = configs.get(resourceId);
         if (config != null) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Obtained {}'s config: {}", resourceId, config);
+                logger.debug("Obtained {}'s config: {} directly by resourceId", resourceId, config);
             }
             return config;
         }
 
-        // fallback to get arg config which value is *
+        // fallback to get wildcard argConfig which id is *
         if (resourceId instanceof ArgResourceId) {
             final ArgResourceId argId = (ArgResourceId) resourceId;
             final ArgResourceId matchAllId = new ArgResourceId(argId.getMethodId(),
                     argId.getArgName(), VALUE_MATCH_ALL);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Obtained {}'s config: {}", matchAllId, configs.get(matchAllId));
+            config = configs.get(matchAllId);
+            if (config != null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Obtained {}'s config: {} by fallback to get wildcard argConfig which id is {}",
+                            resourceId, config, matchAllId);
+                }
+                return config;
             }
-            return configs.get(matchAllId);
+
+            // fallback to get argTemplate which id is argId.getMethodAndArgId()
+            config = configs.get(argId.getMethodAndArgId());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Obtained {}'s config: {} by fallback to get argTemplate which id is {}",
+                        resourceId, config, argId.getMethodAndArgId());
+            }
+
+            return config;
         }
 
+        if (logger.isDebugEnabled()) {
+            logger.debug("Obtained {}'s config is null!", resourceId);
+        }
         return null;
     }
 
