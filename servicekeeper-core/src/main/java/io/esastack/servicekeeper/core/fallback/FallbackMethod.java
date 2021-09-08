@@ -17,7 +17,7 @@ package io.esastack.servicekeeper.core.fallback;
 
 import esa.commons.Checks;
 import io.esastack.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
-import io.esastack.servicekeeper.core.exception.ConcurrentOverFlowException;
+import io.esastack.servicekeeper.core.exception.ConcurrentOverflowException;
 import io.esastack.servicekeeper.core.exception.RateLimitOverflowException;
 import io.esastack.servicekeeper.core.exception.ServiceKeeperException;
 import io.esastack.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
@@ -67,7 +67,7 @@ public class FallbackMethod {
         final Class<?> causeClass = method.getParameterTypes()[0];
         switch (type) {
             case CONCURRENT_LIMIT:
-                return causeClass.isAssignableFrom(ConcurrentOverFlowException.class);
+                return causeClass.isAssignableFrom(ConcurrentOverflowException.class);
             case RATE_LIMIT:
                 return causeClass.isAssignableFrom(RateLimitOverflowException.class);
             case CIRCUIT_BREAKER:

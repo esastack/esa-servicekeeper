@@ -21,13 +21,13 @@ import io.esastack.servicekeeper.core.metrics.ConcurrentLimitMetrics;
 /**
  * This exception will be thrown when current concurrent number has exceeds max concurrent limit.
  */
-public class ConcurrentOverFlowException extends ServiceKeeperNotPermittedException {
+public class ConcurrentOverflowException extends ServiceKeeperNotPermittedException {
 
     private static final long serialVersionUID = 5315117470652086608L;
 
     private final transient ConcurrentLimitMetrics metrics;
 
-    public ConcurrentOverFlowException(String msg, Context ctx, ConcurrentLimitMetrics metrics) {
+    public ConcurrentOverflowException(String msg, Context ctx, ConcurrentLimitMetrics metrics) {
         super(msg, ctx);
         this.metrics = metrics;
     }

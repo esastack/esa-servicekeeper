@@ -22,7 +22,7 @@ import io.esastack.servicekeeper.core.config.ConcurrentLimitConfig;
 import io.esastack.servicekeeper.core.config.MoatConfig;
 import io.esastack.servicekeeper.core.config.RateLimitConfig;
 import io.esastack.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
-import io.esastack.servicekeeper.core.exception.ConcurrentOverFlowException;
+import io.esastack.servicekeeper.core.exception.ConcurrentOverflowException;
 import io.esastack.servicekeeper.core.exception.RateLimitOverflowException;
 import io.esastack.servicekeeper.core.executionchain.AsyncContext;
 import io.esastack.servicekeeper.core.executionchain.AsyncExecutionChain;
@@ -84,7 +84,7 @@ class AsyncExecutionChainTest {
             try {
                 chain.asyncExecute(new AsyncContext(name), null, executable,
                         new CompletableStageHandler<>());
-            } catch (ConcurrentOverFlowException ex) {
+            } catch (ConcurrentOverflowException ex) {
                 concurrentOverFlowCount.incrementAndGet();
             }
         }

@@ -26,12 +26,12 @@ public class AppMain {
         for (int i = 0 ; i < 20; i++) {
             try {
                 service.hello();
-            } catch (RateLimitOverFlowException ex) {
+            } catch (RateLimitOverflowException ex) {
                 errorCount++;
             }
         }
 
-        System.out.println("RateLimitOverFlowException count: " + errorCount);
+        System.out.println("RateLimitOverflowException count: " + errorCount);
         ctx.close();
     }
 

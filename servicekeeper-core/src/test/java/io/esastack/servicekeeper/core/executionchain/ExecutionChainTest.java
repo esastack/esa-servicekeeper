@@ -21,7 +21,7 @@ import io.esastack.servicekeeper.core.config.CircuitBreakerConfig;
 import io.esastack.servicekeeper.core.config.ConcurrentLimitConfig;
 import io.esastack.servicekeeper.core.config.MoatConfig;
 import io.esastack.servicekeeper.core.config.RateLimitConfig;
-import io.esastack.servicekeeper.core.exception.ConcurrentOverFlowException;
+import io.esastack.servicekeeper.core.exception.ConcurrentOverflowException;
 import io.esastack.servicekeeper.core.exception.RateLimitOverflowException;
 import io.esastack.servicekeeper.core.fallback.FallbackHandler;
 import io.esastack.servicekeeper.core.fallback.FallbackMethod;
@@ -72,7 +72,7 @@ class ExecutionChainTest {
                 Context ctx = new AsyncContext(name);
                 RequestHandle handle = chain.tryToExecute(ctx);
                 if (!handle.isAllowed()) {
-                    if (handle.getNotAllowedCause() instanceof ConcurrentOverFlowException) {
+                    if (handle.getNotAllowedCause() instanceof ConcurrentOverflowException) {
                         concurrentOverFlowCount.incrementAndGet();
                     } else {
                         fail();
@@ -111,7 +111,7 @@ class ExecutionChainTest {
                 Context ctx = new AsyncContext(name);
                 RequestHandle handle = chain.tryToExecute(ctx);
                 if (!handle.isAllowed()) {
-                    if (handle.getNotAllowedCause() instanceof ConcurrentOverFlowException) {
+                    if (handle.getNotAllowedCause() instanceof ConcurrentOverflowException) {
                         concurrentOverFlowCount.incrementAndGet();
                     } else {
                         fail();

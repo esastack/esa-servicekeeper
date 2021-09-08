@@ -19,7 +19,7 @@ import io.esastack.servicekeeper.core.common.ResourceId;
 import io.esastack.servicekeeper.core.config.ConcurrentLimitConfig;
 import io.esastack.servicekeeper.core.config.MoatConfig;
 import io.esastack.servicekeeper.core.config.RateLimitConfig;
-import io.esastack.servicekeeper.core.exception.ConcurrentOverFlowException;
+import io.esastack.servicekeeper.core.exception.ConcurrentOverflowException;
 import io.esastack.servicekeeper.core.exception.RateLimitOverflowException;
 import io.esastack.servicekeeper.core.executionchain.SyncContext;
 import io.esastack.servicekeeper.core.executionchain.SyncExecutionChain;
@@ -65,7 +65,7 @@ class SyncRunnableTest {
             new Thread(() -> {
                 try {
                     chain.execute(new SyncContext(name), null, runnable);
-                } catch (ConcurrentOverFlowException ex) {
+                } catch (ConcurrentOverflowException ex) {
                     concurrentOverFlowCount.incrementAndGet();
                 } catch (Throwable throwable) {
                     fail();

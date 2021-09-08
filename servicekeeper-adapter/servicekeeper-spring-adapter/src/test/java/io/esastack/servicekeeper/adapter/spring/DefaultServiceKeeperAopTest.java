@@ -23,7 +23,7 @@ import io.esastack.servicekeeper.core.annotation.Fallback;
 import io.esastack.servicekeeper.core.annotation.RateLimiter;
 import io.esastack.servicekeeper.core.annotation.Retryable;
 import io.esastack.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
-import io.esastack.servicekeeper.core.exception.ConcurrentOverFlowException;
+import io.esastack.servicekeeper.core.exception.ConcurrentOverflowException;
 import io.esastack.servicekeeper.core.exception.RateLimitOverflowException;
 import io.esastack.servicekeeper.core.exception.ServiceRetryException;
 import org.junit.jupiter.api.BeforeAll;
@@ -75,7 +75,7 @@ class DefaultServiceKeeperAopTest {
             Thread.sleep(20);
         } catch (InterruptedException ignored) {
         }
-        assertThrows(ConcurrentOverFlowException.class, service::testConcurrentLimiter);
+        assertThrows(ConcurrentOverflowException.class, service::testConcurrentLimiter);
 
         //CircuitBreaker
         assertThrows(RuntimeException.class, service::testCircuitBreaker);
