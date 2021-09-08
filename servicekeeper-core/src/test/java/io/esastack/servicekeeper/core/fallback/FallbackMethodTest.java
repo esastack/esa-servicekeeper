@@ -16,7 +16,7 @@
 package io.esastack.servicekeeper.core.fallback;
 
 import io.esastack.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
-import io.esastack.servicekeeper.core.exception.ConcurrentOverFlowException;
+import io.esastack.servicekeeper.core.exception.ConcurrentOverflowException;
 import io.esastack.servicekeeper.core.exception.RateLimitOverflowException;
 import io.esastack.servicekeeper.core.exception.ServiceKeeperException;
 import io.esastack.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
@@ -58,7 +58,7 @@ class FallbackMethodTest {
         then(method1.canApplyTo(CauseType.BIZ)).isFalse();
 
         final FallbackMethod method2 = new FallbackMethod(Foo.class.getDeclaredMethod("method2",
-                ConcurrentOverFlowException.class));
+                ConcurrentOverflowException.class));
         then(method2.canApplyTo(CauseType.CIRCUIT_BREAKER)).isFalse();
         then(method2.canApplyTo(CauseType.RATE_LIMIT)).isFalse();
         then(method2.canApplyTo(CauseType.CONCURRENT_LIMIT)).isTrue();
@@ -121,7 +121,7 @@ class FallbackMethodTest {
 
         }
 
-        private void method2(ConcurrentOverFlowException ex) {
+        private void method2(ConcurrentOverflowException ex) {
 
         }
 

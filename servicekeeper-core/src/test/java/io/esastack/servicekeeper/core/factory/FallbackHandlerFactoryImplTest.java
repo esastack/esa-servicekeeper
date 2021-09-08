@@ -18,7 +18,7 @@ package io.esastack.servicekeeper.core.factory;
 import io.esastack.servicekeeper.core.common.OriginalInvocation;
 import io.esastack.servicekeeper.core.config.FallbackConfig;
 import io.esastack.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
-import io.esastack.servicekeeper.core.exception.ConcurrentOverFlowException;
+import io.esastack.servicekeeper.core.exception.ConcurrentOverflowException;
 import io.esastack.servicekeeper.core.exception.RateLimitOverflowException;
 import io.esastack.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import io.esastack.servicekeeper.core.executionchain.Context;
@@ -175,8 +175,8 @@ class FallbackHandlerFactoryImplTest {
         when(ctx.getEnterFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, ctx, null));
         then(fallbackToFunction.handle(ctx)).isEqualTo("CircuitBreakerNotPermittedException");
 
-        when(ctx.getEnterFailsCause()).thenReturn(new ConcurrentOverFlowException(null, ctx, null));
-        then(fallbackToFunction.handle(ctx)).isEqualTo("ConcurrentOverFlowException");
+        when(ctx.getEnterFailsCause()).thenReturn(new ConcurrentOverflowException(null, ctx, null));
+        then(fallbackToFunction.handle(ctx)).isEqualTo("ConcurrentOverflowException");
 
         when(ctx.getEnterFailsCause()).thenReturn(new RateLimitOverflowException(null, ctx, null));
         then(fallbackToFunction.handle(ctx)).isEqualTo("RateLimitOverflowException");
@@ -217,8 +217,8 @@ class FallbackHandlerFactoryImplTest {
         when(ctx.getEnterFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, ctx, null));
         then(fallbackToFunction.handle(ctx)).isEqualTo("CircuitBreakerNotPermittedException");
 
-        when(ctx.getEnterFailsCause()).thenReturn(new ConcurrentOverFlowException(null, ctx, null));
-        then(fallbackToFunction.handle(ctx)).isEqualTo("ConcurrentOverFlowException");
+        when(ctx.getEnterFailsCause()).thenReturn(new ConcurrentOverflowException(null, ctx, null));
+        then(fallbackToFunction.handle(ctx)).isEqualTo("ConcurrentOverflowException");
 
         when(ctx.getEnterFailsCause()).thenReturn(new RateLimitOverflowException(null, ctx, null));
         then(fallbackToFunction.handle(ctx)).isEqualTo("RateLimitOverflowException");
@@ -314,8 +314,8 @@ class FallbackHandlerFactoryImplTest {
             return "RateLimitOverflowException";
         }
 
-        private String fallbackMethod(ConcurrentOverFlowException ex) {
-            return "ConcurrentOverFlowException";
+        private String fallbackMethod(ConcurrentOverflowException ex) {
+            return "ConcurrentOverflowException";
         }
     }
 

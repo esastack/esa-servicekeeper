@@ -18,7 +18,7 @@ package io.esastack.servicekeeper.core.fallback;
 import esa.commons.StringUtils;
 import esa.commons.logging.Logger;
 import io.esastack.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
-import io.esastack.servicekeeper.core.exception.ConcurrentOverFlowException;
+import io.esastack.servicekeeper.core.exception.ConcurrentOverflowException;
 import io.esastack.servicekeeper.core.exception.RateLimitOverflowException;
 import io.esastack.servicekeeper.core.exception.ServiceKeeperException;
 import io.esastack.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
@@ -161,7 +161,7 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
         if (th instanceof RateLimitOverflowException) {
             return fallbackMethodMap.get(CauseType.RATE_LIMIT);
         }
-        if (th instanceof ConcurrentOverFlowException) {
+        if (th instanceof ConcurrentOverflowException) {
             return fallbackMethodMap.get(CauseType.CONCURRENT_LIMIT);
         }
         if (th instanceof ServiceRetryException) {

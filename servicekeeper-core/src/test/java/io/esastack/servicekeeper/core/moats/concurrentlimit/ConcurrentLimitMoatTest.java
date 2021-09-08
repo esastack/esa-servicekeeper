@@ -19,7 +19,7 @@ import io.esastack.servicekeeper.core.common.ResourceId;
 import io.esastack.servicekeeper.core.config.ConcurrentLimitConfig;
 import io.esastack.servicekeeper.core.config.MoatConfig;
 import io.esastack.servicekeeper.core.configsource.ExternalConfig;
-import io.esastack.servicekeeper.core.exception.ConcurrentOverFlowException;
+import io.esastack.servicekeeper.core.exception.ConcurrentOverflowException;
 import io.esastack.servicekeeper.core.moats.LifeCycleSupport;
 import io.esastack.servicekeeper.core.moats.MoatEvent;
 import io.esastack.servicekeeper.core.moats.MoatEventProcessor;
@@ -64,7 +64,7 @@ class ConcurrentLimitMoatTest {
         for (int i = 0; i < maxConcurrentLimit; i++) {
             assertDoesNotThrow(() -> limitMoat.enter(null));
         }
-        assertThrows(ConcurrentOverFlowException.class, () -> limitMoat.enter(null));
+        assertThrows(ConcurrentOverflowException.class, () -> limitMoat.enter(null));
         for (int i = 0; i < maxConcurrentLimit; i++) {
             limitMoat.exit(null);
         }
@@ -112,7 +112,7 @@ class ConcurrentLimitMoatTest {
         for (int i = 0; i < maxConcurrentLimit; i++) {
             assertDoesNotThrow(() -> limitMoat.enter(null));
         }
-        assertThrows(ConcurrentOverFlowException.class, () -> limitMoat.enter(null));
+        assertThrows(ConcurrentOverflowException.class, () -> limitMoat.enter(null));
         for (int i = 0; i < maxConcurrentLimit; i++) {
             limitMoat.exit(null);
         }

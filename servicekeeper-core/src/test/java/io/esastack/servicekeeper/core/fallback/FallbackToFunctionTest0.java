@@ -16,7 +16,7 @@
 package io.esastack.servicekeeper.core.fallback;
 
 import io.esastack.servicekeeper.core.exception.CircuitBreakerNotPermittedException;
-import io.esastack.servicekeeper.core.exception.ConcurrentOverFlowException;
+import io.esastack.servicekeeper.core.exception.ConcurrentOverflowException;
 import io.esastack.servicekeeper.core.exception.RateLimitOverflowException;
 import io.esastack.servicekeeper.core.exception.ServiceKeeperException;
 import io.esastack.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
@@ -42,7 +42,7 @@ class FallbackToFunctionTest0 {
         methods0.add(new FallbackMethod(Foo.class.getDeclaredMethod("method1",
                 RateLimitOverflowException.class, String.class)));
         methods0.add(new FallbackMethod(Foo.class.getDeclaredMethod("method2",
-                ConcurrentOverFlowException.class, String.class)));
+                ConcurrentOverflowException.class, String.class)));
         methods0.add(new FallbackMethod(Foo.class.getDeclaredMethod("method3",
                 ServiceKeeperNotPermittedException.class, String.class)));
         methods0.add(new FallbackMethod(Foo.class.getDeclaredMethod("method4", String.class)));
@@ -55,7 +55,7 @@ class FallbackToFunctionTest0 {
         methods0.add(new FallbackMethod(Foo.class.getDeclaredMethod("method8",
                 RateLimitOverflowException.class)));
         methods0.add(new FallbackMethod(Foo.class.getDeclaredMethod("method9",
-                ConcurrentOverFlowException.class)));
+                ConcurrentOverflowException.class)));
         methods0.add(new FallbackMethod(Foo.class.getDeclaredMethod("method10",
                 ServiceKeeperNotPermittedException.class)));
         methods0.add(new FallbackMethod(Foo.class.getDeclaredMethod("method11",
@@ -73,7 +73,7 @@ class FallbackToFunctionTest0 {
         when(context0.getEnterFailsCause()).thenReturn(new RateLimitOverflowException(null, null, null));
         then(fallback0.handle(context0)).isEqualTo("method1");
 
-        when(context0.getEnterFailsCause()).thenReturn(new ConcurrentOverFlowException(null, null, null));
+        when(context0.getEnterFailsCause()).thenReturn(new ConcurrentOverflowException(null, null, null));
         then(fallback0.handle(context0)).isEqualTo("method2");
 
         when(context0.getEnterFailsCause()).thenReturn(new ServiceKeeperNotPermittedException(null, null));
@@ -101,7 +101,7 @@ class FallbackToFunctionTest0 {
         when(context1.getEnterFailsCause()).thenReturn(new RateLimitOverflowException(null, null, null));
         then(fallback1.handle(context1)).isEqualTo("method3");
 
-        when(context1.getEnterFailsCause()).thenReturn(new ConcurrentOverFlowException(null, null, null));
+        when(context1.getEnterFailsCause()).thenReturn(new ConcurrentOverflowException(null, null, null));
         then(fallback1.handle(context1)).isEqualTo("method3");
 
         when(context1.getEnterFailsCause()).thenReturn(new ServiceKeeperNotPermittedException(null, null));
@@ -122,7 +122,7 @@ class FallbackToFunctionTest0 {
         when(context2.getEnterFailsCause()).thenReturn(new RateLimitOverflowException(null, null, null));
         then(fallback2.handle(context2)).isEqualTo("method4");
 
-        when(context2.getEnterFailsCause()).thenReturn(new ConcurrentOverFlowException(null, null, null));
+        when(context2.getEnterFailsCause()).thenReturn(new ConcurrentOverflowException(null, null, null));
         then(fallback2.handle(context2)).isEqualTo("method4");
 
         when(context2.getEnterFailsCause()).thenReturn(new ServiceKeeperNotPermittedException(null, null));
@@ -139,7 +139,7 @@ class FallbackToFunctionTest0 {
             return "method1";
         }
 
-        private String method2(ConcurrentOverFlowException ex, String name) {
+        private String method2(ConcurrentOverflowException ex, String name) {
             return "method2";
         }
 
@@ -167,7 +167,7 @@ class FallbackToFunctionTest0 {
             return "method8";
         }
 
-        private String method9(ConcurrentOverFlowException ex) {
+        private String method9(ConcurrentOverflowException ex) {
             return "method9";
         }
 

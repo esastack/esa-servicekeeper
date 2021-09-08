@@ -22,7 +22,7 @@ import io.esastack.servicekeeper.core.common.ResourceId;
 import io.esastack.servicekeeper.core.config.ConcurrentLimitConfig;
 import io.esastack.servicekeeper.core.config.MoatConfig;
 import io.esastack.servicekeeper.core.configsource.ExternalConfig;
-import io.esastack.servicekeeper.core.exception.ConcurrentOverFlowException;
+import io.esastack.servicekeeper.core.exception.ConcurrentOverflowException;
 import io.esastack.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import io.esastack.servicekeeper.core.executionchain.Context;
 import io.esastack.servicekeeper.core.listener.FondConfigListener;
@@ -175,7 +175,7 @@ public class ConcurrentLimitMoat extends AbstractMoat<ConcurrentLimitConfig>
     private ServiceKeeperNotPermittedException notPermittedException(Context ctx) {
         final int maxConcurrentLimit = limiter.metrics().threshold();
         final int currentCallCount = limiter.metrics().currentCallCount();
-        return new ConcurrentOverFlowException(
+        return new ConcurrentOverflowException(
                 StringUtils.concat("The maxConcurrentLimit of ",
                         limiter.name(), ": " + maxConcurrentLimit), ctx,
                 new ConcurrentLimitMetrics() {
