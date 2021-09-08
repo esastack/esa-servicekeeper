@@ -35,8 +35,8 @@ public class CustomizeFallback {
      * @param ex
      * @return
      */
-    public String fallback(ConcurrentOverFlowException ex) {
-        return "Fallback caused by concurrentOverFlow!";
+    public String fallback(ConcurrentOverflowException ex) {
+        return "Fallback caused by ConcurrentOverflowException!";
     }
 
     /**
@@ -45,8 +45,8 @@ public class CustomizeFallback {
      * @param ex
      * @return
      */
-    public String fallback(RateLimitOverFlowException ex) {
-        return "Fallback caused by rateLimitOverFlow!";
+    public String fallback(RateLimitOverflowException ex) {
+        return "Fallback caused by rateLimitOverflow!";
     }
 
     /**

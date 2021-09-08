@@ -11,7 +11,7 @@ sort: 8
 
 - 参数级的QPS阈值支持通过本地配置文件动态配置，实时生效。
 
-- 对于参数QPS超过限制的方法调用，如果其所在方法正确配置了降级方法则执行降级方法，否则直接抛出`RateLimitOverFlowException`。
+- 对于参数QPS超过限制的方法调用，如果其所在方法正确配置了降级方法则执行降级方法，否则直接抛出`RateLimitOverflowException`。
 
 ### 使用示例
 ```java
