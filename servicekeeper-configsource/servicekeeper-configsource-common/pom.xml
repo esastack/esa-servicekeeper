@@ -50,6 +50,11 @@
                                     <resource>META-INF/services/</resource>
                                 </resources>
                             </exported>
+                            <imported>
+                                <packages>
+                                    <package>esa.commons</package>
+                                </packages>
+                            </imported>
                             <excludes>
                                 <exclude>io.esastack:servicekeeper-*</exclude>
                             </excludes>

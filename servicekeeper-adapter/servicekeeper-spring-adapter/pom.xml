@@ -82,6 +82,7 @@
                             <imported>
                                 <packages>
                                     <package>org.springframework</package>
+                                    <package>esa.commons</package>
                                 </packages>
                             </imported>
                             <excludes>
