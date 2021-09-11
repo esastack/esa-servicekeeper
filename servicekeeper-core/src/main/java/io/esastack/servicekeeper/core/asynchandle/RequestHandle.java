@@ -83,7 +83,7 @@ public interface RequestHandle {
      * @param result result
      * @see PredicateStrategy#isSuccess(Context)
      */
-    void endWithResult(final Object result);
+    void endWithResult(Object result);
 
     /**
      * End the invocation with success.
@@ -95,12 +95,12 @@ public interface RequestHandle {
      *
      * @param throwable throwable
      */
-    void endWithError(final Throwable throwable);
+    void endWithError(Throwable throwable);
 
     /**
      * End the invocation with error and fallback
      *
      * @throws Throwable error
      */
-    Object fallback(final Throwable throwable) throws Throwable;
+    Object fallback(Throwable throwable) throws Throwable;
 }

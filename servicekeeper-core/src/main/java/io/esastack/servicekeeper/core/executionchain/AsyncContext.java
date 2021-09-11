@@ -15,12 +15,6 @@
  */
 package io.esastack.servicekeeper.core.executionchain;
 
-import io.esastack.servicekeeper.core.exception.ServiceKeeperWrapException;
-import io.esastack.servicekeeper.core.exception.ServiceRetryException;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.CompletionException;
-
 public class AsyncContext extends Context {
 
     private static final long serialVersionUID = -2340507448636679254L;
@@ -51,13 +45,8 @@ public class AsyncContext extends Context {
     }
 
     @Override
-    void setBizException(Throwable bizException) {
-        if (bizException instanceof InvocationTargetException || bizException instanceof ServiceKeeperWrapException
-                || bizException instanceof CompletionException || bizException instanceof ServiceRetryException) {
-            this.bizException = bizException.getCause();
-        } else {
-            this.bizException = bizException;
-        }
+    void setBizException0(Throwable bizException) {
+        this.bizException = bizException;
     }
 
     @Override

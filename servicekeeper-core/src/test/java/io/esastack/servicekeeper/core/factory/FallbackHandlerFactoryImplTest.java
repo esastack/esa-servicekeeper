@@ -169,16 +169,16 @@ class FallbackHandlerFactoryImplTest {
                 factory.get(new FallbackHandlerConfig(fallbackConfig, invocation));
 
         when(ctx.getArgs()).thenReturn(new Object[0]);
-        when(ctx.getEnterFailsCause()).thenReturn(new ServiceKeeperNotPermittedException(ctx));
+        when(ctx.getNotPermittedCause()).thenReturn(new ServiceKeeperNotPermittedException(ctx));
         then(fallbackToFunction.handle(ctx)).isEqualTo("ServiceKeeperNotPermittedException");
 
-        when(ctx.getEnterFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, ctx, null));
+        when(ctx.getNotPermittedCause()).thenReturn(new CircuitBreakerNotPermittedException(null, ctx, null));
         then(fallbackToFunction.handle(ctx)).isEqualTo("CircuitBreakerNotPermittedException");
 
-        when(ctx.getEnterFailsCause()).thenReturn(new ConcurrentOverflowException(null, ctx, null));
+        when(ctx.getNotPermittedCause()).thenReturn(new ConcurrentOverflowException(null, ctx, null));
         then(fallbackToFunction.handle(ctx)).isEqualTo("ConcurrentOverflowException");
 
-        when(ctx.getEnterFailsCause()).thenReturn(new RateLimitOverflowException(null, ctx, null));
+        when(ctx.getNotPermittedCause()).thenReturn(new RateLimitOverflowException(null, ctx, null));
         then(fallbackToFunction.handle(ctx)).isEqualTo("RateLimitOverflowException");
     }
 
@@ -211,16 +211,16 @@ class FallbackHandlerFactoryImplTest {
                 factory.get(new FallbackHandlerConfig(fallbackConfig, invocation));
 
         when(ctx.getArgs()).thenReturn(new Object[0]);
-        when(ctx.getEnterFailsCause()).thenReturn(new ServiceKeeperNotPermittedException(ctx));
+        when(ctx.getNotPermittedCause()).thenReturn(new ServiceKeeperNotPermittedException(ctx));
         then(fallbackToFunction.handle(ctx)).isEqualTo("ServiceKeeperNotPermittedException");
 
-        when(ctx.getEnterFailsCause()).thenReturn(new CircuitBreakerNotPermittedException(null, ctx, null));
+        when(ctx.getNotPermittedCause()).thenReturn(new CircuitBreakerNotPermittedException(null, ctx, null));
         then(fallbackToFunction.handle(ctx)).isEqualTo("CircuitBreakerNotPermittedException");
 
-        when(ctx.getEnterFailsCause()).thenReturn(new ConcurrentOverflowException(null, ctx, null));
+        when(ctx.getNotPermittedCause()).thenReturn(new ConcurrentOverflowException(null, ctx, null));
         then(fallbackToFunction.handle(ctx)).isEqualTo("ConcurrentOverflowException");
 
-        when(ctx.getEnterFailsCause()).thenReturn(new RateLimitOverflowException(null, ctx, null));
+        when(ctx.getNotPermittedCause()).thenReturn(new RateLimitOverflowException(null, ctx, null));
         then(fallbackToFunction.handle(ctx)).isEqualTo("RateLimitOverflowException");
     }
 
