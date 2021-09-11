@@ -82,7 +82,7 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
     @SuppressWarnings("unchecked")
     public R handle(Context ctx) throws Throwable {
         //ThroughFailsCause and bizException never exist meanwhile
-        Throwable th = ctx.getEnterFailsCause();
+        Throwable th = ctx.getNotPermittedCause();
         if (th == null) {
             th = ctx.getBizException();
         }
@@ -224,14 +224,12 @@ public class FallbackToFunction<R> implements FallbackHandler<R> {
         Object[] combinedArgs = new Object[realArgs == null ? 1 : realArgs.length + 1];
 
         combinedArgs[0] = th;
-        if (combinedArgs.length == 1) {
-            return combinedArgs;
-        } else {
+        if (combinedArgs.length != 1) {
             for (int i = 0, length = realArgs.length; i < length; i++) {
                 combinedArgs[i + 1] = realArgs[i];
             }
-            return combinedArgs;
         }
+        return combinedArgs;
     }
 
 }

@@ -15,7 +15,6 @@
  */
 package io.esastack.servicekeeper.core.executionchain;
 
-import io.esastack.servicekeeper.core.exception.ServiceKeeperException;
 import io.esastack.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
 import io.esastack.servicekeeper.core.exception.ServiceKeeperWrapException;
 import io.esastack.servicekeeper.core.exception.ServiceRetryException;
@@ -31,7 +30,7 @@ public abstract class Context implements Serializable {
     private final String resourceId;
     private final transient Object[] args;
 
-    private ServiceKeeperNotPermittedException enterFailsCause;
+    private ServiceKeeperNotPermittedException notPermittedCause;
 
     public Context(String resourceId) {
         this(resourceId, null);
@@ -50,8 +49,8 @@ public abstract class Context implements Serializable {
         return args;
     }
 
-    public ServiceKeeperException getEnterFailsCause() {
-        return enterFailsCause;
+    public ServiceKeeperNotPermittedException getNotPermittedCause() {
+        return notPermittedCause;
     }
 
     /**
@@ -75,8 +74,8 @@ public abstract class Context implements Serializable {
      */
     public abstract long getSpendTimeMs();
 
-    void setEnterFailsCause(ServiceKeeperNotPermittedException enterFailsCause) {
-        this.enterFailsCause = enterFailsCause;
+    void setNotPermittedCause(ServiceKeeperNotPermittedException notPermittedCause) {
+        this.notPermittedCause = notPermittedCause;
     }
 
     /**
