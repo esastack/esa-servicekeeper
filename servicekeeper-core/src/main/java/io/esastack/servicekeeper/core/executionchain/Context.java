@@ -86,8 +86,10 @@ public abstract class Context implements Serializable {
      */
     void setBizException(Throwable bizException) {
         final Throwable unwrapped;
-        if (bizException instanceof InvocationTargetException || bizException instanceof ServiceKeeperWrapException
-                || bizException instanceof CompletionException || bizException instanceof ServiceRetryException) {
+        if (bizException instanceof InvocationTargetException
+                || bizException instanceof ServiceKeeperWrapException
+                || bizException instanceof CompletionException
+                || bizException instanceof ServiceRetryException) {
             unwrapped = bizException.getCause();
         } else {
             unwrapped = bizException;
