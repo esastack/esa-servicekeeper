@@ -17,8 +17,12 @@ package io.esastack.servicekeeper.core.executionchain;
 
 import io.esastack.servicekeeper.core.exception.ServiceKeeperException;
 import io.esastack.servicekeeper.core.exception.ServiceKeeperNotPermittedException;
+import io.esastack.servicekeeper.core.exception.ServiceKeeperWrapException;
+import io.esastack.servicekeeper.core.exception.ServiceRetryException;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.CompletionException;
 
 public abstract class Context implements Serializable {
 
@@ -76,6 +80,22 @@ public abstract class Context implements Serializable {
     }
 
     /**
+     * Set bizException
+     *
+     * @param bizException bizException
+     */
+    void setBizException(Throwable bizException) {
+        final Throwable unwrapped;
+        if (bizException instanceof InvocationTargetException || bizException instanceof ServiceKeeperWrapException
+                || bizException instanceof CompletionException || bizException instanceof ServiceRetryException) {
+            unwrapped = bizException.getCause();
+        } else {
+            unwrapped = bizException;
+        }
+        setBizException0(unwrapped);
+    }
+
+    /**
      * Get spendTimeMs
      *
      * @param spendTimeMs spendTimeMs
@@ -94,5 +114,5 @@ public abstract class Context implements Serializable {
      *
      * @param bizException bizException
      */
-    abstract void setBizException(Throwable bizException);
+    abstract void setBizException0(Throwable bizException);
 }
