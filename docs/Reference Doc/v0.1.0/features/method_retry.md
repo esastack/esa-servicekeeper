@@ -57,7 +57,7 @@ n:执行次数
   n > 1 : sleeptime = delay * multiplier^(n-2)   
   sleeptime > maxDelay 时，sleepttime = maxDelay
 ```
-#### 注解配置简化
+### 注解配置简化
 ```java
 private int count = 0;
 

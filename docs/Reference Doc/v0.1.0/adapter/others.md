@@ -85,54 +85,144 @@ demoService.sayHello();
 `Service Keeper`提供了工具类，在原始方法执行前后织入服务治理的相关功能，具体方法如下：
 
 ```java
-public class ServiceKeeperInvoker {
+public final class ServiceKeeperInvoker {
 
     private ServiceKeeperInvoker() {
     }
 
+    /**
+     * Try to invoke the original method. Get the immutable config from method's annotations,
+     * eg {@link ConcurrentLimiter}, {@link RateLimiter}, {@link CircuitBreaker} and {@link Retryable}.
+     *
+     * @param method   method
+     * @param delegate target object
+     * @param args     args
+     * @return original return value or fallback result.
+     * @throws Throwable any throwable
+     */
     public static Object invoke(Method method, Object delegate, Object[] args) throws Throwable {
-        return ServiceKeeperEntryManager.getEntry().invoke(method, delegate, args);
-    }
-
-    public static Object invoke(String aliasName, Method method, Object delegate, Object[] args) throws Throwable {
-        return ServiceKeeperEntryManager.getEntry().invoke(aliasName, method, delegate, args);
-    }
-
-    public static <T> T call(String name, CompositeServiceKeeperConfig immutableConfig,
-                             Callable<T> callable, Object[] args) throws Throwable {
-        return ServiceKeeperEntryManager.getEntry().call(name, immutableConfig, callable, args);
-    }
-
-    public static <T> T call(String name, Callable<T> callable, Object[] args) throws Throwable {
-        return ServiceKeeperEntryManager.getEntry().call(name, callable, args);
-    }
-
-    public static <T> T call(String name, Supplier<CompositeServiceKeeperConfig> immutableConfigSupplier,
-                             Supplier<OriginalInvocationInfo> originalInvocationInfoSupplier, Callable<T> callable,
-                             Object[] args) throws Throwable {
-        return ServiceKeeperEntryManager.getEntry().call(name, immutableConfigSupplier, originalInvocationInfoSupplier,
-                callable, args);
-    }
-
-    public static void run(String name, Runnable runnable, Object[] args) throws Throwable {
-        ServiceKeeperEntryManager.getEntry().run(name, runnable, args);
-    }
-
-    public static void run(String name, CompositeServiceKeeperConfig immutableConfig,
-                           Runnable runnable, Object[] args) throws Throwable {
-        ServiceKeeperEntryManager.getEntry().run(name, immutableConfig, runnable, args);
+        return Bootstrap.entry().invoke(method, delegate, args);
     }
 
     /**
-     * Invoke this method only when you want to customize async result handlers. It' not necessary for you
+     * Try to execute the original method.
+     *
+     * @param aliasName alias name
+     * @param method    method
+     * @param delegate  target object
+     * @param args      args
+     * @return original return value or fallback result.
+     * @throws Throwable any throwable
+     */
+    public static Object invoke(String aliasName, Method method, Object delegate, Object[] args) throws Throwable {
+        return Bootstrap.entry().invoke(aliasName, method, delegate, args);
+    }
+
+    /**
+     * Try to execute the original method.
+     *
+     * @param name            name
+     * @param immutableConfig immutable config
+     * @param callable        callable
+     * @param args            args
+     * @param <T>             T
+     * @return original return value or fallback result.
+     * @throws Throwable any throwable
+     */
+    public static <T> T call(String name, CompositeServiceKeeperConfig immutableConfig,
+                             Callable<T> callable, Object[] args) throws Throwable {
+        return Bootstrap.entry().call(name, immutableConfig, callable, args);
+    }
+
+    /**
+     * Note: This interface referenced by dubbo, you must modify carefully.
+     *
+     * @param name     resourceId
+     * @param callable callable
+     * @param args     args
+     * @param <T>      generic type
+     * @return result
+     * @throws Throwable any throwable
+     */
+    public static <T> T call(String name, Callable<T> callable, Object[] args) throws Throwable {
+        return Bootstrap.entry().call(name, callable, args);
+    }
+
+    /**
+     * Try to call the original callable with {@link CompositeServiceKeeperConfig} immutable config and
+     * {@link OriginalInvocation}. The original invocation is useful while locating fallback method.
+     *
+     * @param name               name
+     * @param immutableConfig    immutable config
+     * @param originalInvocation original invocation
+     * @param callable           callable
+     * @param args               args
+     * @param <T>                T
+     * @return original return value or fallback result
+     * @throws Throwable any throwable
+     */
+    public static <T> T call(String name, CompositeServiceKeeperConfig immutableConfig,
+                             OriginalInvocation originalInvocation, Callable<T> callable,
+                             Object[] args) throws Throwable {
+        return Bootstrap.entry().call(name, immutableConfig, originalInvocation,
+                callable, args);
+    }
+
+    /**
+     * Note: this method is useful for spring application.
+     *
+     * @param name                    name
+     * @param immutableConfigSupplier supplier to get immutable config
+     * @param originalInvocation      supplier to get original invocation
+     * @param callable                callable
+     * @param args                    args
+     * @param <T>                     T
+     * @return original return value or fallback result.
+     * @throws Throwable any throwable
+     */
+    public static <T> T call(String name, Supplier<CompositeServiceKeeperConfig> immutableConfigSupplier,
+                             Supplier<OriginalInvocation> originalInvocation, Callable<T> callable,
+                             Object[] args) throws Throwable {
+        return Bootstrap.entry().call(name, immutableConfigSupplier, originalInvocation,
+                callable, args);
+    }
+
+    /**
+     * Run original runnable.
+     *
+     * @param name     name
+     * @param runnable runnable
+     * @param args     args
+     * @throws Throwable any throwable
+     */
+    public static void run(String name, Runnable runnable, Object[] args) throws Throwable {
+        Bootstrap.entry().run(name, runnable, args);
+    }
+
+    /**
+     * Run original runnable with immutable config.
+     *
+     * @param name            name
+     * @param immutableConfig immutable config
+     * @param runnable        runnable
+     * @param args            args
+     * @throws Throwable any throwable
+     */
+    public static void run(String name, CompositeServiceKeeperConfig immutableConfig,
+                           Runnable runnable, Object[] args) throws Throwable {
+        Bootstrap.entry().run(name, immutableConfig, runnable, args);
+    }
+
+    /**
+     * Invoke this method only when you want to custom async result handlers. It' not necessary for you
      * to invoke this method manually. If you don't do this before you firstly tryAsyncInvoke(), the default
      * async result handlers will be empty.
      *
      * @param asyncResultHandlers asyncResultHandlers
      * @see AsyncResultHandler
      */
-    public static void init(List<AsyncResultHandler> asyncResultHandlers) {
-        ServiceKeeperEntryManager.initCompositeEntry(asyncResultHandlers);
+    public static void init(List<AsyncResultHandler<?>> asyncResultHandlers) {
+        Bootstrap.init(BootstrapContext.singleton(asyncResultHandlers));
     }
 }
 ```
@@ -163,4 +253,4 @@ public static void main(String[] args) throws Throwable {
 
 }
 ```
-如上所示，"helloservice.hello"表示当前callbable的名称，通过配置文件或者管控平台配置该名称的限流、熔断等配置将对当前callbale生效；new Object[]{"LiMing"}是用来对当前callbable做参数级服务治理，如果不需该功能可以直接使传递new Object[0]。
+如上所示，"helloservice.hello"表示当前callable的名称，通过配置文件或者管控平台配置该名称的限流、熔断等配置将对当前callbale生效；new Object[]{"LiMing"}是用来对当前callbable做参数级服务治理，如果不需该功能可以直接使传递new Object[0]。

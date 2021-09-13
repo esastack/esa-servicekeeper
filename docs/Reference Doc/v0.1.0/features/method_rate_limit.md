@@ -33,7 +33,7 @@ public Employee list() {
 ```note
 如果配置文件中存在该方法的`@RateLimiter`注解中的同名配置则配置文件中的优先级更高。
 ```
-#### 注解配置简化
+### 注解配置简化
 ```java
 @RequestMapping("/list")
 @ResponseBody
