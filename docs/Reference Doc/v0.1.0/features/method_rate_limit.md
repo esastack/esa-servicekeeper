@@ -33,6 +33,15 @@ public Employee list() {
 ```note
 如果配置文件中存在该方法的`@RateLimiter`注解中的同名配置则配置文件中的优先级更高。
 ```
+#### 注解配置简化
+```java
+@RequestMapping("/list")
+@ResponseBody
+@RateLimiter(500) //表示 limitForPeriod 为 500，limitRefreshPeriod为默认值
+public Employee list() {
+    return new Employee("LiMing", 25, "1403063");
+}
+```
 
 ### 配置文件配置
 如前文所述，只要原始方法可以被`ServiceKeeper`拦截到，你可以不使用`@RateLimiter`注解，直接在配置文件中配限流规则即可完成对原始方法的QPS限制。示例如下：

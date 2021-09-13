@@ -114,6 +114,16 @@ public class CustomizePredicateStrategy implements PredicateStrategy {
 |  predicateStrategy              |  Class<? extends PredicateStrategy>   |   熔断策略       |       PredicateByException.class            |                |   否   |
 |  maxSpendTimeMs              |  int   |   方法最大耗时       |       -1           |    使用根据平均耗时熔断时的必需配置            |    **是**   |
 
+### 注解配置简化
+```java
+@RequestMapping("/list")
+@ResponseBody
+@CircuitBreaker(50.0f) //表示 failureRateThreshold 为50.0f，其他配置为默认值
+public Employee list() {
+    throw new RuntimeException();
+}
+```
+
 ### 配置文件配置
 如前文所述，如果需要熔断的方法可以被`Service Keeper`拦截到，可以不使用`@CircuitBreaker`进行配置，通过在配置文件中配置相应也可完成对原始方法的熔断配置。
 示例如下：
