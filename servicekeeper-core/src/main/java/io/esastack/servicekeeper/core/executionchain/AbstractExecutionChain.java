@@ -137,7 +137,7 @@ public abstract class AbstractExecutionChain implements SyncExecutionChain, Asyn
         } else {
             //if getStartTime() <= 0L,it declare the context is not start,
             //so the throwable is caused by the process of entering moats
-            ctx.setEnterFailsCause((ServiceKeeperNotPermittedException) throwable);
+            ctx.setNotPermittedCause((ServiceKeeperNotPermittedException) throwable);
             exitMoats(ctx);
         }
     }

@@ -62,13 +62,13 @@ public class RequestHandleImpl implements RequestHandle {
     }
 
     @Override
-    public void endWithResult(final Object result) {
+    public void endWithResult(Object result) {
         ExecutionChain chain = tryGetAndUpdateChain();
         chain.endWithResult(ctx, result);
     }
 
     @Override
-    public void endWithError(final Throwable throwable) {
+    public void endWithError(Throwable throwable) {
         Checks.checkNotNull(throwable, "throwable");
 
         ExecutionChain chain = tryGetAndUpdateChain();
