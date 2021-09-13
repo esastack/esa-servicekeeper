@@ -18,7 +18,7 @@ public String list() {
     return "Hello, ServiceKeeper!";
 }
 ```
-##### 若要对业务抛出的异常进行降级，则需要将alsoApplyToBizException置为true,如下：
+##### 若要对业务抛出的异常进行降级，则需要将alsoApplyToBizException置为true,示例如下：
 ```java
 @ResponseBody
 @RequestMapping("/list")
@@ -37,7 +37,7 @@ public String list() {
 - fallbackClass和fallbackMethod可以省略其中之一，但不能同时省略(**仅适用于`@Fallback`**)；当fallbackClass省略时，默认为原始方法所在类；当fallbackMethod省略时，默认降级方法名与原始方法名称相同；
 - alsoApplyToBizException = true 表示对业务抛出的异常也进行降级，若为false，则表示仅对servicekeeper 框架内部抛出的异常进行降级
 
-在使用使用时，允许根据需要在降级方法参数列表中声明导致降级的异常(**该异常必须为ServiceKeeper框架自身抛出的异常**)，如下：
+在使用使用时，允许根据需要在降级方法参数列表中声明导致降级的异常，示例如下：
 ```java
 @Component
 public class CustomizeFallback {
@@ -93,7 +93,7 @@ public class CustomizeFallback {
 
 }
 ```
-如上所示，当熔断、并发数超过限制、QPS超过限制后的降级会执行不同的降级方法，据此可以实现不同异常类型使用不同降级方法。需要注意的是：
+如上所示，当业务抛出异常、熔断、并发数超过限制、QPS超过限制后的降级会执行不同的降级方法，据此可以实现不同异常类型使用不同降级方法。需要注意的是：
 ```note
 1. 如果声明异常，那么该异常必须作为降级方法的第一个参数。
 2. 当前版本对业务异常降级方法不支持异常类型精确匹配，仅支持Throwable类型，需要用户自己在业务代码中对不同的异常类型进行区分处理。
@@ -109,7 +109,7 @@ public String list() {
     return "Hello, ServiceKeeper!";
 }
 ```
-##### 若要对业务抛出的异常进行降级，则需要将alsoApplyToBizException置为true,如下：
+##### 若要对业务抛出的异常进行降级，则需要将alsoApplyToBizException置为true,示例如下：
 ```java
 @ResponseBody
 @RequestMapping("/list")
@@ -132,7 +132,7 @@ public String list() {
     return "Hello, ServiceKeeper!";
 }
 ```
-##### 若要对业务抛出的异常进行降级，则需要将alsoApplyToBizException置为true,如下：
+##### 若要对业务抛出的异常进行降级，则需要将alsoApplyToBizException置为true,示例如下：
 ```java
 @ResponseBody
 @RequestMapping("/list")
@@ -161,7 +161,7 @@ io.esastack.servicekeeper.TestController.list.fallbackValue=Hello ServiceKeeper!
 #降级到指定异常
 io.esastack.servicekeeper.TestController.list.fallbackExceptionClass=java.lang.RuntimeException
 
-#业务异常也进行降级
+#对业务抛出的异常也进行降级
 io.esastack.servicekeeper.TestController.list.alsoApplyToBizException=true
 ```
 ```note
