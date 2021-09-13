@@ -18,12 +18,24 @@ public String list() {
     return "Hello, ServiceKeeper!";
 }
 ```
+##### 若要对业务抛出的异常进行降级，则需要将alsoApplyToBizException置为true,如下：
+```java
+@ResponseBody
+@RequestMapping("/list")
+@RateLimiter(limitForPeriod = 10, limitRefreshPeriod = "60s")
+@Fallback(fallbackClass = CustomizeFallback.class, fallbackMethod = "fallback",
+     alsoApplyToBizException = true)
+public String list() {
+    throw new RuntimeException();
+}
+```
 
 如上，当list()方法降级时会执行CustomizeFallback的fallback()方法。需要注意的是：
 - 降级方法必须声明为public，并且为非final，否则cglib无法正常代理；
 - 必须将CustomizeFallback注入Spring容器或提供无参构造方法（或者降级方法为类的静态方法）；
 - 降级方法和原方法的参数列表及返回值必须相同或者没有参数（允许新增一个导致降级的异常参数，详见下方示例）；
 - fallbackClass和fallbackMethod可以省略其中之一，但不能同时省略(**仅适用于`@Fallback`**)；当fallbackClass省略时，默认为原始方法所在类；当fallbackMethod省略时，默认降级方法名与原始方法名称相同；
+- alsoApplyToBizException = true 表示对业务抛出的异常也进行降级，若为false，则表示仅对servicekeeper 框架内部抛出的异常进行降级
 
 在使用使用时，允许根据需要在降级方法参数列表中声明导致降级的异常(**该异常必须为ServiceKeeper框架自身抛出的异常**)，如下：
 ```java
@@ -69,11 +81,22 @@ public class CustomizeFallback {
         return "Fallback caused by retry!";
     }
 
+    /**
+     * 拦截所有异常(包含业务异常，对于ServiceKeeper抛出的异常，优先匹配上面的更精确的异常类型对应的方法)
+     *
+     * @param ex
+     * @return
+     */
+    public String fallback(Throwable ex) {
+        return "Fallback caused by ex!";
+    }
+
 }
 ```
 如上所示，当熔断、并发数超过限制、QPS超过限制后的降级会执行不同的降级方法，据此可以实现不同异常类型使用不同降级方法。需要注意的是：
 ```note
-如果声明异常，那么该异常必须作为降级方法的第一个参数
+1. 如果声明异常，那么该异常必须作为降级方法的第一个参数。
+2. 当前版本对业务异常降级方法不支持异常类型精确匹配，仅支持Throwable类型，需要用户自己在业务代码中对不同的异常类型进行区分处理。
 ```
 
 #### 2. 返回固定值(String类型)
@@ -86,6 +109,17 @@ public String list() {
     return "Hello, ServiceKeeper!";
 }
 ```
+##### 若要对业务抛出的异常进行降级，则需要将alsoApplyToBizException置为true,如下：
+```java
+@ResponseBody
+@RequestMapping("/list")
+@RateLimiter(limitForPeriod = 10, limitRefreshPeriod = "60s")
+@Fallback(fallbackValue = "Fallback!", alsoApplyToBizException = true)
+public String list() {
+    throw new RuntimeException();
+}
+```
+
 如上，当list()方法降级时会直接返回"Fallback!"。**注意，该方式仅适用于返回值为String类型的方法的降级。**
 
 #### 3. 抛出指定异常
@@ -96,6 +130,16 @@ public String list() {
 @Fallback(fallbackExceptionClass = IllegalArgumentException.class)
 public String list() {
     return "Hello, ServiceKeeper!";
+}
+```
+##### 若要对业务抛出的异常进行降级，则需要将alsoApplyToBizException置为true,如下：
+```java
+@ResponseBody
+@RequestMapping("/list")
+@RateLimiter(limitForPeriod = 10, limitRefreshPeriod = "60s")
+@Fallback(fallbackExceptionClass = IllegalArgumentException.class, alsoApplyToBizException = true)
+public String list() {
+    throw new RuntimeException();
 }
 ```
 
@@ -116,6 +160,9 @@ io.esastack.servicekeeper.TestController.list.fallbackValue=Hello ServiceKeeper!
 
 #降级到指定异常
 io.esastack.servicekeeper.TestController.list.fallbackExceptionClass=java.lang.RuntimeException
+
+#业务异常也进行降级
+io.esastack.servicekeeper.TestController.list.alsoApplyToBizException=true
 ```
 ```note
 如前文所述，不同策略的优先级为：降级到指定方法 > 降级到指定值 > 降级到指定异常
