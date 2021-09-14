@@ -33,13 +33,14 @@ public Employee list(@ArgsCircuitBreaker(failureRateThresholdMap = "{LiMing: 20.
 ### 配置文件配置
 如前文所述，只要原始方法可以被`Service Keeper`拦截到，可以不使用`@ArgsCircuitBreaker`注解，直接在配置文件中配置参数级并发数限制。示例：
 
-#### 1. 更新参数值的并发数限制
+#### 1. 更新参数值的限制
 在配置文件中加入配置：
 ```properties
 com.example.service.Employee.list.arg0.failureRateThreshold={LiMing:80.0f,WangWu:90.0f}
 
 #使用通配符匹配所有参数示例
 com.example.service.Employee.list.arg0.failureRateThreshold={*:80.0f}
+com.example.service.Employee.list.arg0.maxSpendTimeMs={*: 50}
 ```
 其中，com.example.service.Employee.list为方法的全限定名（类名+方法名），arg0为方法第一个参数的名称。
 

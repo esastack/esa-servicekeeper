@@ -414,21 +414,21 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.6</version>
-                <!--                <executions>-->
-                <!--                    <execution>-->
-                <!--                        <id>jacoco-init</id>-->
-                <!--                        <goals>-->
-                <!--                            <goal>prepare-agent</goal>-->
-                <!--                        </goals>-->
-                <!--                    </execution>-->
-                <!--                    <execution>-->
-                <!--                        <id>coverage-report</id>-->
-                <!--                        <phase>test</phase>-->
-                <!--                        <goals>-->
-                <!--                            <goal>report</goal>-->
-                <!--                        </goals>-->
-                <!--                    </execution>-->
-                <!--                </executions>-->
+                <executions>
+                    <execution>
+                        <id>jacoco-init</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>coverage-report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -456,11 +456,8 @@
 
     <distributionManagement>
         <snapshotRepository>
-            <!--            <id>ossrh</id>-->
-            <!--            <url>https://oss.sonatype.org/content/repositories/snapshots</url>-->
-            <id>nexus-snapshots</id>
-            <name>Nexus Snapshots</name>
-            <url>http://nexus.os.adc.com/nexus/content/repositories/snapshots/</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
         <repository>
             <id>ossrh</id>
