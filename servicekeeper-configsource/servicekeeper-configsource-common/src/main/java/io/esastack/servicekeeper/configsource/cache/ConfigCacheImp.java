@@ -61,6 +61,8 @@ public class ConfigCacheImp implements ConfigCache {
                 return config;
             }
 
+            // the standard usage is that args can only be configured in the form of map.
+            // the following method is to be compatible with the previous usage of configuration.
             // fallback to get argTemplate which id is argId.getMethodAndArgId()
             config = configs.get(argId.getMethodAndArgId());
             if (logger.isDebugEnabled()) {

@@ -80,6 +80,8 @@ public final class PropertiesUtils {
             combineToConfigMap(configName, extractValueMap(name, trimmedName, configName, properties), configMap);
         }
 
+        //the standard usage is that args can only be configured in the form of map.
+        //the following method is to be compatible with the previous usage of configuration.
         fillArgConfigsWithTemplate(configMap);
         return configMap;
     }
@@ -308,11 +310,7 @@ public final class PropertiesUtils {
         } else if (isNotMapConfig(configValue)) {
             valueMap.putIfAbsent(parseWithSuffix(trimmedName), configValue);
         } else {
-            if (configName.valueCanBeMap()) {
-                valueMap.putAll(parseToArgConfigs(parseWithSuffix(trimmedName), configValue));
-            } else {
-                logger.error("This config's value can't be map! configName: {}, configValue: {}", name, configValue);
-            }
+            valueMap.putAll(parseToArgConfigs(parseWithSuffix(trimmedName), configValue));
         }
         return valueMap;
     }
@@ -350,6 +348,12 @@ public final class PropertiesUtils {
         }
         if (argConfig.getMaxSpendTimeMs() == null && template.getMaxSpendTimeMs() != null) {
             argConfig.setMaxSpendTimeMs(template.getMaxSpendTimeMs());
+        }
+        if (argConfig.getForcedDisabled() == null && template.getForcedDisabled() != null) {
+            argConfig.setForcedDisabled(template.getForcedDisabled());
+        }
+        if (argConfig.getForcedOpen() == null && template.getForcedOpen() != null) {
+            argConfig.setForcedOpen(template.getForcedOpen());
         }
     }
 
