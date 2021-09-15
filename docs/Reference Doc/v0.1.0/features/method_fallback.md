@@ -35,7 +35,7 @@ public String list() {
 - 必须将CustomizeFallback注入Spring容器或提供无参构造方法（或者降级方法为类的静态方法）；
 - 降级方法和原方法的参数列表及返回值必须相同或者没有参数（允许新增一个导致降级的异常参数，详见下方示例）；
 - fallbackClass和fallbackMethod可以省略其中之一，但不能同时省略(**仅适用于`@Fallback`**)；当fallbackClass省略时，默认为原始方法所在类；当fallbackMethod省略时，默认降级方法名与原始方法名称相同；
-- alsoApplyToBizException = true 表示对业务抛出的异常也进行降级，若为false，则表示仅对servicekeeper 框架内部抛出的异常进行降级
+- alsoApplyToBizException = true 表示对业务抛出的异常也进行降级，若为false，则表示仅对`ServiceKeeper`框架内部抛出的异常进行降级
 
 在使用使用时，允许根据需要在降级方法参数列表中声明导致降级的异常，示例如下：
 ```java

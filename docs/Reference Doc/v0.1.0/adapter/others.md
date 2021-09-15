@@ -89,97 +89,31 @@ public final class ServiceKeeperInvoker {
 
     private ServiceKeeperInvoker() {
     }
-
-    /**
-     * Try to invoke the original method. Get the immutable config from method's annotations,
-     * eg {@link ConcurrentLimiter}, {@link RateLimiter}, {@link CircuitBreaker} and {@link Retryable}.
-     *
-     * @param method   method
-     * @param delegate target object
-     * @param args     args
-     * @return original return value or fallback result.
-     * @throws Throwable any throwable
-     */
+    
     public static Object invoke(Method method, Object delegate, Object[] args) throws Throwable {
         return Bootstrap.entry().invoke(method, delegate, args);
     }
 
-    /**
-     * Try to execute the original method.
-     *
-     * @param aliasName alias name
-     * @param method    method
-     * @param delegate  target object
-     * @param args      args
-     * @return original return value or fallback result.
-     * @throws Throwable any throwable
-     */
     public static Object invoke(String aliasName, Method method, Object delegate, Object[] args) throws Throwable {
         return Bootstrap.entry().invoke(aliasName, method, delegate, args);
     }
 
-    /**
-     * Try to execute the original method.
-     *
-     * @param name            name
-     * @param immutableConfig immutable config
-     * @param callable        callable
-     * @param args            args
-     * @param <T>             T
-     * @return original return value or fallback result.
-     * @throws Throwable any throwable
-     */
     public static <T> T call(String name, CompositeServiceKeeperConfig immutableConfig,
                              Callable<T> callable, Object[] args) throws Throwable {
         return Bootstrap.entry().call(name, immutableConfig, callable, args);
     }
 
-    /**
-     * Note: This interface referenced by dubbo, you must modify carefully.
-     *
-     * @param name     resourceId
-     * @param callable callable
-     * @param args     args
-     * @param <T>      generic type
-     * @return result
-     * @throws Throwable any throwable
-     */
     public static <T> T call(String name, Callable<T> callable, Object[] args) throws Throwable {
         return Bootstrap.entry().call(name, callable, args);
     }
 
-    /**
-     * Try to call the original callable with {@link CompositeServiceKeeperConfig} immutable config and
-     * {@link OriginalInvocation}. The original invocation is useful while locating fallback method.
-     *
-     * @param name               name
-     * @param immutableConfig    immutable config
-     * @param originalInvocation original invocation
-     * @param callable           callable
-     * @param args               args
-     * @param <T>                T
-     * @return original return value or fallback result
-     * @throws Throwable any throwable
-     */
     public static <T> T call(String name, CompositeServiceKeeperConfig immutableConfig,
                              OriginalInvocation originalInvocation, Callable<T> callable,
                              Object[] args) throws Throwable {
         return Bootstrap.entry().call(name, immutableConfig, originalInvocation,
                 callable, args);
     }
-
-    /**
-     * Note: this method is useful for spring application.
-     *
-     * @param name                    name
-     * @param immutableConfigSupplier supplier to get immutable config
-     * @param originalInvocation      supplier to get original invocation
-     * @param callable                callable
-     * @param args                    args
-     * @param <T>                     T
-     * @return original return value or fallback result.
-     * @throws Throwable any throwable
-     */
+    
     public static <T> T call(String name, Supplier<CompositeServiceKeeperConfig> immutableConfigSupplier,
                              Supplier<OriginalInvocation> originalInvocation, Callable<T> callable,
                              Object[] args) throws Throwable {
@@ -187,40 +121,15 @@ public final class ServiceKeeperInvoker {
                 callable, args);
     }
 
-    /**
-     * Run original runnable.
-     *
-     * @param name     name
-     * @param runnable runnable
-     * @param args     args
-     * @throws Throwable any throwable
-     */
     public static void run(String name, Runnable runnable, Object[] args) throws Throwable {
         Bootstrap.entry().run(name, runnable, args);
     }
 
-    /**
-     * Run original runnable with immutable config.
-     *
-     * @param name            name
-     * @param immutableConfig immutable config
-     * @param runnable        runnable
-     * @param args            args
-     * @throws Throwable any throwable
-     */
     public static void run(String name, CompositeServiceKeeperConfig immutableConfig,
                            Runnable runnable, Object[] args) throws Throwable {
         Bootstrap.entry().run(name, immutableConfig, runnable, args);
     }
-
-    /**
-     * Invoke this method only when you want to custom async result handlers. It' not necessary for you
-     * to invoke this method manually. If you don't do this before you firstly tryAsyncInvoke(), the default
-     * async result handlers will be empty.
-     *
-     * @param asyncResultHandlers asyncResultHandlers
-     * @see AsyncResultHandler
-     */
+    
     public static void init(List<AsyncResultHandler<?>> asyncResultHandlers) {
         Bootstrap.init(BootstrapContext.singleton(asyncResultHandlers));
     }
