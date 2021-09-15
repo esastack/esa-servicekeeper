@@ -55,7 +55,7 @@ com.example.service.Employee.list.arg0.limitForPeriod={ZhangSan:30}
 com.example.service.Employee.list.arg0.limitForPeriod={*:30}
 
 #限流周期每10秒更新一次，单位为：ms(毫秒)、s(秒)、m(分钟)等
-com.example.service.Employee.list.arg0.limitRefreshPeriod=10s
+com.example.service.Employee.list.arg0.limitRefreshPeriod={*:10s}
 ```
 
 #### 3. 动态更新被治理的参数值个数限制

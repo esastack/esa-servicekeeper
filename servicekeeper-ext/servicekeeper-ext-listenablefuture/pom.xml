@@ -55,6 +55,11 @@
                                     <package>io.esastack.servicekeeper.ext.listenablefuture</package>
                                 </packages>
                             </exported>
+                            <imported>
+                                <packages>
+                                    <package>esa.commons</package>
+                                </packages>
+                            </imported>
                             <excludes>
                                 <exclude>io.esastack:servicekeeper-*</exclude>
                             </excludes>

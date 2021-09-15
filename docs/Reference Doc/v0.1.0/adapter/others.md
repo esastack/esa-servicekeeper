@@ -85,54 +85,53 @@ demoService.sayHello();
 `Service Keeper`提供了工具类，在原始方法执行前后织入服务治理的相关功能，具体方法如下：
 
 ```java
-public class ServiceKeeperInvoker {
+public final class ServiceKeeperInvoker {
 
     private ServiceKeeperInvoker() {
     }
-
+    
     public static Object invoke(Method method, Object delegate, Object[] args) throws Throwable {
-        return ServiceKeeperEntryManager.getEntry().invoke(method, delegate, args);
+        return Bootstrap.entry().invoke(method, delegate, args);
     }
 
     public static Object invoke(String aliasName, Method method, Object delegate, Object[] args) throws Throwable {
-        return ServiceKeeperEntryManager.getEntry().invoke(aliasName, method, delegate, args);
+        return Bootstrap.entry().invoke(aliasName, method, delegate, args);
     }
 
     public static <T> T call(String name, CompositeServiceKeeperConfig immutableConfig,
                              Callable<T> callable, Object[] args) throws Throwable {
-        return ServiceKeeperEntryManager.getEntry().call(name, immutableConfig, callable, args);
+        return Bootstrap.entry().call(name, immutableConfig, callable, args);
     }
 
     public static <T> T call(String name, Callable<T> callable, Object[] args) throws Throwable {
-        return ServiceKeeperEntryManager.getEntry().call(name, callable, args);
+        return Bootstrap.entry().call(name, callable, args);
     }
 
-    public static <T> T call(String name, Supplier<CompositeServiceKeeperConfig> immutableConfigSupplier,
-                             Supplier<OriginalInvocationInfo> originalInvocationInfoSupplier, Callable<T> callable,
+    public static <T> T call(String name, CompositeServiceKeeperConfig immutableConfig,
+                             OriginalInvocation originalInvocation, Callable<T> callable,
                              Object[] args) throws Throwable {
-        return ServiceKeeperEntryManager.getEntry().call(name, immutableConfigSupplier, originalInvocationInfoSupplier,
+        return Bootstrap.entry().call(name, immutableConfig, originalInvocation,
+                callable, args);
+    }
+    
+    public static <T> T call(String name, Supplier<CompositeServiceKeeperConfig> immutableConfigSupplier,
+                             Supplier<OriginalInvocation> originalInvocation, Callable<T> callable,
+                             Object[] args) throws Throwable {
+        return Bootstrap.entry().call(name, immutableConfigSupplier, originalInvocation,
                 callable, args);
     }
 
     public static void run(String name, Runnable runnable, Object[] args) throws Throwable {
-        ServiceKeeperEntryManager.getEntry().run(name, runnable, args);
+        Bootstrap.entry().run(name, runnable, args);
     }
 
     public static void run(String name, CompositeServiceKeeperConfig immutableConfig,
                            Runnable runnable, Object[] args) throws Throwable {
-        ServiceKeeperEntryManager.getEntry().run(name, immutableConfig, runnable, args);
+        Bootstrap.entry().run(name, immutableConfig, runnable, args);
     }
-
-    /**
-     * Invoke this method only when you want to customize async result handlers. It' not necessary for you
-     * to invoke this method manually. If you don't do this before you firstly tryAsyncInvoke(), the default
-     * async result handlers will be empty.
-     *
-     * @param asyncResultHandlers asyncResultHandlers
-     * @see AsyncResultHandler
-     */
-    public static void init(List<AsyncResultHandler> asyncResultHandlers) {
-        ServiceKeeperEntryManager.initCompositeEntry(asyncResultHandlers);
+    
+    public static void init(List<AsyncResultHandler<?>> asyncResultHandlers) {
+        Bootstrap.init(BootstrapContext.singleton(asyncResultHandlers));
     }
 }
 ```
@@ -163,4 +162,4 @@ public static void main(String[] args) throws Throwable {
 
 }
 ```
-如上所示，"helloservice.hello"表示当前callbable的名称，通过配置文件或者管控平台配置该名称的限流、熔断等配置将对当前callbale生效；new Object[]{"LiMing"}是用来对当前callbable做参数级服务治理，如果不需该功能可以直接使传递new Object[0]。
+如上所示，"helloservice.hello"表示当前callable的名称，通过配置文件或者管控平台配置该名称的限流、熔断等配置将对当前callbale生效；new Object[]{"LiMing"}是用来对当前callbable做参数级服务治理，如果不需该功能可以直接使传递new Object[0]。

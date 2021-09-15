@@ -29,6 +29,15 @@ public Employee list() {
 ```note
 如果配置文件中配置了该方法的最大并发数，则配置文件中的优先级更高。
 ```
+### 注解配置简化
+```java
+@RequestMapping("/list")
+@ResponseBody
+@ConcurrentLimiter(100) //表示threshold为100
+public Employee list() {
+    return new Employee();
+}
+```
 
 ### 配置文件配置
 如前文所述，只要原始方法可以被`ServiceKeeper`拦截到，可以不使用`@ConcurrentLimiter`注解，直接在配置文件中配置并发数阈值即可完成对该方法的隔离和并发数限制。示例如下：

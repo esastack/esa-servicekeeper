@@ -34,12 +34,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import static io.esastack.servicekeeper.configsource.file.utils.MaxSizeLimitUtils.toKey;
 import static io.esastack.servicekeeper.configsource.utils.ResourceIdUtils.parseWithSuffix;
 import static io.esastack.servicekeeper.core.configsource.MoatLimitConfigSource.MAX_CIRCUIT_BREAKER_VALUE_SIZE;
 import static io.esastack.servicekeeper.core.configsource.MoatLimitConfigSource.MAX_CONCURRENT_LIMIT_VALUE_SIZE;
 import static io.esastack.servicekeeper.core.configsource.MoatLimitConfigSource.MAX_RATE_LIMIT_VALUE_SIZE;
+import static io.esastack.servicekeeper.core.configsource.MoatLimitConfigSource.VALUE_MATCH_ALL;
 import static io.esastack.servicekeeper.core.internal.GlobalConfig.ARG_KEEPER_ENABLE_KEY;
 import static io.esastack.servicekeeper.core.internal.GlobalConfig.RETRY_KEEPER_ENABLE_KEY;
 import static io.esastack.servicekeeper.core.internal.GlobalConfig.SERVICE_KEEPER_DISABLE_KEY;
@@ -49,6 +51,12 @@ public final class PropertiesUtils {
     private static final Logger logger = LogUtils.logger();
 
     private static final Set<String> INTERNAL_CONFIG_NAMES = new HashSet<>(3);
+
+    private static final Function<ArgResourceId, ResourceId> TEMPLATE_ID_FUNC_WITHOUT_SPEC_ARG_VALUE
+            = ArgResourceId::getMethodAndArgId;
+
+    private static final Function<ArgResourceId, ResourceId> TEMPLATE_ID_FUNC_WITH_WILDCARD = argResourceId ->
+            new ArgResourceId(argResourceId.getMethodId(), argResourceId.getArgName(), VALUE_MATCH_ALL);
 
     static {
         INTERNAL_CONFIG_NAMES.add(MAX_CIRCUIT_BREAKER_VALUE_SIZE);
@@ -77,10 +85,15 @@ public final class PropertiesUtils {
             if (configName == null) {
                 continue;
             }
-            combineToConfigMap(configName, extractValueMap(name, trimmedName, configName, properties), configMap);
+            combineToConfigMap(configName, extractValueMap(name, trimmedName, properties), configMap);
         }
 
-        fillArgConfigsWithTemplate(configMap);
+        //fill argConfigs with wildcard
+        fillArgConfigsWithTemplate(configMap, TEMPLATE_ID_FUNC_WITH_WILDCARD);
+
+        //the standard usage is that args can only be configured in the form of map.
+        //the following method is to be compatible with the previous usage of configuration.
+        fillArgConfigsWithTemplate(configMap, TEMPLATE_ID_FUNC_WITHOUT_SPEC_ARG_VALUE);
         return configMap;
     }
 
@@ -247,15 +260,17 @@ public final class PropertiesUtils {
     }
 
     /**
-     * Filter config map.
+     * fill arg configs with template
      *
-     * @param configMap original configMap
+     * @param configMap             configMap
+     * @param templateIdComputeFunc function to compute templateId of argConfig
      */
-    private static void fillArgConfigsWithTemplate(final Map<ResourceId, ExternalConfig> configMap) {
+    private static void fillArgConfigsWithTemplate(final Map<ResourceId, ExternalConfig> configMap,
+                                                   Function<ArgResourceId, ResourceId> templateIdComputeFunc) {
         for (Map.Entry<ResourceId, ExternalConfig> entry : configMap.entrySet()) {
             if (entry.getKey() instanceof ArgResourceId) {
                 final ArgResourceId argResourceId = (ArgResourceId) entry.getKey();
-                final ExternalConfig argTemplate = configMap.get(argResourceId.getMethodAndArgId());
+                final ExternalConfig argTemplate = configMap.get(templateIdComputeFunc.apply(argResourceId));
                 if (argTemplate != null) {
                     tryToFillArgConfigWithTemplate(argTemplate, entry.getValue());
                 }
@@ -299,7 +314,6 @@ public final class PropertiesUtils {
     }
 
     private static Map<ResourceId, String> extractValueMap(final String name, final String trimmedName,
-                                                           final ExternalConfigName configName,
                                                            final Properties properties) {
         final String configValue = StringUtils.trim(properties.getProperty(name));
         final Map<ResourceId, String> valueMap = new HashMap<>(8);
@@ -308,11 +322,7 @@ public final class PropertiesUtils {
         } else if (isNotMapConfig(configValue)) {
             valueMap.putIfAbsent(parseWithSuffix(trimmedName), configValue);
         } else {
-            if (configName.valueCanBeMap()) {
-                valueMap.putAll(parseToArgConfigs(parseWithSuffix(trimmedName), configValue));
-            } else {
-                logger.error("This config's value can't be map! configName: {}, configValue: {}", name, configValue);
-            }
+            valueMap.putAll(parseToArgConfigs(parseWithSuffix(trimmedName), configValue));
         }
         return valueMap;
     }
@@ -328,6 +338,15 @@ public final class PropertiesUtils {
         // Fill argConfig's (RateLimitConfig) with template
         if (argConfig.getLimitRefreshPeriod() == null && template.getLimitRefreshPeriod() != null) {
             argConfig.setLimitRefreshPeriod(template.getLimitRefreshPeriod());
+        }
+
+        if (argConfig.getLimitForPeriod() == null && template.getLimitForPeriod() != null) {
+            argConfig.setLimitForPeriod(template.getLimitForPeriod());
+        }
+
+        // Fill argConfig's (ConcurrentLimitConfig) with template
+        if (argConfig.getMaxConcurrentLimit() == null && template.getMaxConcurrentLimit() != null) {
+            argConfig.setMaxConcurrentLimit(template.getMaxConcurrentLimit());
         }
 
         // Fill argConfig's (CircuitBreakerConfig) with template
@@ -350,6 +369,12 @@ public final class PropertiesUtils {
         }
         if (argConfig.getMaxSpendTimeMs() == null && template.getMaxSpendTimeMs() != null) {
             argConfig.setMaxSpendTimeMs(template.getMaxSpendTimeMs());
+        }
+        if (argConfig.getForcedDisabled() == null && template.getForcedDisabled() != null) {
+            argConfig.setForcedDisabled(template.getForcedDisabled());
+        }
+        if (argConfig.getForcedOpen() == null && template.getForcedOpen() != null) {
+            argConfig.setForcedOpen(template.getForcedOpen());
         }
     }
 

@@ -57,6 +57,18 @@ n:执行次数
   n > 1 : sleeptime = delay * multiplier^(n-2)   
   sleeptime > maxDelay 时，sleepttime = maxDelay
 ```
+### 注解配置简化
+```java
+private int count = 0;
+
+@Retryable(5) // 表示maxAttempts的值为5，其他设置均为默认值
+public int service(int arg) throws Exception {
+    if (count++ < 4) {
+        throw new IllegalAccessException("Planned");
+    }
+return count;	
+}
+```
 
 ### 配置文件配置
 如前文所述，只要原始方法可以被`ServiceKeeper`拦截到，你可以不使用`@Retryable`注解，直接在配置文件中配限流规则即可完成对原始方法的QPS限制。示例如下：
