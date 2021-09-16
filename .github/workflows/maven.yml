@@ -14,17 +14,11 @@ on:
       - '**-alpha'
       - '**-tmp'
       - '**-temp'
-  workflow_dispatch:
-    inputs:
-      profiles:
-        description: 'mvn -P <arg>'
-        required: false
-        default: ''
 
 jobs:
   build:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2
@@ -33,13 +27,6 @@ jobs:
       with:
         java-version: 1.8
     - name: Clean and Package
-      if: github.event.inputs.profiles == ''
       run: mvn clean package
-    - name: Clean and Package With Profiles
-      if: github.event.inputs.profiles != ''
-      run: mvn -P ${{ github.event.inputs.profiles }} clean package
-    - name: Upload coverage to Codecov
-      if: github.event_name == 'push'
-      uses: codecov/codecov-action@v1.0.15
-      with:
-          token: ${{secrets.CODECOV_TOKEN}}
+    - name: Show jacoco.xml
+      run: cat servicekeeper-core/target/site/jacoco/jacoco.xml
