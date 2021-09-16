@@ -79,6 +79,7 @@ class FallbackToFunctionTest0 {
         when(context0.getNotPermittedCause()).thenReturn(new ServiceKeeperNotPermittedException(null, null));
         then(fallback0.handle(context0)).isEqualTo("method3");
 
+        when(context0.getNotPermittedCause()).thenReturn(null);
         when(context0.getBizException()).thenReturn(new ServiceRetryException(null, null));
         then(fallback0.handle(context0)).isEqualTo("method5");
 

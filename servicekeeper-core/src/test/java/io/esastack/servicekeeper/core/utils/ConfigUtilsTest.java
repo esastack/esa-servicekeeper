@@ -22,8 +22,11 @@ import io.esastack.servicekeeper.core.config.RateLimitConfig;
 import io.esastack.servicekeeper.core.config.RetryConfig;
 import io.esastack.servicekeeper.core.config.ServiceKeeperConfig;
 import io.esastack.servicekeeper.core.configsource.ExternalConfig;
+import io.esastack.servicekeeper.core.moats.circuitbreaker.predicate.PredicateBySpendTime;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
@@ -68,9 +71,12 @@ class ConfigUtilsTest {
     @Test
     void testCombineWhenExternalConfigIsNotNull() {
         // Case1: ImmutableConfig is null
+        // Case1.0: ExternalConfig's all fields is null
+        ExternalConfig externalConfig = new ExternalConfig();
+        then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig)).isNull();
 
         // Case1.1: Only ExternalConfig's fallbackConfig is not null
-        ExternalConfig externalConfig = new ExternalConfig();
+        externalConfig = new ExternalConfig();
         externalConfig.setFallbackMethodName("testFallback");
         externalConfig.setFallbackClass(RuntimeException.class);
         externalConfig.setFallbackValue("Hello");
@@ -92,6 +98,7 @@ class ConfigUtilsTest {
         then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getConcurrentLimitConfig()).isNull();
         then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getRateLimitConfig()).isNotNull();
         then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getCircuitBreakerConfig()).isNull();
+        then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getRetryConfig()).isNull();
 
         // Case1.3: Only ExternalConfig's concurrentLimitConfig is not null
         externalConfig = new ExternalConfig();
@@ -100,6 +107,7 @@ class ConfigUtilsTest {
         then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getConcurrentLimitConfig()).isNotNull();
         then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getRateLimitConfig()).isNull();
         then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getCircuitBreakerConfig()).isNull();
+        then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getRetryConfig()).isNull();
 
         // Case1.4: Only ExternalConfig's circuitBreakerConfig is not null
         externalConfig = new ExternalConfig();
@@ -108,6 +116,16 @@ class ConfigUtilsTest {
         then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getConcurrentLimitConfig()).isNull();
         then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getRateLimitConfig()).isNull();
         then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getCircuitBreakerConfig()).isNotNull();
+        then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getRetryConfig()).isNull();
+
+        // Case1.4: Only ExternalConfig's retry is not null
+        externalConfig = new ExternalConfig();
+        externalConfig.setMaxAttempts(3);
+        then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getFallbackConfig()).isNull();
+        then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getConcurrentLimitConfig()).isNull();
+        then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getRateLimitConfig()).isNull();
+        then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getCircuitBreakerConfig()).isNull();
+        then(ConfigUtils.combine((ServiceKeeperConfig) null, externalConfig).getRetryConfig()).isNotNull();
 
         // Case2: ImmutableConfig is not null
 
@@ -171,6 +189,11 @@ class ConfigUtilsTest {
 
         externalConfig = new ExternalConfig();
         externalConfig.setFailureRateThreshold(RandomUtils.randomFloat(100));
+        externalConfig.setRingBufferSizeInClosedState(1);
+        externalConfig.setRingBufferSizeInHalfOpenState(1);
+        externalConfig.setIgnoreExceptions(ClassCastUtils.cast(new Class[0]));
+        externalConfig.setPredicateStrategy(PredicateBySpendTime.class);
+        externalConfig.setWaitDurationInOpenState(Duration.ofMillis(1000));
         then(ConfigUtils.combine(immutableConfig, externalConfig).getRateLimitConfig()).isNull();
         then(ConfigUtils.combine(immutableConfig, externalConfig).getFallbackConfig()).isNull();
         then(ConfigUtils.combine(immutableConfig, externalConfig).getConcurrentLimitConfig()).isNotNull();
@@ -197,6 +220,7 @@ class ConfigUtilsTest {
         then(ConfigUtils.combine(immutableConfig, externalConfig).getFallbackConfig()).isNull();
         then(ConfigUtils.combine(immutableConfig, externalConfig).getConcurrentLimitConfig()).isNull();
         then(ConfigUtils.combine(immutableConfig, externalConfig).getCircuitBreakerConfig()).isNotNull();
+        then(ConfigUtils.combine(immutableConfig, externalConfig).getRetryConfig()).isNull();
 
         externalConfig = new ExternalConfig();
         externalConfig.setMaxConcurrentLimit(RandomUtils.randomInt(100));
@@ -204,6 +228,7 @@ class ConfigUtilsTest {
         then(ConfigUtils.combine(immutableConfig, externalConfig).getFallbackConfig()).isNull();
         then(ConfigUtils.combine(immutableConfig, externalConfig).getConcurrentLimitConfig()).isNotNull();
         then(ConfigUtils.combine(immutableConfig, externalConfig).getCircuitBreakerConfig()).isNotNull();
+        then(ConfigUtils.combine(immutableConfig, externalConfig).getRetryConfig()).isNull();
 
         externalConfig = new ExternalConfig();
         externalConfig.setFailureRateThreshold(RandomUtils.randomFloat(100));
@@ -211,13 +236,26 @@ class ConfigUtilsTest {
         then(ConfigUtils.combine(immutableConfig, externalConfig).getFallbackConfig()).isNull();
         then(ConfigUtils.combine(immutableConfig, externalConfig).getConcurrentLimitConfig()).isNull();
         then(ConfigUtils.combine(immutableConfig, externalConfig).getCircuitBreakerConfig()).isNotNull();
+        then(ConfigUtils.combine(immutableConfig, externalConfig).getRetryConfig()).isNull();
 
         externalConfig = new ExternalConfig();
         externalConfig.setFallbackMethodName("fallback");
+        externalConfig.setAlsoApplyFallbackToBizException(true);
         then(ConfigUtils.combine(immutableConfig, externalConfig).getRateLimitConfig()).isNull();
         then(ConfigUtils.combine(immutableConfig, externalConfig).getFallbackConfig()).isNotNull();
         then(ConfigUtils.combine(immutableConfig, externalConfig).getConcurrentLimitConfig()).isNull();
         then(ConfigUtils.combine(immutableConfig, externalConfig).getCircuitBreakerConfig()).isNotNull();
+        then(ConfigUtils.combine(immutableConfig, externalConfig).getRetryConfig()).isNull();
+
+        externalConfig = new ExternalConfig();
+        externalConfig.setMaxAttempts(3);
+        externalConfig.setIncludeExceptions(ClassCastUtils.cast(new Class[0]));
+        externalConfig.setExcludeExceptions(ClassCastUtils.cast(new Class[0]));
+        then(ConfigUtils.combine(immutableConfig, externalConfig).getRateLimitConfig()).isNull();
+        then(ConfigUtils.combine(immutableConfig, externalConfig).getFallbackConfig()).isNull();
+        then(ConfigUtils.combine(immutableConfig, externalConfig).getConcurrentLimitConfig()).isNull();
+        then(ConfigUtils.combine(immutableConfig, externalConfig).getCircuitBreakerConfig()).isNotNull();
+        then(ConfigUtils.combine(immutableConfig, externalConfig).getRetryConfig()).isNotNull();
 
         // Case2.4: Only ImmutableConfig's fallbackConfig is not null
         immutableConfig = ServiceKeeperConfig.builder()
