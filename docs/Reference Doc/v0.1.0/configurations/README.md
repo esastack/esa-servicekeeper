@@ -9,7 +9,7 @@ sort: 3000
 ### maven 依赖
 ```xml
 <dependency>
-    <groupId>esa</groupId>
+    <groupId>io.esastack</groupId>
     <artifactId>servicekeeper-configsource-file</artifactId>
     <version>${servicekeeper.version}</version>
 </dependency>
