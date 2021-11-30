@@ -2,7 +2,7 @@
 sort: 2
 ---
 
-# SpringBoo接入指南
+# SpringBoot接入指南
 
 ### 说明
 - **该扩展包中默认开启了对带有SpringMVC中`@RequestMapping`等注解方法的代理，如果是Restlight应用请使用Restlight接入方式，因为Restlight中使用的注解包名与SpringMVC中的不同**
