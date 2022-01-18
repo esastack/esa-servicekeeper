@@ -51,7 +51,8 @@ com.example.service.Employee.list.arg0.maxSpendTimeMs={*: 50}
 com.example.service.Employee.list.arg0.failureRateThreshold={ZhangSan:30.0f}
 ```
 
-#### 3. 动态更新被治理的参数值个数限制
+#### 3. 动态更新参数限制
+并不是所有的参数都支持动态更新，其中支持动态更新的参数项：[动态参数配置项](../configurations/dynamic.md)
 ```properties
 #限制被治理的参数值个数为50
 com.example.service.Employee.list.arg0.maxCircuitBreakerValueSize=50

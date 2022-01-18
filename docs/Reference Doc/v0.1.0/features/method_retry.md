@@ -87,3 +87,6 @@ com.example.service.DemoClass.demoMethod.multiplier=1.1
 1. 如果想拦截Error,需要显示设置includeExceptions = {Error.class或Throwable.class}。一般情况下，出现Error再重试没有太大的意义，非特殊场景不推荐拦截Error
 2. 如果在同一个类中包含了多个Retryable方法，同时包含一个或多个Recover方法，请确保每个Recover方法返回值类型只会和其中一个Retryable方法的返回类型相同，否则可能会出现Recover匹配错误,执行时将抛出异常
 ```
+
+#### 动态更新参数限制
+并不是所有的参数都支持动态更新，其中支持动态更新的参数项：[动态参数配置项](../configurations/dynamic.md)

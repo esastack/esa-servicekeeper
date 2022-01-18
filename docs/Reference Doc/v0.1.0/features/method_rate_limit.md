@@ -57,3 +57,6 @@ io.esastack.servicekeeper.demo.QpsLimitDemo.demoMethod.limitRefreshPeriod=10m
 ```note
 通过配置文件配置限流规则时周期内流量阈值 `limitForPeriod`为必需配置，限流周期`limitRefreshPeriod`如不配置默认为1s。
 ```
+
+#### 动态更新参数限制
+并不是所有的参数都支持动态更新，其中支持动态更新的参数项：[动态参数配置项](../configurations/dynamic.md)

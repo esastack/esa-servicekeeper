@@ -51,3 +51,6 @@ io.esastack.servicekeeper.demo.ConcurrentLimitDemo.demoMethod.maxConcurrentLimit
 ```note
 通过配置文件配置并发数限制时 `maxConcurrentLimit`为必需配置。
 ```
+
+#### 动态更新参数限制
+并不是所有的参数都支持动态更新，其中支持动态更新的参数项：[动态参数配置项](../configurations/dynamic.md)

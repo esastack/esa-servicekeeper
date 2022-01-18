@@ -167,3 +167,6 @@ io.esastack.servicekeeper.TestController.list.alsoApplyToBizException=true
 ```note
 如前文所述，不同策略的优先级为：降级到指定方法 > 降级到指定值 > 降级到指定异常
 ```
+
+#### 动态更新参数限制
+并不是所有的参数都支持动态更新，其中支持动态更新的参数项：[动态参数配置项](../configurations/dynamic.md)
