@@ -39,7 +39,7 @@ public Employee list(@ArgsRateLimiter(limitRefreshPeriod = "10s", limitForPeriod
 com.example.service.Employee.list.arg0.limitForPeriod={LiMing:10,WangWu:20}
 
 #使用通配符匹配所有参数示例
-com.example.service.Employee.list.arg0.limitForPeriod={*:30}
+com.example.service.Employee.list.arg0.limitForPeriod={*:30,WangWu:20}
 
 ```
 

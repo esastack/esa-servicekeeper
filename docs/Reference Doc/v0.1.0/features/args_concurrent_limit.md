@@ -39,7 +39,7 @@ public Employee list(@ArgsConcurrentLimiter(thresholdMap = "{LiMing: 2, WangWu: 
 com.example.service.Employee.list.arg0.maxConcurrentLimit={LiMing:10,WangWu:20}
 
 #使用通配符匹配所有参数示例
-com.example.service.Employee.list.arg0.maxConcurrentLimit={*:30}
+com.example.service.Employee.list.arg0.maxConcurrentLimit={*:30,WangWu:20}
 ```
 其中，`com.example.service.Employee.list`为方法的全限定名（类名+方法名），arg0为方法第一个参数的名称。
 
