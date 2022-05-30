@@ -37,6 +37,7 @@ import static java.util.Collections.unmodifiableSet;
 public class ImmutableConfigsImpl implements ImmutableConfigs {
 
     private final Map<ResourceId, CompositeServiceKeeperConfig> configs = new ConcurrentHashMap<>(64);
+    private static final CompositeServiceKeeperConfig NULL_CONFIG = new CompositeServiceKeeperConfig(null, null, null);
 
     @Override
     public Object getConfig(ResourceId resourceId, ConfigType type) {
@@ -115,8 +116,24 @@ public class ImmutableConfigsImpl implements ImmutableConfigs {
     @Override
     public CompositeServiceKeeperConfig getOrCompute(ResourceId resourceId,
                                                      Supplier<CompositeServiceKeeperConfig> immutableConfig) {
+        //Use NULL_CONFIG instead of null, because the ConcurrentHashmap does not save the key
+        //whose value is null, which will lead to multiple entries into the get() of ConcurrentHashmap,
+        //resulting in multiple threads waiting here.
+        CompositeServiceKeeperConfig config = configs.computeIfAbsent(resourceId, (key) -> {
+            if (immutableConfig == null) {
+                return NULL_CONFIG;
+            }
 
-        return configs.computeIfAbsent(resourceId, (key) -> immutableConfig == null ? null : immutableConfig.get());
+            CompositeServiceKeeperConfig configTem = immutableConfig.get();
+            if (configTem == null) {
+                return NULL_CONFIG;
+            }
+            return configTem;
+        });
+        if (config == NULL_CONFIG) {
+            return null;
+        }
+        return config;
     }
 
     private Object getArgConfig(ArgResourceId argId, ConfigType type) {
