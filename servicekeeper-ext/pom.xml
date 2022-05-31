@@ -19,7 +19,7 @@
     <parent>
         <groupId>io.esastack</groupId>
         <artifactId>servicekeeper-parent</artifactId>
-        <version>0.1.1-BETA</version>
+        <version>0.1.1-RC-SNAPSHOT</version>
     </parent>
 
     <artifactId>servicekeeper-ext</artifactId>
